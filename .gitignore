@@ -1,0 +1,15 @@
+# Generated output. All of it is reproducible from run.py with the same --seed,
+# and out/dq_answer_key.json is the DQ marking scheme -- it must not be
+# published alongside the data it grades.
+out/
+
+__pycache__/
+*.pyc
+
+# Optional real code-set drops (FDA product.txt, RxNorm Prescribable Content).
+# Licensed redistributables -- fetch them, don't commit them.
+refdata/
+
+.DS_Store
+.venv/
+venv/

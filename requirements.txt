@@ -1,0 +1,7 @@
+faker>=30
+openpyxl>=3.1
+
+# only needed to push to Fabric
+azure-storage-file-datalake>=12.14
+azure-identity>=1.17
+confluent-kafka>=2.5
