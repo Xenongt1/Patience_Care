@@ -5,7 +5,9 @@ Analytics Platform, on schemas anchored to real published healthcare standards.
 
 Companion document: **`data-generation-schema-spec.md`** — the field-level
 specification, with citations for every code set and a verify-before-coding
-checklist. Read that first; this README is just how to run the thing.
+checklist. It is maintained outside this repository; ask Mubarak for a copy.
+Read it first if you are changing schemas; this README is just how to run the
+thing.
 
 ---
 

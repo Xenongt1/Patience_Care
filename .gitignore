@@ -10,6 +10,9 @@ __pycache__/
 # Licensed redistributables -- fetch them, don't commit them.
 refdata/
 
+# Field-level schema specification. Maintained outside this repository.
+data-generation-schema-spec.md
+
 .DS_Store
 .venv/
 venv/
