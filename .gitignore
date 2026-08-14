@@ -13,6 +13,11 @@ refdata/
 # Field-level schema specification. Maintained outside this repository.
 data-generation-schema-spec.md
 
+# The .docx build of the data contract. DATA-CONTRACT.md is the source of truth
+# and is tracked; this is a generated artefact for circulation only. Regenerate:
+#   pandoc DATA-CONTRACT.md -o meridian_data_contract.docx --from=gfm --toc
+*.docx
+
 .DS_Store
 .venv/
 venv/
