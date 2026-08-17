@@ -20,8 +20,8 @@ Two things follow from that:
   about design quality — the generator stands in for real EHR, billing, pharmacy, capacity and
   rostering systems, so its output is the source system by definition.
 - **This document is not the warehouse model.** Nothing here is dimensional. Bronze lands it
-  verbatim; Silver conforms it; Gold models it. Section 9 lists what is deliberately left for
-  those layers.
+  verbatim; Silver conforms it; Gold models it. Conforming, masking, surrogate keys and any
+  dimensional model are deliberately left to those layers.
 
 ### How to regenerate
 
@@ -98,7 +98,7 @@ can be mis-implemented.** The right-hand column is what the field is actually ca
 | "bed occupancy" | `occupied_beds` / **`staffed_beds`** | Three bed counts exist — `licensed_beds`, `staffed_beds`, `blocked_beds`. NHSN and operational practice use **staffed**. Using licensed understates occupancy and will not reconcile against `beds/nhsn_weekly`. |
 | "at risk of running out of bed capacity" | `is_at_capacity`, a **source column**, true at `occupancy_rate >= 0.85` | `occupancy_rate` is on a **0–1 scale**, not 0–100. A 0–100 range check passes silently and every figure is off by 100×. Do not re-derive this flag at a different threshold. |
 | "at risk of a pharmacy stockout" | `days_on_hand` vs `reorder_point`; `is_stockout` for an actual zero | `par_level`, `reorder_point` and `safety_stock` are **our additions** — FHIR `InventoryReport` has no reorder concept, so without them "at risk" cannot be expressed |
-| "critical patient-monitoring alerts" | **Derived in Silver** — NEWS2 aggregate from the six vitals parameters. Thresholds: ≥5 urgent, ≥7 emergency | **Not emitted.** The stream carries `warning` (single-parameter artifact flag) and `is_artifact`, which are *not* NEWS2. See §9. |
+| "critical patient-monitoring alerts" | **Derived in Silver** — NEWS2 aggregate from the six vitals parameters. Thresholds: ≥5 urgent, ≥7 emergency | **Not emitted.** The stream carries `warning` (single-parameter artifact flag) and `is_artifact`, which are *not* NEWS2. |
 | "patient wait times in **outpatient** departments" | `outpatient_visits`: `arrival_time → provider_seen_time` (patient wait), or `appointment_time → provider_seen_time` (appointment adherence) | Two different questions — pick one deliberately. **Exclude `is_no_show = 1`**, whose timestamps are legitimately null; counting them as a zero wait understates the metric. Early arrival makes `arrival_time − appointment_time` negative and is not an inversion. |
 | "patient wait times in **emergency** departments" | `ed_stays`: `triage_time → provider_seen_time` (door-to-doctor) | Not the same interval as the outpatient one — ED has no appointment, so there is no adherence measure. Do not average the two together. |
 
@@ -343,7 +343,7 @@ length-of-stay or cost across facilities compares patient mix, not performance.
 comorbidity, **NONE** neither. The triplet is why one clinical condition maps to several codes.
 
 <sup>3</sup> **medical DRGs only.** No surgical DRGs are emitted, because no procedure feed
-exists to justify one — see §9. `relative_weight` is approximate and **must not be used for
+exists to justify one. `relative_weight` is approximate and **must not be used for
 reimbursement modelling**; replace it with the CMS FY relative weight file first.
 
 
@@ -889,7 +889,7 @@ day with no overlap, each staffed against the unit's census ratio. `OC` (on-call
 **cover, not rostered presence**: it is a fixed small team, not scaled from census. A
 nurse-to-patient ratio computed against `OC` is meaningless — it yields one nurse "covering" a
 50-bed unit. **Exclude `OC` from any mandated-ratio or staffing-adequacy measure** and report it
-separately. See §9 on why the earlier two-shift model was replaced.
+separately.
 
 <sup>3</sup> **legitimate null, not a defect.** `Actual Hours` is null while `Status` is
 `scheduled`, `swapped` or `cancelled` — the shift has not been worked yet. These rows are
@@ -1030,7 +1030,7 @@ defect — there is no third case.
 | `outpatient_visits.seen_by_provider_id` | `dim_staff.staff_id` | `STF…` | Must resolve |
 | `admissions.drg_code` | `dim_drg.drg_code` | MS-DRG | Must resolve |
 | `diagnoses.icd_code` | `dim_icd10.icd10_code` | ICD-10-CM | Must resolve |
-| `admissions.index_encounter_id` | `encounters.Id` | `ENC…` | **Nullable, and resolves only within the window** — a readmission whose index stay pre-dates the extract points at nothing. Not an orphan defect. See §9.2. |
+| `admissions.index_encounter_id` | `encounters.Id` | `ENC…` | **Nullable, and resolves only within the window** — a readmission whose index stay pre-dates the extract points at nothing. Not an orphan defect — restrict any readmission-rate numerator to readmissions whose index stay is in the eligible denominator. |
 | `claim_header.encounter_id` | `encounters.Id` | `ENC…` | Must resolve |
 | `claim_line.patient_control_number` | `claim_header.patient_control_number` | `PCN…` | Must resolve; 1:N |
 | `remit.patient_control_number` | `claim_header.patient_control_number` | `PCN…` | Must resolve; 1:1 |
@@ -1132,128 +1132,6 @@ it is a generator bug or an injected defect doing its job.
 
 ---
 
-## 9. Gaps — what this contract does not yet deliver
-
-Ranked by whether a **named client requirement** cannot be met without it. This is the answer
-to "does it need implementing": the MUST items block a stated deliverable, the SHOULD items
-block a downstream design that has already been written, and the COULD items are realism.
-
-### 9.0 Closed since the first issue of this contract
-
-These were MUST or SHOULD gaps in the previous revision and are now implemented. They are listed
-because a consumer who read the earlier revision will have designed around their absence.
-
-| Was missing | Now |
-|---|---|
-| Outpatient encounters | `ehr/outpatient_visits` feed, `OPC`/`ASC` unit types, four-point wait timeline |
-| Urgent care facility emitted nothing | `450601` now emits, including an `urgentcare` encounter class |
-| Encounter volume ~10× under the brief | Outpatient volume brings the run in line with *"several million visits a year"* |
-| No file-level failure modes | `missing_file` and `truncated_file` defect classes, both in the answer key |
-| `ed_stays` had no `encounter_id` | Emitted and 100% populated — a single visit fact is now buildable |
-| `provider_seen_time` not emitted | Emitted on **both** `ed_stays` and `outpatient_visits` — door-to-doctor is computable |
-| `drg_code` null | Populated on every admission, resolved by `reference/dim_drg` |
-| No ICD-10 / DRG lookup tables | `reference/dim_icd10` and `reference/dim_drg` |
-| `source_system` absent from batch EHR | Present, and date format + enum casing now vary by it |
-| Reference dimensions never changed | Weekly hires, terminations and unit transfers — `dim_staff` is SCD-2 material |
-| Payer names never varied | Three spellings per payer in the claims feeds |
-| No legitimate nulls | `Actual Hours` null until a shift is worked; no-show visit timestamps null |
-| Only two shift types | `D`/`E`/`N` three-shift pattern plus `OC` cover |
-| `pending_discharges` dead | Populated |
-| Staff rows with `termination_date` ≤ `hire_date` | Minimum employment period enforced |
-| `is_readmission_related`, `is_high_risk`, `last_restocked_at` | All three emitted and documented |
-| Outpatient encounters carried an `-ED` unit | Corrected — `encounters.unit_id` is now the real unit, including `OPC`/`ASC` |
-
-### 9.1 MUST — blocks a stated client requirement
-
-*None currently open.* Every gap that blocked a named client requirement in the previous
-revision is listed in §9.0. This is a statement about **coverage, not quality** — it means each
-stated question has source data behind it, not that the numbers are validated. See the caveat at
-the head of §9.2.
-
-### 9.2 SHOULD — blocks a downstream design already written
-
-**NEWS2 is not emitted.** The client asks for *"an unusually high rate of critical
-patient-monitoring alerts"*. The six parameters and the thresholds (≥5 urgent, ≥7 emergency)
-exist, so the score is derivable in Silver — but nothing in the contract carries it, and the
-`warning` field is a single-parameter artifact flag, not an alert. Also note the alarm-rate
-literature (alarms per bed per day, share clinically actionable) was never retrieved, so the
-critical-alert tile has no defensible benchmark yet.
-
-**No procedure feed.** `reference/dim_drg` therefore carries medical DRGs only. Surgical case
-mix, OR utilisation and procedure-level costing are all unbuildable, and `ASC` visits record
-that a surgery happened without recording which one.
-
-**`relative_weight` in `dim_drg` is synthetic.** Approximate values, not the CMS FY relative
-weight file. Adequate for building a case-mix *pipeline*; **not** adequate for any statement
-about reimbursement or payer mix. Replace the file before quoting a figure.
-
-**Readmission linkage is only as good as `index_encounter_id`.** Readmissions whose index stay
-pre-dates the extract window carry an `index_encounter_id` that resolves to nothing. That is
-faithful — a real extract has the same edge — but any readmission-rate measure **must** restrict
-its numerator to readmissions whose index stay is itself in the eligible denominator, or the
-rate is computed across two different populations and is wrong at every window length.
-
-### 9.3 COULD — realism and test coverage
-
-- **No appointment-scheduling history.** `outpatient_visits` carries the appointment that
-  happened, not reschedules or cancellations, so clinic-utilisation and slot-fill analysis has
-  no denominator.
-- **No-show risk is uncorrelated with patient attributes.** Drawn at a flat rate, so a model
-  built on it will find nothing — deliberate for now, but it means the feed cannot support a
-  predictive no-show use case.
-
-### 9.4 Explicitly out of scope for this contract
-
-Not gaps — deliberate boundaries.
-
-- **No PHI masking.** `ehr/patients` emits the full identity block — `SSN`, `Drivers`,
-  `Passport`, `Maiden`, `Address`, `Lat`, `Lon`, `phone`, `email`. This is intentional and
-  should **not** be "fixed" here: those columns are what give the Silver masking layer
-  something to prove. Removing them lets the pipeline pass a HIPAA test it has not earned.
-  Masking is a Silver responsibility, and the rule there should be **deny by default** — an
-  allow-list of columns permitted through — not a named list of columns to mask.
-- **No surrogate keys, no `dim_date`, no star schema, nothing pre-joined.** Every feed arrives
-  at its own grain and cadence, as a real source would. A generator that handed over
-  pre-conformed tables would let the pipeline pass tests it has not earned.
-- **No aggregation.** Vitals arrive at full 5-minute, per-parameter grain — ~890,000 events a
-  day at steady state. Choosing an aggregation grain is a Gold decision.
-
----
-
-## 10. Change control
-
-This contract changes when the generator changes, not before. To propose one:
-
-1. Raise it against the generator repository, naming the client requirement or downstream
-   design that cannot be satisfied as-is.
-2. If accepted, the generator changes and this document is regenerated from a fresh run.
-3. Breaking payload changes bump `schema_version` on the affected stream.
-
-**Do not conform the contract to a downstream expectation.** If Silver expects a type the
-source does not emit, the fix is in Silver, or in the generator by agreement — never a
-documentation edit that makes the mismatch invisible.
-
----
-
-## 11. Known open items carried from the schema specification
-
-- Real NDC and RXCUI values. Currently NDC-shaped and RXCUI-shaped synthetic codes. Drop the
-  FDA `product.txt` and RxNorm Prescribable Content release into `refdata/` and they are used
-  automatically. Verify the live `product.txt` header casing first — FDA docs render CamelCase
-  but the file appears to be uppercase.
-- MS-DRG **relative weights**. Assignment itself is now implemented — `admissions.drg_code` is
-  populated and resolves to `reference/dim_drg` — but the weights are approximate synthetic
-  values, not the CMS FY relative weight file. Medical DRGs only, since there is no procedure
-  feed. Do not model reimbursement on them (see §9.2).
-- NEWS2 systolic BP and SpO₂ Scale 2 bands need confirming against the official RCP chart; the
-  PDF extracted from disagreed with the canonical table.
-- Alarm rates — alarms per bed per day, share clinically actionable — not retrieved.
-- Whether a CDC NHSN *hospital* nurse-staffing-hours schema exists; if so it is a better anchor
-  for `dim_staff` than nursing-home PBJ.
-- Whether the validation team exposes a per-row **rejection reason**. The contract can show how
-  many rows were rejected, not why.
-
----
 
 *Synthetic data throughout. The mechanics and schemas are real and citable; the numbers are
 invented. No figure from this generator is a finding about a real hospital, and none may be
