@@ -100,15 +100,26 @@ UNIT_TYPES = [
     UnitType("Postpartum",             "PP",     4.0, False, False, 2.1,  1.00, 0.055, 0),
     UnitType("Psychiatric",            "PSY",    6.0, False, False, 7.8,  5.50, 0.060, 0),
     UnitType("Rehabilitation",         "REHAB",  5.0, False, False, 11.0, 6.00, 0.030, 0),
+    # Outpatient. The client request names outpatient wait times as one of its
+    # two stated wait-time problems ("emergency and outpatient departments"),
+    # so these cannot be omitted. They hold no inpatient beds -- bed_share 0 and
+    # the bed count is sized from appointment volume in dimensions._build_units.
+    # nurse_ratio: [ASSUMPTION] -- Cal. Title 22 sec. 70217 mandates ratios for
+    #   inpatient units only and is silent on outpatient clinics.
+    UnitType("Outpatient Clinic",      "OPC",    8.0, False, False, 0.0,  0.00, 0.000, 0),
+    UnitType("Ambulatory Surgery",     "ASC",    4.0, False, True,  0.0,  0.00, 0.000, 0),
 ]
+
+# Unit codes that see scheduled outpatient appointments rather than admissions.
+OUTPATIENT_UNIT_CODES = ("OPC", "ASC")
 
 # Small facilities do not carry every unit type.
 UNITS_BY_FACILITY_TYPE = {
     "Teaching":           [u.unit_code for u in UNIT_TYPES],
-    "General Acute Care": ["ED","MICU","SICU","CVICU","SDU","TELE","PACU","MS","ONC","PEDS","LD","PP","PSY"],
-    "Regional":           ["ED","MICU","SDU","TELE","PACU","MS","PEDS","LD","PP"],
-    "Community":          ["ED","MICU","TELE","PACU","MS"],
-    "Urgent Care":        ["ED"],
+    "General Acute Care": ["ED","MICU","SICU","CVICU","SDU","TELE","PACU","MS","ONC","PEDS","LD","PP","PSY","OPC","ASC"],
+    "Regional":           ["ED","MICU","SDU","TELE","PACU","MS","PEDS","LD","PP","OPC","ASC"],
+    "Community":          ["ED","MICU","TELE","PACU","MS","OPC"],
+    "Urgent Care":        ["ED","OPC"],
 }
 
 # ---------------------------------------------------------------------------
@@ -164,6 +175,52 @@ BOARDING_MIN = (95, 0.85)              # admit decision -> ED departure (ED-2)
 # Boarding inflates when the receiving unit is full — that link is what makes
 # the operational dashboard's capacity story real rather than decorative.
 BOARDING_CAPACITY_PENALTY = 2.6
+
+# triage -> first physician/APP contact. Without this, door-to-doctor cannot be
+# computed at all, and it is a standard ED measure alongside OP-18/ED-1/ED-2.
+# [ASSUMPTION] — CMS retired the OP-20 door-to-diagnostic-evaluation measure and
+#   publishes no current national median, so these are clinically conventional
+#   rather than sourced. Sicker patients are seen faster.
+PROVIDER_SEEN_MIN_BY_ESI = {
+    1: (4, 0.50), 2: (14, 0.65), 3: (34, 0.80), 4: (48, 0.85), 5: (55, 0.90),
+}
+
+# ---------------------------------------------------------------------------
+# Outpatient
+#
+# The client request names outpatient wait times as one of two stated
+# wait-time problems, and outpatient is normally the bulk of a health
+# network's visit volume — which is also what closes the gap to the stated
+# "several million patient visits a year".
+#
+# All [ASSUMPTION]. No open source publishes outpatient visits per ED arrival,
+# appointment punctuality distributions, or clinic cycle times at this
+# granularity.
+#
+# SIZING NOTE: outpatient dominates encounter volume. At 6.0 the generator
+# produces roughly 7x the encounters (and therefore claims and diagnoses) of an
+# ED+inpatient-only run. Lower this if batch output size matters more than
+# matching the client's stated volume.
+# ---------------------------------------------------------------------------
+
+OUTPATIENT_PER_ED_ARRIVAL = 6.0        # outpatient appointments per ED arrival
+# Clinics run business hours, so appointments are not spread across 24h.
+OUTPATIENT_HOUR_WEIGHTS = {
+    7: 0.02, 8: 0.09, 9: 0.12, 10: 0.13, 11: 0.11, 12: 0.05,
+    13: 0.10, 14: 0.12, 15: 0.11, 16: 0.09, 17: 0.05, 18: 0.01,
+}
+OUTPATIENT_DOW_WEIGHTS = [1.06, 1.04, 1.03, 1.00, 0.97, 0.22, 0.08]  # Mon..Sun
+# Patient arrival relative to appointment time, minutes. Most arrive early.
+OUTPATIENT_ARRIVAL_OFFSET_MIN = (-18, 12)
+# Appointment time -> provider seen. This is the outpatient wait measure, and
+# it degrades as the clinic session fills up.
+OUTPATIENT_SEEN_DELAY_MIN = (16, 0.85)
+OUTPATIENT_VISIT_MIN = (22, 0.55)      # seen -> departure
+OUTPATIENT_NO_SHOW_RATE = 0.081        # [ASSUMPTION] appointment never arrives
+# Share of outpatient encounters that are same-day surgery rather than clinic.
+OUTPATIENT_ASC_SHARE = 0.06
+# Same-day surgery escalating to an inpatient admission.
+ASC_ADMIT_PROB = 0.024
 
 # ---------------------------------------------------------------------------
 # Payer mix
@@ -325,7 +382,22 @@ SHORTAGE_REASONS = [
 #   vacancy / turnover / agency-usage rates were not verified. Do not cite.
 # ---------------------------------------------------------------------------
 
-SHIFTS = [("D", 7, 12), ("N", 19, 12)]     # code, start hour, length hours
+# code, start hour, length hours.
+#
+# A clean three-shift 8-hour pattern, because "by department and shift" is a
+# stated client question and the answer has to be coherent. The previous
+# two-shift 12-hour pattern (D 07-19, N 19-07) already covered the full day, so
+# bolting an evening shift onto it double-counted the same hours and made every
+# evening look catastrophically understaffed against a census requirement it
+# was never rostered to meet.
+#
+# Each of D/E/N now covers its own block and is staffed to the census ratio.
+# On-call sits outside the pattern: it is cover, rostered as a fixed small team
+# rather than scaled from census, and a mandated-ratio KPI is not computed
+# against it.
+SHIFTS = [("D", 7, 8), ("E", 15, 8), ("N", 23, 8), ("OC", 19, 12)]
+# Night conventionally runs slightly leaner than day. [ASSUMPTION]
+SHIFT_COVERAGE_SHARE = {"D": 1.00, "E": 0.96, "N": 0.90}
 CALL_OUT_RATE = 0.043
 OVERTIME_RATE = 0.11
 CONTRACT_STAFF_BASE = 0.09                 # baseline agency share
@@ -342,6 +414,69 @@ UNDERSTAFF_BIAS = {
 UNDERSTAFF_DEFAULT = 0.99
 WEEKEND_STAFF_PENALTY = 0.94
 STAFF_PER_BED = 2.4                        # headcount pool sizing
+
+# Staff churn inside the observation window, so the dimension actually changes
+# between weekly snapshots and there is SCD-2 history to model. Without this
+# every dim_staff snapshot is byte-identical and slowly-changing-dimension
+# handling has nothing to be tested against.
+STAFF_HIRES_PER_WEEK = (2, 9)              # per facility [ASSUMPTION]
+STAFF_TERMINATIONS_PER_WEEK = (1, 7)       # per facility [ASSUMPTION]
+STAFF_UNIT_TRANSFER_PER_WEEK = (0, 4)      # per facility [ASSUMPTION]
+# Minimum employment span. Independent draws previously produced termination
+# dates on or before the hire date -- a defect that was never recorded in the
+# answer key, so nobody could account for it.
+MIN_EMPLOYMENT_DAYS = 21
+
+# ---------------------------------------------------------------------------
+# Source-system provenance
+#
+# The client states facilities "run on a mix of electronic health record (EHR)
+# systems". That mix is what makes standardisation a real problem rather than a
+# formality: each system writes timestamps and enum casing its own way.
+# System names are generic on purpose -- naming real vendors in synthetic data
+# invites the output being mistaken for a real extract.
+# ---------------------------------------------------------------------------
+
+EHR_SYSTEMS = {
+    "330101": "MERIDIAN_EHR_CORE",
+    "330102": "ACADEMIC_CIS",          # teaching hospital runs its own
+    "050201": "MERIDIAN_EHR_CORE",
+    "030301": "REGIONAL_HIS",
+    "140401": "MERIDIAN_EHR_CORE",
+    "110501": "COMMUNITY_CARE_EHR",
+    "450601": "URGENTCARE_CLOUD",
+}
+# Per-system timestamp format. Silver has to normalise these; Bronze must not.
+EHR_DATE_FORMATS = {
+    "MERIDIAN_EHR_CORE": "%Y-%m-%d %H:%M:%S",
+    "ACADEMIC_CIS":      "%Y-%m-%dT%H:%M:%S",
+    "REGIONAL_HIS":      "%d/%m/%Y %H:%M",
+    "COMMUNITY_CARE_EHR": "%m/%d/%Y %H:%M",
+    "URGENTCARE_CLOUD":  "%Y-%m-%d %H:%M",
+}
+# Per-system enum casing, applied to encounter_class and disposition values.
+EHR_ENUM_CASE = {
+    "MERIDIAN_EHR_CORE": "lower",
+    "ACADEMIC_CIS":      "lower",
+    "REGIONAL_HIS":      "upper",
+    "COMMUNITY_CARE_EHR": "title",
+    "URGENTCARE_CLOUD":  "lower",
+}
+
+# Payer name spelling variants, keyed by payer_id. Real claim files carry the
+# payer's name as the clearinghouse received it, so the same payer arrives
+# spelled several ways and Silver has to resolve them to one canonical name.
+PAYER_NAME_VARIANTS = {
+    "PAY001": ["Medicare Part A/B", "MEDICARE PART A/B", "Medicare A/B", "medicare part a+b"],
+    "PAY002": ["Vantage Medicare Advantage", "VANTAGE MED ADV", "Vantage MA", "Vantage Medicare Adv."],
+    "PAY003": ["State Medicaid FFS", "STATE MEDICAID", "St Medicaid FFS"],
+    "PAY004": ["Harborview Medicaid MC", "HARBORVIEW MCO", "Harborview Medicaid Managed Care"],
+    "PAY005": ["Atlas Health Commercial", "ATLAS HEALTH", "Atlas Hlth Comm"],
+    "PAY006": ["Northwind PPO", "NORTHWIND PPO", "Northwind P.P.O."],
+    "PAY007": ["Ironbridge HMO", "IRONBRIDGE HMO", "Ironbridge H.M.O."],
+    "PAY008": ["Self-Pay", "SELF PAY", "Self Pay"],
+    "PAY009": ["Other / Workers Comp", "WORKERS COMP", "Other/WC"],
+}
 
 # ---------------------------------------------------------------------------
 # Readmission
@@ -374,5 +509,17 @@ DEFECT_RATES = {
     "outlier_numeric":        0.0018,
     "duplicate_event_id":     0.0020,
     "late_event":             0.0060,
+    # File-level failures. Per FILE, not per row, so the rates are far higher
+    # than the row rates above -- at 0.004 per row a missing file would never
+    # happen, and the client requires a demonstrably failed run to recover from.
+    # Roughly one missing file every ~60 drops and one short file every ~35.
+    #
+    # There is deliberately no "late file" class. Whether a drop arrived on time
+    # is a property of the delivery channel, not of the file, so it cannot be
+    # detected from the files alone and faking it would mean inventing a column
+    # no source system emits. Row-level lateness IS detectable and is covered by
+    # late_event via the event_time / ingest_time split.
+    "missing_file":           0.016,
+    "truncated_file":         0.028,
 }
 CHAOS_MULTIPLIER = 12.0        # --chaos flag, for the Phase 5 break-it test

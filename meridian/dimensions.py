@@ -94,6 +94,18 @@ class Dimensions:
                 if code == "ED":
                     # ED beds sized from arrival volume, not bed share
                     licensed = max(6, int(f.ed_arrivals_per_day * 0.22))
+                elif code in C.OUTPATIENT_UNIT_CODES:
+                    # Outpatient units hold no inpatient beds, so bed_share is 0
+                    # and the licensed-bed formula would size them out of
+                    # existence. Size them as exam rooms / procedure rooms from
+                    # appointment volume instead.
+                    appts = f.ed_arrivals_per_day * C.OUTPATIENT_PER_ED_ARRIVAL
+                    if code == "ASC":
+                        if f.licensed_beds == 0:
+                            continue        # no surgery at an urgent care centre
+                        licensed = max(2, int(appts * C.OUTPATIENT_ASC_SHARE / 6))
+                    else:
+                        licensed = max(4, int(appts / 14))
                 else:
                     licensed = int(round(f.licensed_beds * ut.bed_share))
                     if licensed < ut.min_beds:
@@ -125,8 +137,13 @@ class Dimensions:
         return units
 
     def inpatient_units(self, facility_id):
+        """Units that hold admitted patients — excludes ED and outpatient."""
         return [u for u in self.units_by_facility.get(facility_id, [])
-                if u.unit_code != "ED"]
+                if u.unit_code != "ED" and u.unit_code not in C.OUTPATIENT_UNIT_CODES]
+
+    def outpatient_units(self, facility_id):
+        return [u for u in self.units_by_facility.get(facility_id, [])
+                if u.unit_code in C.OUTPATIENT_UNIT_CODES]
 
     # -- payers -----------------------------------------------------------
     def _build_payers(self):
@@ -211,6 +228,19 @@ class Dimensions:
                 unit = self.rng.choice(units)
                 hire_days_ago = self.rng.randint(30, 4200)
                 terminated = self.rng.random() < 0.11   # [ASSUMPTION] turnover
+                # Termination must postdate the hire by at least a probation
+                # period. Drawing the two offsets independently previously
+                # produced ~21 staff whose termination_date was on or before
+                # their hire_date -- a temporal inversion that was never
+                # recorded in the answer key, so a DQ check would flag rows
+                # nobody could account for.
+                term_offset = None
+                if terminated:
+                    latest = hire_days_ago - C.MIN_EMPLOYMENT_DAYS
+                    if latest <= 0:
+                        terminated = False          # hired too recently to have left
+                    else:
+                        term_offset = -self.rng.randint(0, min(400, latest))
                 staff.append({
                     "staff_id": f"STF{seq:06d}",
                     "npi": f"{self.rng.randint(1000000000, 1999999999)}" if job[4] or job[0] in ("MD","PA","RPh") else None,
@@ -227,9 +257,94 @@ class Dimensions:
                     "fte": self.rng.choice([1.0, 1.0, 1.0, 0.9, 0.8, 0.6]),
                     "hire_date_offset_days": -hire_days_ago,
                     "is_terminated": terminated,
-                    "termination_offset_days": -self.rng.randint(0, 400) if terminated else None,
+                    "termination_offset_days": term_offset,
                 })
         return staff
+
+    # -- staff churn inside the window (SCD-2 material) --------------------
+    def apply_staff_churn(self, as_of_offset: int):
+        """
+        Hire, terminate and transfer a handful of staff per facility per week,
+        so successive dim_staff snapshots genuinely differ.
+
+        Without this every weekly snapshot is byte-identical and there is no
+        slowly-changing-dimension history for the warehouse to model. Returns
+        a list of change records for the run manifest.
+
+        `as_of_offset` is the number of days from the staff epoch to the
+        snapshot being built. Events are dated in the week ENDING there, never
+        after it -- an event dated in the future is filtered out of the snapshot
+        by the emitter and the churn would be invisible.
+        """
+        changes = []
+        if as_of_offset <= 0:
+            return changes
+
+        def event_offset():
+            """A day inside the week ending at the snapshot."""
+            back = self.rng.randint(0, min(6, as_of_offset - 1))
+            return as_of_offset - back
+
+        for f in self.facilities:
+            units = self.units_by_facility.get(f.facility_id, [])
+            if not units:
+                continue
+            pool = [s for s in self.staff
+                    if s["primary_facility_id"] == f.facility_id and not s["is_terminated"]]
+
+            for _ in range(self.rng.randint(*C.STAFF_TERMINATIONS_PER_WEEK)):
+                if len(pool) < 20:
+                    break
+                s = self.rng.choice(pool)
+                # terminate inside this week, and never before the hire date
+                offset = event_offset()
+                if offset <= s["hire_date_offset_days"] + C.MIN_EMPLOYMENT_DAYS:
+                    continue
+                s["is_terminated"] = True
+                s["termination_offset_days"] = offset
+                pool.remove(s)
+                changes.append(("terminate", s["staff_id"]))
+
+            for _ in range(self.rng.randint(*C.STAFF_HIRES_PER_WEEK)):
+                self._staff_seq = getattr(self, "_staff_seq", len(self.staff))
+                self._staff_seq += 1
+                job = self.rng.choices(self.JOB_MIX, weights=[j[3] for j in self.JOB_MIX])[0]
+                unit = self.rng.choice(units)
+                rec = {
+                    "staff_id": f"STF{self._staff_seq:06d}",
+                    "npi": f"{self.rng.randint(1000000000, 1999999999)}" if job[4] or job[0] in ("MD", "PA", "RPh") else None,
+                    "first_name": self.fake.first_name(),
+                    "last_name": self.fake.last_name(),
+                    "job_code": job[0], "job_title": job[1], "credential": job[2],
+                    "is_licensed_nurse": job[4],
+                    "primary_facility_id": f.facility_id,
+                    "primary_unit_id": unit.unit_id,
+                    "employment_type": 2 if self.rng.random() < C.CONTRACT_STAFF_BASE else 1,
+                    "fte": self.rng.choice([1.0, 1.0, 1.0, 0.9, 0.8, 0.6]),
+                    # hired this week
+                    "hire_date_offset_days": event_offset(),
+                    "is_terminated": False,
+                    "termination_offset_days": None,
+                }
+                self.staff.append(rec)
+                self.staff_by_unit.setdefault(
+                    (rec["primary_facility_id"], rec["primary_unit_id"]), []).append(rec)
+                changes.append(("hire", rec["staff_id"]))
+
+            for _ in range(self.rng.randint(*C.STAFF_UNIT_TRANSFER_PER_WEEK)):
+                if len(pool) < 20 or len(units) < 2:
+                    break
+                s = self.rng.choice(pool)
+                old = s["primary_unit_id"]
+                new = self.rng.choice([u for u in units if u.unit_id != old])
+                bucket = self.staff_by_unit.get((s["primary_facility_id"], old), [])
+                if s in bucket:
+                    bucket.remove(s)
+                s["primary_unit_id"] = new.unit_id
+                self.staff_by_unit.setdefault(
+                    (s["primary_facility_id"], new.unit_id), []).append(s)
+                changes.append(("transfer", s["staff_id"]))
+        return changes
 
     def nurses_for_unit(self, facility_id, unit_id):
         pool = self.staff_by_unit.get((facility_id, unit_id), [])
@@ -288,6 +403,10 @@ class Dimensions:
             # ---- our additions ----
             "phone": self.fake.phone_number(),
             "email": self.fake.email(),
+            # [OURS] population-health risk flag. No open standard defines it;
+            # real systems compute it from a risk model. Age-weighted here so it
+            # correlates with readmission and utilisation rather than being noise.
+            "is_high_risk": self.rng.random() < min(0.42, 0.03 + max(0, age - 45) * 0.006),
             "enterprise_patient_id": f"EPI{self._patient_seq:08d}",
             "mrn_by_facility": {},
         }

@@ -168,10 +168,20 @@ def main():
     em = Emitters(sim, dims, batch, stream, injector, args.seed,
                   emit_from=start - timedelta(days=1))
 
+    staff_changes = []
     for d in range(args.days + 1):
         run_date = start + timedelta(days=d)
         if d == 0 or run_date.weekday() == 0:
+            # Churn the staff dimension before emitting it, so successive weekly
+            # snapshots genuinely differ and there is SCD-2 history to model.
+            # Skipped on the first snapshot: that one is the opening baseline.
+            if d != 0:
+                # offsets are measured from the same epoch the emitter uses, so
+                # a churn event dated "this week" lands on or before run_date
+                staff_changes.extend(
+                    dims.apply_staff_churn((run_date - (start - timedelta(days=1))).days))
             em.emit_dimensions(run_date)
+            em.emit_code_sets(run_date)
         em.emit_ehr(run_date)
         em.emit_claims(run_date)
         em.emit_inventory(run_date)
@@ -225,6 +235,12 @@ def main():
             "encounters": len(in_window), "ed_encounters": ed,
             "inpatient_admissions": ip, "readmissions": readm,
             "warmup_encounters": len(sim.encounters) - len(in_window),
+        },
+        "staff_dimension_changes": {
+            "total": len(staff_changes),
+            "hires": sum(1 for k, _ in staff_changes if k == "hire"),
+            "terminations": sum(1 for k, _ in staff_changes if k == "terminate"),
+            "unit_transfers": sum(1 for k, _ in staff_changes if k == "transfer"),
         },
         "emitted": dict(em.stats),
         "stream_counts": getattr(stream, "counts", {}),

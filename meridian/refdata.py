@@ -53,6 +53,153 @@ ICD10_SEED = [
 ]
 
 # ---------------------------------------------------------------------------
+# MS-DRG
+#
+# Codes and titles are real MS-DRGs. THE GROUPING IS NOT.
+#
+# A real MS-DRG assignment needs the principal diagnosis, all secondary
+# diagnoses graded for CC/MCC, any OR procedures, discharge disposition and
+# sometimes age or birth weight, resolved through the CMS Definitions Manual
+# and the GROUPER software. What is below picks a severity tier at random
+# within the correct DRG family for the principal diagnosis. That is enough to
+# populate drg_code, exercise a DRG dimension and give case-mix a plausible
+# spread -- and it is NOT a substitute for the grouper.
+#
+# relative_weight: [ASSUMPTION] approximate, and weights are revised every
+#   federal fiscal year. Do not quote these as CMS figures. The real table is
+#   the FY MS-DRG relative weight file published with the IPPS final rule.
+#
+# Tuple: (drg_code, description, relative_weight, tier)
+#   tier: MCC = major complication, CC = complication, NONE = neither
+# ---------------------------------------------------------------------------
+
+MSDRG_FAMILIES = {
+    # principal-diagnosis family -> severity tiers
+    "SEPSIS": [
+        ("871", "Septicemia or severe sepsis without MV >96 hours with MCC", 1.85, "MCC"),
+        ("872", "Septicemia or severe sepsis without MV >96 hours without MCC", 1.05, "NONE"),
+    ],
+    "HF": [
+        ("291", "Heart failure and shock with MCC", 1.40, "MCC"),
+        ("292", "Heart failure and shock with CC", 0.90, "CC"),
+        ("293", "Heart failure and shock without CC/MCC", 0.62, "NONE"),
+    ],
+    "COPD": [
+        ("190", "Chronic obstructive pulmonary disease with MCC", 1.18, "MCC"),
+        ("191", "Chronic obstructive pulmonary disease with CC", 0.90, "CC"),
+        ("192", "Chronic obstructive pulmonary disease without CC/MCC", 0.71, "NONE"),
+    ],
+    "PN": [
+        ("193", "Simple pneumonia and pleurisy with MCC", 1.38, "MCC"),
+        ("194", "Simple pneumonia and pleurisy with CC", 0.93, "CC"),
+        ("195", "Simple pneumonia and pleurisy without CC/MCC", 0.69, "NONE"),
+    ],
+    "AMI": [
+        ("280", "Acute myocardial infarction, discharged alive with MCC", 1.70, "MCC"),
+        ("281", "Acute myocardial infarction, discharged alive with CC", 1.02, "CC"),
+        ("282", "Acute myocardial infarction, discharged alive without CC/MCC", 0.75, "NONE"),
+    ],
+    "DIABETES": [
+        ("637", "Diabetes with MCC", 1.32, "MCC"),
+        ("638", "Diabetes with CC", 0.82, "CC"),
+        ("639", "Diabetes without CC/MCC", 0.58, "NONE"),
+    ],
+    "RENAL": [
+        ("682", "Renal failure with MCC", 1.55, "MCC"),
+        ("683", "Renal failure with CC", 0.94, "CC"),
+        ("684", "Renal failure without CC/MCC", 0.62, "NONE"),
+    ],
+    "STROKE": [
+        ("064", "Intracranial hemorrhage or cerebral infarction with MCC", 1.75, "MCC"),
+        ("065", "Intracranial hemorrhage or cerebral infarction with CC", 1.05, "CC"),
+        ("066", "Intracranial hemorrhage or cerebral infarction without CC/MCC", 0.78, "NONE"),
+    ],
+    "UTI": [
+        ("689", "Kidney and urinary tract infections with MCC", 1.10, "MCC"),
+        ("690", "Kidney and urinary tract infections without MCC", 0.75, "NONE"),
+    ],
+    "ARRHYTHMIA": [
+        ("308", "Cardiac arrhythmia and conduction disorders with MCC", 1.12, "MCC"),
+        ("309", "Cardiac arrhythmia and conduction disorders with CC", 0.75, "CC"),
+        ("310", "Cardiac arrhythmia and conduction disorders without CC/MCC", 0.55, "NONE"),
+    ],
+    "RESP_FAILURE": [
+        ("189", "Pulmonary edema and respiratory failure", 1.20, "MCC"),
+    ],
+    "GI_BLEED": [
+        ("377", "Gastrointestinal hemorrhage with MCC", 1.62, "MCC"),
+        ("378", "Gastrointestinal hemorrhage with CC", 0.92, "CC"),
+        ("379", "Gastrointestinal hemorrhage without CC/MCC", 0.65, "NONE"),
+    ],
+    "GI_INFECTION": [
+        ("371", "Major gastrointestinal disorders and peritoneal infections with MCC", 1.85, "MCC"),
+        ("372", "Major gastrointestinal disorders and peritoneal infections with CC", 1.10, "CC"),
+        ("373", "Major gastrointestinal disorders and peritoneal infections without CC/MCC", 0.78, "NONE"),
+    ],
+    "FLUID_ELECTROLYTE": [
+        ("640", "Miscellaneous disorders of nutrition, metabolism, fluids and electrolytes with MCC", 1.00, "MCC"),
+        ("641", "Miscellaneous disorders of nutrition, metabolism, fluids and electrolytes without MCC", 0.65, "NONE"),
+    ],
+    "HYPERTENSION": [
+        ("304", "Hypertension with MCC", 1.00, "MCC"),
+        ("305", "Hypertension without MCC", 0.60, "NONE"),
+    ],
+    "CHEST_PAIN": [
+        ("313", "Chest pain", 0.55, "NONE"),
+    ],
+    "OTHER_MEDICAL": [
+        ("947", "Signs and symptoms with MCC", 1.00, "MCC"),
+        ("948", "Signs and symptoms without MCC", 0.65, "NONE"),
+    ],
+}
+
+# ICD-10-CM principal diagnosis prefix -> MS-DRG family. Longest prefix wins.
+ICD_TO_DRG_FAMILY = [
+    ("A41", "SEPSIS"), ("R65", "SEPSIS"),
+    ("I50", "HF"),
+    ("J44", "COPD"),
+    ("J18", "PN"), ("J15", "PN"),
+    ("I21", "AMI"),
+    ("E11.22", "RENAL"), ("E11", "DIABETES"),
+    ("N17", "RENAL"), ("N18", "RENAL"),
+    ("I63", "STROKE"),
+    ("N39", "UTI"),
+    ("I48", "ARRHYTHMIA"),
+    ("J96", "RESP_FAILURE"),
+    ("K92", "GI_BLEED"),
+    ("A04", "GI_INFECTION"),
+    ("E86", "FLUID_ELECTROLYTE"),
+    ("I10", "HYPERTENSION"),
+    ("R07", "CHEST_PAIN"),
+    ("R10", "OTHER_MEDICAL"),
+]
+
+
+def drg_family_for(icd_code: str) -> str:
+    """Longest-prefix match from principal diagnosis to MS-DRG family."""
+    best, best_len = "OTHER_MEDICAL", 0
+    for prefix, fam in ICD_TO_DRG_FAMILY:
+        if icd_code.startswith(prefix) and len(prefix) > best_len:
+            best, best_len = fam, len(prefix)
+    return best
+
+
+def all_drgs():
+    """Flat, de-duplicated MS-DRG list for the dim_drg reference feed."""
+    seen, out = set(), []
+    for fam, tiers in MSDRG_FAMILIES.items():
+        for code, desc, weight, tier in tiers:
+            if code in seen:
+                continue
+            seen.add(code)
+            out.append({"drg_code": code, "drg_description": desc,
+                        "relative_weight": weight, "severity_tier": tier,
+                        "drg_family": fam, "drg_type": "MED",
+                        "weight_source": "synthetic (approximate) — replace with the CMS FY relative weight file"})
+    return out
+
+
+# ---------------------------------------------------------------------------
 # MIMIC-IV hosp.admissions value sets — [VERIFIED] verbatim from MIMIC docs.
 # ---------------------------------------------------------------------------
 

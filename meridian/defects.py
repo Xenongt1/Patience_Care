@@ -35,6 +35,46 @@ class DefectInjector:
             "expected_dq_check": expected_check,
         })
 
+    # -- file-level failures ----------------------------------------------
+    #
+    # Every other defect class here is row-level: the file always arrives, on
+    # time, complete. The client's success criteria require pipelines that "can
+    # be demonstrated to recover from a failed run without manual data-fixing",
+    # and a run cannot be shown to recover from a failure that never happens.
+    # These three are what a freshness check and a completeness check are for.
+    #
+    # Applied by the sink, not by mutating rows, because the failure is in the
+    # delivery rather than the content.
+
+    def file_failure(self, path, rows):
+        """
+        Decide whether this file drop fails, and how.
+
+        Returns (action, payload):
+          ("ok",        rows)   deliver normally
+          ("missing",   None)   the file never arrives
+          ("truncated", subset) the file arrives short
+        """
+        if not self.enabled or not rows:
+            return "ok", rows
+
+        if self._hit("missing_file"):
+            self._record(path, "missing_file", path, None,
+                         f"{len(rows)} rows expected", "no file delivered",
+                         "freshness_check")
+            return "missing", None
+
+        if self._hit("truncated_file"):
+            # short enough to trip a >=95%-of-expected rule, not so short that
+            # it looks like a different file
+            keep = max(1, int(len(rows) * self.rng.uniform(0.55, 0.93)))
+            self._record(path, "truncated_file", path, None,
+                         f"{len(rows)} rows", f"{keep} rows delivered",
+                         "completeness_check")
+            return "truncated", rows[:keep]
+
+        return "ok", rows
+
     # -- row-level batch mutations ----------------------------------------
     def mutate_row(self, source, row, key_field, required_fields=(),
                    coded_fields=(), numeric_fields=(), date_pairs=()):

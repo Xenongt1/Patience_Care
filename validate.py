@@ -252,6 +252,13 @@ def main(root="out"):
         s["Census"] = num(s["Census"])
         s["Actual Hours"] = num(s["Actual Hours"])
         nurses = s[s["Job Code"].isin(["RN", "LPN", "NP"])]
+        # On-call is a fixed cover team, not rostered presence, so a
+        # nurse-to-patient ratio computed against it is meaningless -- it yields
+        # one nurse "covering" a 50-bed unit and swamps the real signal. The
+        # mandated-ratio KPI is a question about the shifts that actually cover
+        # the census. On-call is reported separately below.
+        oncall = nurses[nurses["Shift"] == "OC"]
+        nurses = nurses[nurses["Shift"] != "OC"]
         staffed = (nurses[nurses["Called Out"] != "Y"]
                    .groupby(["Facility ID", "Unit Code", "Work Date", "Shift"])
                    .agg(nurses_on=("Staff ID", "count"), census=("Census", "max"))
@@ -264,7 +271,9 @@ def main(root="out"):
         staffed["is_understaffed"] = staffed.nurses_on < staffed.required
 
         under = staffed.is_understaffed.mean()
-        print(f"  shift-units understaffed vs mandated ratio : {under:.1%}")
+        print(f"  shift-units understaffed vs mandated ratio : {under:.1%}"
+              f"   (D/E/N shifts; on-call excluded)")
+        print(f"  on-call shifts rostered (cover, not counted): {len(oncall):,}")
         worst = (staffed.groupby(["Facility ID", "Unit Code", "Shift"])
                         .agg(shifts=("is_understaffed", "count"),
                              pct_understaffed=("is_understaffed", "mean"),
@@ -276,9 +285,17 @@ def main(root="out"):
 
         check("staffing vs ratio target computable", OK if under > 0 else WARN,
               "roster joins to dim_unit on unit_code, and to census on work date")
+        # Spread has to be measured across ALL department/shift combinations.
+        # Measuring it inside the worst-10 head is circular: once ten
+        # combinations sit at 1.0 the range there is always zero, so the check
+        # warned even when the underlying data was strongly non-uniform.
+        allcombo = (staffed.groupby(["Facility ID", "Unit Code", "Shift"])
+                           .is_understaffed.mean())
+        spread = allcombo.max() - allcombo.min()
         check("understaffing is non-uniform (discoverable)",
-              OK if worst.pct_understaffed.max() - worst.pct_understaffed.min() > 0.2 else WARN,
-              "otherwise the dashboard has nothing to find")
+              OK if spread > 0.2 else WARN,
+              f"range across {len(allcombo)} dept/shift combinations: "
+              f"{allcombo.min():.0%} to {allcombo.max():.0%}")
 
     # =================================================================
     section("Q4. What is our readmission rate, and does it vary by facility/diagnosis?")
@@ -302,29 +319,67 @@ def main(root="out"):
         window_end = a.dischtime.max()
         idx = idx[idx.dischtime <= window_end - pd.Timedelta(days=30)]
         readm = a[(a.is_readmission == "1") & (a.is_planned_readmission != "1")]
-        rate = len(readm) / max(1, len(idx))
+        # The numerator has to be drawn from the SAME population as the
+        # denominator. Counting every unplanned readmission in the extract
+        # against a censored index population mixes two cohorts: many of these
+        # readmissions follow an index stay that pre-dates the window (or was
+        # excluded as died/AMA/psych), so they have no denominator to belong
+        # to. Each readmission carries index_encounter_id, so tie it back and
+        # keep only those whose index admission is itself eligible.
+        eligible_idx_enc = set(idx.encounter_id.dropna())
+        linked = readm[readm.index_encounter_id.isin(eligible_idx_enc)]
+        # A rate needs a denominator big enough to be a rate. On a window
+        # shorter than ~30 days, right-censoring correctly removes essentially
+        # every index admission, and dividing by whatever stragglers survive
+        # turns "not computable" into a number -- reporting 41800% as though it
+        # were an implausible rate rather than an absent one.
+        MIN_INDEX = 30
+        computable = len(idx) >= MIN_INDEX
+        rate = (len(linked) / len(idx)) if computable else None
         print(f"\n  observation window ends   : {window_end.date()} "
               f"(index admissions after {(window_end - pd.Timedelta(days=30)).date()} "
               f"excluded as right-censored)")
         print(f"  eligible index admissions : {len(idx):,}")
-        print(f"  unplanned readmissions    : {len(readm):,}")
-        print(f"  30-day readmission rate   : {rate:.1%}")
+        print(f"  unplanned readmissions    : {len(readm):,} "
+              f"({len(linked):,} follow an eligible index stay in this extract)")
+        if computable:
+            print(f"  30-day readmission rate   : {rate:.1%}")
+        else:
+            print(f"  30-day readmission rate   : NOT COMPUTABLE -- only "
+                  f"{len(idx):,} index admission(s) have a full 30-day "
+                  f"follow-up window (need >= {MIN_INDEX})")
 
         # by cohort
         principal = dxs[num(dxs.seq_num) == 1][["hadm_id", "hrrp_cohort"]] if not dxs.empty else pd.DataFrame()
-        if not principal.empty:
+        if not principal.empty and computable:
             m = idx.merge(principal, on="hadm_id", how="left")  # censored-safe
-            mr = readm.merge(principal, on="hadm_id", how="left")
+            # A readmission belongs to the cohort of the stay it followed, not
+            # to its own principal diagnosis -- a HF patient readmitted with
+            # sepsis is still a HF-cohort readmission. Attribute through the
+            # index link so numerator and denominator share a cohort label.
+            idx_cohort = m[["encounter_id", "hrrp_cohort"]].rename(
+                columns={"encounter_id": "index_encounter_id"})
+            mr = linked.drop(columns=["hrrp_cohort"], errors="ignore").merge(
+                idx_cohort, on="index_encounter_id", how="left")
             cohort = pd.DataFrame({
                 "index_admissions": m.groupby("hrrp_cohort").size(),
                 "readmissions": mr.groupby("hrrp_cohort").size(),
             }).fillna(0)
-            cohort["rate"] = (cohort.readmissions / cohort.index_admissions).round(3)
+            cohort["rate"] = (cohort.readmissions / cohort.index_admissions
+                              .replace(0, pd.NA)).round(3)
             print("\n  by HRRP cohort:")
-            print(cohort.to_string())
+            print(cohort.to_string(na_rep="n/a"))
         check("HRRP index/exclusion rules applied", OK,
               "discharged alive, not AMA, not psych, one per index")
-        check("readmission rate plausible", OK if 0.05 <= rate <= 0.30 else WARN, f"{rate:.1%}")
+        if not computable:
+            # Not a data defect. The generator is fine; the window is too short.
+            check("readmission rate computable", WARN,
+                  f"window is {(window_end - a.dischtime.min()).days}d -- needs "
+                  f">30d of discharges before an index cohort is observable. "
+                  f"Run --days 90 or more to evaluate this KPI.")
+        else:
+            check("readmission rate plausible",
+                  OK if 0.05 <= rate <= 0.30 else WARN, f"{rate:.1%}")
 
     # =================================================================
     section("Q5. How much revenue is at risk from denied or delayed claims, by payer?")

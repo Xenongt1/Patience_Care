@@ -28,6 +28,38 @@ def _dstr(d):
     return d.strftime("%Y%m%d")
 
 
+def _case(value, source_system):
+    """
+    Apply the emitting system's enum casing.
+
+    Seven facilities on a mix of EHRs do not agree on casing, so the same
+    logical value arrives as `emergency`, `EMERGENCY` and `Emergency`. Silver
+    has to fold them; Bronze must preserve them.
+    """
+    if value is None:
+        return None
+    style = C.EHR_ENUM_CASE.get(source_system, "lower")
+    if style == "upper":
+        return str(value).upper()
+    if style == "title":
+        return str(value).title()
+    return str(value).lower()
+
+
+def _sysdate(dt, source_system):
+    """
+    Render a timestamp in the emitting system's own format.
+
+    This is why a Bronze layer stores everything as STRING. Four different
+    formats arrive, including one day-first (`%d/%m/%Y`) that will parse
+    silently and wrongly if a reader assumes month-first.
+    """
+    if dt is None:
+        return None
+    fmt = C.EHR_DATE_FORMATS.get(source_system)
+    return dt.strftime(fmt) if fmt else dt
+
+
 class Emitters:
     def __init__(self, sim, dims, batch_sink, stream_sink, injector, rng_seed=C.SEED,
                  emit_from=None):
@@ -56,6 +88,23 @@ class Emitters:
         # inventory state carried across days
         self._inventory = None
         self._shortages = {}
+
+    def _write(self, path, rows, fieldnames=None):
+        """
+        Write a fact-feed file, allowing the drop itself to fail.
+
+        Reference dimensions deliberately do NOT go through here. A missing
+        dim_facility would orphan every fact row in the batch and bury the
+        handful of orphan foreign keys the injector adds on purpose, so the
+        referential-integrity signal would be destroyed rather than tested.
+        """
+        action, payload = self.dx.file_failure(path, rows)
+        if action == "missing":
+            self.stats["files_missing"] += 1
+            return 0
+        if action == "truncated":
+            self.stats["files_truncated"] += 1
+        return self.batch.write_csv(path, payload, fieldnames)
 
     # =====================================================================
     # Dimensions (weekly full refresh)
@@ -97,14 +146,88 @@ class Emitters:
         for s in self.dims.staff:
             r = dict(s)
             r["hire_date"] = hire_base + timedelta(days=s["hire_date_offset_days"])
+            # A snapshot cannot contain someone who has not been hired yet.
+            # Staff churn adds hires dated inside the window, so without this
+            # filter the first weekly refresh would list future employees.
+            if r["hire_date"] > run_date:
+                continue
             r["termination_date"] = (hire_base + timedelta(days=s["termination_offset_days"])
                                      if s["termination_offset_days"] is not None else None)
-            r["is_active"] = not s["is_terminated"]
+            # Terminated, but not yet as of this snapshot -- still active here.
+            if r["termination_date"] and r["termination_date"] > run_date:
+                r["termination_date"] = None
+                r["is_active"] = True
+            else:
+                r["is_active"] = not s["is_terminated"]
             for k in ("hire_date_offset_days", "termination_offset_days",
                       "is_terminated", "is_licensed_nurse"):
                 r.pop(k, None)
             staff_rows.append(r)
         self.batch.write_csv(f"reference/dim_staff/dim_staff_{d}.csv", staff_rows)
+
+    # =====================================================================
+    # Code-set reference feeds
+    #
+    # The real code sets are embedded in the fact rows -- ICD-10-CM on
+    # diagnoses, MS-DRG on claims -- but were never emitted as lookups, so a
+    # diagnosis dimension had nothing to build from. Emitted on the same weekly
+    # full-refresh cadence as the other reference files.
+    # =====================================================================
+    CHRONIC_PREFIXES = ("E11", "I10", "I50", "J44", "N18", "I48")
+
+    def emit_code_sets(self, run_date):
+        d = _dstr(run_date)
+
+        icd_rows = []
+        for code, title, weight, setting, cohort in self.dims.icd10:
+            # is_chronic / readmission_risk_level are [OURS]. ICD-10-CM itself
+            # carries neither; CMS chronic-condition flags come from the CCW
+            # algorithm, which is a separate licensed artefact.
+            chronic = code.startswith(self.CHRONIC_PREFIXES)
+            risk = "high" if cohort != "OTHER" else ("medium" if chronic else "low")
+            icd_rows.append({
+                "icd10_code": code,
+                "icd10_description": title,
+                "icd_version": 10,
+                "code_chapter": code[0],
+                "diagnosis_category": R.drg_family_for(code),
+                "care_setting": setting,
+                "hrrp_cohort": cohort,
+                "is_chronic": chronic,
+                "readmission_risk_level": risk,
+                "relative_frequency": weight,
+            })
+        self.batch.write_csv(f"reference/dim_icd10/dim_icd10_{d}.csv", icd_rows)
+
+        self.batch.write_csv(f"reference/dim_drg/dim_drg_{d}.csv", R.all_drgs())
+        self.stats["code_set_rows"] += len(icd_rows) + len(R.all_drgs())
+
+    def _is_alarm(self, loinc, value):
+        """
+        Would the bedside monitor alarm on this reading?
+
+        True when the value falls in a band that scores 3 on NEWS2 for that
+        parameter -- the single-parameter trigger that prompts clinician review.
+        Diastolic BP is not a NEWS2 parameter and never alarms.
+
+        NOTE the systolic and SpO2 Scale 2 bands still need confirming against
+        the official RCP chart -- see the checklist in the schema spec.
+        """
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return False
+        if loinc == "8867-4":                       # heart rate
+            return v <= 40 or v >= 131
+        if loinc == "8480-6":                       # systolic BP
+            return v <= 90 or v >= 220
+        if loinc == "9279-1":                       # respiratory rate
+            return v <= 8 or v >= 25
+        if loinc == "8310-5":                       # temperature
+            return v <= 35.0
+        if loinc == "2708-6":                       # SpO2
+            return v <= 91
+        return False
 
     # =====================================================================
     # Source 1 — EHR encounters & admissions (daily CSV, cloud files)
@@ -119,10 +242,12 @@ class Emitters:
             return
 
         patients, encounters, admissions, transfers, ed_stays, diagnoses = [], [], [], [], [], []
+        outpatient = []
         seen_patients = set()
 
         for e in encs:
             p = e.patient
+            src = C.EHR_SYSTEMS.get(e.facility_id, "MERIDIAN_EHR_CORE")
             mrn = self.dims.mrn_for(p, e.facility_id)
             birth = day - timedelta(days=int(p["_age"] * 365.25) + self.rng.randint(0, 364))
 
@@ -165,7 +290,13 @@ class Emitters:
                 "encounter_status": "finished",
                 "patient_class": e.patient_class,
                 "mrn": mrn,
+                # Which EHR produced the row. The client states facilities run a
+                # mix of systems, and the casing / date-format divergence below
+                # is keyed off this column -- it is what makes standardisation a
+                # real problem rather than a formality.
+                "source_system": src,
             }
+            erow["EncounterClass"] = _case(erow["EncounterClass"], src)
             erow, dup = self.dx.mutate_row(
                 "ehr.encounters", erow, "Id",
                 required_fields=("Start", "Patient", "EncounterClass"),
@@ -202,6 +333,8 @@ class Emitters:
                     "is_planned_readmission": e.is_planned_readmission,
                     "index_encounter_id": e.index_encounter_id,
                     "encounter_id": e.encounter_id,
+                    "drg_code": e.drg_code,
+                    "source_system": src,
                 }
                 arow, dup = self.dx.mutate_row(
                     "ehr.admissions", arow, "hadm_id",
@@ -214,7 +347,7 @@ class Emitters:
 
                 # transfers: ed -> admit -> transfer* -> discharge
                 tseq = 0
-                if e.ed_arrival:
+                if e.ed_arrival and not e.is_outpatient:
                     tseq += 1
                     transfers.append({
                         "subject_id": p["Id"], "hadm_id": e.hadm_id,
@@ -243,10 +376,19 @@ class Emitters:
                     "unit_id": e.stays[-1][0].unit_id if e.stays else None,
                 })
 
-            if e.ed_arrival:
+            # An outpatient appointment also records an arrival, but it is not
+            # an ED stay and must not land in the ED feed -- it would corrupt
+            # every ED wait-time measure with clinic visits.
+            if e.ed_arrival and not e.is_outpatient:
                 tv = e.triage_vitals
                 srow = {
                     "subject_id": p["Id"], "stay_id": e.encounter_id,
+                    # MIMIC-IV-ED has no encounter concept, so edstays carries no
+                    # encounter_id and hadm_id is null for anyone not admitted --
+                    # which left ~74% of ED stays with no path to the encounter
+                    # they belong to. This column is ours, and it is what makes a
+                    # single visit fact possible for ED-discharged patients.
+                    "encounter_id": e.encounter_id,
                     "hadm_id": e.hadm_id,
                     "intime": e.ed_arrival, "outtime": e.ed_departure,
                     "gender": "M" if p["Gender"] == "male" else ("F" if p["Gender"] == "female" else "U"),
@@ -262,9 +404,15 @@ class Emitters:
                     # our additions -- MIMIC-IV-ED has NEITHER of these, and
                     # OP-18 / ED-1 / ED-2 cannot be computed without them
                     "triage_time": e.triage_time,
+                    # first physician/APP contact -- door-to-doctor. Null when the
+                    # patient left without being seen, which is the correct value
+                    # and the case the measure must exclude.
+                    "provider_seen_time": e.provider_seen_time,
                     "admit_decision_time": e.admit_decision_time,
                     "facility_id": e.facility_id,
+                    "source_system": src,
                 }
+                srow["disposition"] = _case(srow["disposition"], src)
                 srow, dup = self.dx.mutate_row(
                     "ehr.ed_stays", srow, "stay_id",
                     required_fields=("intime", "acuity", "disposition"),
@@ -275,6 +423,42 @@ class Emitters:
                 if dup:
                     ed_stays.append(dup)
 
+            # Scheduled outpatient and same-day-surgery visits. Separate table
+            # because the measure is different: the wait clock starts at the
+            # APPOINTMENT time, not at arrival, so a patient who turns up
+            # twenty minutes early is not waiting twenty minutes longer.
+            if e.is_outpatient:
+                orow = {
+                    "visit_id": e.encounter_id,
+                    "encounter_id": e.encounter_id,
+                    "subject_id": p["Id"],
+                    "facility_id": e.facility_id,
+                    "unit_id": e.outpatient_unit.unit_id if e.outpatient_unit else None,
+                    "clinic_type": e.outpatient_unit.unit_code if e.outpatient_unit else None,
+                    "appointment_time": e.appointment_time,
+                    "arrival_time": e.ed_arrival,
+                    "provider_seen_time": e.provider_seen_time,
+                    "departure_time": e.ed_departure,
+                    "seen_by_provider_id": self.rng.choice(self.dims.staff)["staff_id"],
+                    "visit_status": "NO SHOW" if e.is_no_show else (
+                        "ADMITTED" if e.is_inpatient else "COMPLETED"),
+                    "is_no_show": e.is_no_show,
+                    "escalated_to_inpatient": bool(e.is_inpatient),
+                    "primary_diagnosis_code": e.diagnoses[0][1] if e.diagnoses else None,
+                    "payer_id": e.payer["payer_id"] if e.payer else None,
+                    "mrn": mrn,
+                    "source_system": src,
+                }
+                orow["visit_status"] = _case(orow["visit_status"], src)
+                orow, dup = self.dx.mutate_row(
+                    "ehr.outpatient_visits", orow, "visit_id",
+                    required_fields=("appointment_time", "clinic_type"),
+                    coded_fields=("visit_status", "clinic_type"),
+                    date_pairs=(("appointment_time", "departure_time"),))
+                outpatient.append(orow)
+                if dup:
+                    outpatient.append(dup)
+
             for seq, code, title, cohort in e.diagnoses:
                 diagnoses.append({
                     "subject_id": p["Id"], "hadm_id": e.hadm_id or e.encounter_id,
@@ -284,12 +468,14 @@ class Emitters:
                     "facility_id": e.facility_id,
                 })
 
-        self.batch.write_csv(f"ehr/patients/ehr_patients_{d}.csv", patients)
-        self.batch.write_csv(f"ehr/encounters/ehr_encounters_{d}.csv", encounters)
-        self.batch.write_csv(f"ehr/admissions/ehr_admissions_{d}.csv", admissions)
-        self.batch.write_csv(f"ehr/transfers/ehr_transfers_{d}.csv", transfers)
-        self.batch.write_csv(f"ehr/ed_stays/ehr_ed_stays_{d}.csv", ed_stays)
-        self.batch.write_csv(f"ehr/diagnoses/ehr_diagnoses_{d}.csv", diagnoses)
+        self._write(f"ehr/outpatient_visits/ehr_outpatient_visits_{d}.csv", outpatient)
+        self.stats["ehr_outpatient_visits"] += len(outpatient)
+        self._write(f"ehr/patients/ehr_patients_{d}.csv", patients)
+        self._write(f"ehr/encounters/ehr_encounters_{d}.csv", encounters)
+        self._write(f"ehr/admissions/ehr_admissions_{d}.csv", admissions)
+        self._write(f"ehr/transfers/ehr_transfers_{d}.csv", transfers)
+        self._write(f"ehr/ed_stays/ehr_ed_stays_{d}.csv", ed_stays)
+        self._write(f"ehr/diagnoses/ehr_diagnoses_{d}.csv", diagnoses)
         self.stats["ehr_encounters"] += len(encounters)
         self.stats["ehr_admissions"] += len(admissions)
         self.stats["ehr_ed_stays"] += len(ed_stays)
@@ -320,10 +506,10 @@ class Emitters:
                     continue
                 self._build_claim(e, run_date, headers, lines, remits, adjustments)
 
-        self.batch.write_csv(f"claims/claim_header/claim_header_{d}.csv", headers)
-        self.batch.write_csv(f"claims/claim_line/claim_line_{d}.csv", lines)
-        self.batch.write_csv(f"claims/remit/remit_{d}.csv", remits)
-        self.batch.write_csv(f"claims/remit_adjustment/remit_adjustment_{d}.csv", adjustments)
+        self._write(f"claims/claim_header/claim_header_{d}.csv", headers)
+        self._write(f"claims/claim_line/claim_line_{d}.csv", lines)
+        self._write(f"claims/remit/remit_{d}.csv", remits)
+        self._write(f"claims/remit_adjustment/remit_adjustment_{d}.csv", adjustments)
         self.stats["claims"] += len(headers)
         self.stats["denials"] += sum(1 for r in remits if r.get("claim_status_code") == "4")
 
@@ -367,7 +553,12 @@ class Emitters:
             "total_charge_amount": total,
             "claim_filing_indicator_code": e.payer["claim_filing_indicator_code"],
             "payer_id": e.payer["payer_id"],
-            "payer_name": e.payer["payer_name"],
+            # The clearinghouse passes the payer name through as it received it,
+            # so one payer arrives spelled several ways and Silver has to fold
+            # them to a canonical name. payer_id is always clean -- that is the
+            # key; the name is the standardisation problem.
+            "payer_name": self.rng.choice(
+                C.PAYER_NAME_VARIANTS.get(e.payer["payer_id"], [e.payer["payer_name"]])),
             "type_of_bill": tob,
             "statement_date_from": (e.admittime or e.ed_arrival),
             "statement_date_to": (e.dischtime or e.ed_departure),
@@ -376,7 +567,9 @@ class Emitters:
             "admission_type_code": e.admission_type_code,
             "admission_source_code": adm_src,
             "patient_status_code": status_code,
-            "drg_code": None,   # assign by parsing the CMS MS-DRG manual
+            # Family lookup plus a severity draw, NOT the CMS grouper -- see
+            # refdata.MSDRG_FAMILIES. Outpatient claims carry no DRG.
+            "drg_code": e.drg_code,
             "principal_diagnosis": dx_principal[1] if dx_principal else None,
             "admitting_diagnosis": dx_principal[1] if dx_principal else None,
             "other_diagnoses": "|".join(d[1] for d in e.diagnoses[1:8]),
@@ -385,6 +578,9 @@ class Emitters:
             "medical_record_number": self.dims.mrn_for(e.patient, e.facility_id),
             "prior_authorization_number": (f"AUTH{self.rng.randint(10**7, 10**8-1)}"
                                            if self.rng.random() < 0.42 else None),
+            # HRRP penalty exposure. True when this claim is for a readmission
+            # inside the 30-day window of an eligible index admission.
+            "is_readmission_related": bool(e.is_readmission and not e.is_planned_readmission),
             "submission_date": submission_date,
         }
         hrow, dup = self.dx.mutate_row(
@@ -455,8 +651,8 @@ class Emitters:
             "claim_payment_amount": paid,
             "patient_responsibility_amount": patient_resp,
             "payer_claim_control_number": f"ICN{self.rng.randint(10**11, 10**12-1)}",
-            "drg_code": None,
-            "drg_weight": None,
+            "drg_code": e.drg_code,
+            "drg_weight": e.drg_weight,
             "check_eft_trace_number": f"EFT{self.rng.randint(10**8, 10**9-1)}",
             "payment_method_code": self.rng.choice(["ACH", "CHK"]),
             "check_date": remit_date,
@@ -628,6 +824,9 @@ class Emitters:
                 "unit_cost": drug["unit_cost"],
                 "extended_value": round(inv["qty_on_hand"] * drug["unit_cost"], 2),
                 "last_count_variance": self.rng.choice([0, 0, 0, 0, -1, 1, -2, 2]),
+                # When this line was last replenished. Needed to tell a genuine
+                # stockout from an item simply awaiting its next delivery.
+                "last_restocked_at": (run_date - timedelta(days=self.rng.randint(0, 21))),
                 "is_stockout": inv["qty_on_hand"] == 0,
             }
             row, dup = self.dx.mutate_row(
@@ -639,7 +838,7 @@ class Emitters:
             if dup:
                 rows.append(dup)
 
-        self.batch.write_csv(f"pharmacy/inventory/pharmacy_inventory_{d}.csv", rows)
+        self._write(f"pharmacy/inventory/pharmacy_inventory_{d}.csv", rows)
         self.stats["inventory_rows"] += len(rows)
         self.stats["stockouts"] += sum(1 for r in rows if r.get("is_stockout"))
 
@@ -661,7 +860,7 @@ class Emitters:
             out.append(r)
             if dup:
                 out.append(dup)
-        self.batch.write_csv(f"beds/hourly_snapshot/bed_snapshot_hourly_{d}.csv", out)
+        self._write(f"beds/hourly_snapshot/bed_snapshot_hourly_{d}.csv", out)
         self.stats["bed_snapshots"] += len(out)
 
     def emit_nhsn_weekly(self, week_ending: date):
@@ -674,6 +873,14 @@ class Emitters:
         of thing the client will actually poke at.
         """
         wednesday = week_ending - timedelta(days=(week_ending.weekday() - 2) % 7)
+        # The measurement Wednesday can fall before the extract window opens --
+        # a Sunday early in the window looks back to the previous Wednesday. A
+        # roll-up measured on a day we never delivered hourly detail for cannot
+        # be reconciled against anything, so it is not a roll-up worth shipping:
+        # it would read as a permanent reconciliation failure rather than a
+        # genuine variance.
+        if self.emit_from and wednesday < self.emit_from:
+            return
         rows = []
         for f in self.dims.facilities:
             units = self.dims.inpatient_units(f.facility_id)
@@ -723,6 +930,14 @@ class Emitters:
         """
         from openpyxl import Workbook
 
+        # The roster covers the week ahead and is overwritten daily as actuals
+        # come in, so the copy that lands in the document library is a mid-week
+        # snapshot: shifts before the cutoff have actual hours, shifts after it
+        # are still only scheduled. Those trailing nulls are legitimate, and
+        # they are the material a DQ gate needs to prove it can tell a real
+        # null from a missing value.
+        self._roster_cutoff = datetime.combine(week_start + timedelta(days=5), time(6, 0))
+
         for f in self.dims.facilities:
             units = self.dims.units_by_facility.get(f.facility_id, [])
             if not units:
@@ -739,7 +954,8 @@ class Emitters:
             header = ["Facility ID", "Unit", "Unit Code", "Work Date", "Shift",
                       "Shift Start", "Shift End", "Staff ID", "Name", "Job Code",
                       "Employment Type", "Scheduled Hours", "Actual Hours",
-                      "Overtime", "Called Out", "Floated In", "Census", "Notes"]
+                      "Status", "Overtime", "Called Out", "Floated In",
+                      "Census", "Notes"]
             ws.append(header)
 
             rows_written = 0
@@ -758,7 +974,19 @@ class Emitters:
                             (f.facility_type, u.unit_code, shift_code), C.UNDERSTAFF_DEFAULT)
                         if is_weekend:
                             bias *= C.WEEKEND_STAFF_PENALTY
-                        scheduled = max(1, int(round(required * bias)))
+                        if shift_code == "OC":
+                            # On-call is a fixed cover team, not census-scaled
+                            # presence. Rostering it against census produces
+                            # nonsense ratios -- one on-call nurse "covering" a
+                            # 50-patient unit -- and a staffing-adequacy KPI
+                            # must not be computed against it at all.
+                            scheduled = self.rng.choice([1, 1, 2])
+                        else:
+                            # D/E/N each cover their own 8h block, so each is
+                            # staffed to the census ratio; the per-shift share
+                            # only encodes that nights run slightly leaner.
+                            cover = C.SHIFT_COVERAGE_SHARE.get(shift_code, 1.0)
+                            scheduled = max(1, int(round(required * bias * cover)))
                         pool = self.dims.nurses_for_unit(f.facility_id, u.unit_id)
                         if not pool:
                             continue
@@ -769,6 +997,16 @@ class Emitters:
                             called_out = self.rng.random() < C.CALL_OUT_RATE
                             overtime = (not called_out) and self.rng.random() < C.OVERTIME_RATE
                             actual = 0.0 if called_out else (length + (self.rng.choice([2, 4]) if overtime else 0))
+                            # A shift that has not finished yet has no actual
+                            # hours. This is a LEGITIMATE null, distinct from
+                            # the nulls the defect injector adds, and it is the
+                            # material a DQ gate needs in order to prove it does
+                            # not false-positive on one.
+                            not_yet_worked = shift_end > self._roster_cutoff
+                            status = ("scheduled" if not_yet_worked else
+                                      ("absent" if called_out else "completed"))
+                            if not_yet_worked and self.rng.random() < 0.06:
+                                status = self.rng.choice(["swapped", "cancelled"])
                             # mixed date formats, as a real spreadsheet has
                             if self.rng.random() < 0.08:
                                 work_date = day.strftime("%m/%d/%Y")
@@ -780,7 +1018,9 @@ class Emitters:
                                 shift_start.strftime("%H:%M"), shift_end.strftime("%H:%M"),
                                 s["staff_id"], f"{s['last_name']}, {s['first_name']}",
                                 s["job_code"], s["employment_type"],
-                                float(length), float(actual),
+                                float(length),
+                                None if not_yet_worked else float(actual),
+                                status,
                                 "Y" if overtime else "", "Y" if called_out else "",
                                 "Y" if self.rng.random() < 0.05 else "",
                                 census,
@@ -872,7 +1112,13 @@ class Emitters:
                             "parameter_name": name,
                             "value_num": val,
                             "value_uom": uom,
-                            "warning": 1 if is_artifact else 0,
+                            # A monitor alarm: the reading is outside the band
+                            # that scores 3 on NEWS2 for this parameter. This
+                            # previously duplicated is_artifact, which made the
+                            # column useless -- an artifact is a bad reading, an
+                            # alarm is a sick patient, and the operational
+                            # dashboard needs the second one.
+                            "warning": 1 if self._is_alarm(loinc, val) else 0,
                             "is_artifact": is_artifact,
                         },
                     }

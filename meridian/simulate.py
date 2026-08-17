@@ -31,6 +31,7 @@ class Encounter:
     # ED timeline
     ed_arrival: datetime = None
     triage_time: datetime = None
+    provider_seen_time: datetime = None
     admit_decision_time: datetime = None
     ed_departure: datetime = None
     esi_acuity: int = None
@@ -51,6 +52,13 @@ class Encounter:
     hospital_service: str = None
     stays: list = field(default_factory=list)     # (unit, intime, outtime)
     diagnoses: list = field(default_factory=list) # (seq, code, title, cohort)
+    # outpatient timeline — scheduled appointments, not walk-ins
+    appointment_time: datetime = None
+    outpatient_unit: object = None
+    is_no_show: bool = False
+    # billing
+    drg_code: str = None
+    drg_weight: float = None
     # linkage
     payer: dict = None
     is_readmission: bool = False
@@ -62,6 +70,10 @@ class Encounter:
     @property
     def is_inpatient(self):
         return self.admittime is not None
+
+    @property
+    def is_outpatient(self):
+        return self.appointment_time is not None
 
     @property
     def los_days(self):
@@ -257,13 +269,111 @@ class Simulation:
         for facility in self.dims.facilities:
             # scheduled readmissions and elective admissions first
             self._release_scheduled_returns(facility, day, hour, now)
-            if not facility.has_ed:
+            self._outpatient_appointments(facility, day, hour, now)
+            # An urgent care centre has no emergency department in the CMS sense
+            # -- has_ed drives dim_facility.emergency_services -- but it very
+            # much has walk-in arrivals. Gating on has_ed alone meant facility
+            # 450601 produced zero encounters of any kind.
+            if not facility.has_ed and facility.facility_type != "Urgent Care":
                 continue
             n = self._arrival_count(facility, day, hour)
             for _ in range(n):
                 minute = self.rng.randint(0, 59)
                 arrival = now.replace(minute=minute)
                 self._ed_arrival(facility, arrival)
+
+    # -- outpatient -------------------------------------------------------
+    def _outpatient_appointment_count(self, facility, day, hour):
+        w = C.OUTPATIENT_HOUR_WEIGHTS.get(hour)
+        if not w:
+            return 0                     # clinics are shut
+        daily = facility.ed_arrivals_per_day * C.OUTPATIENT_PER_ED_ARRIVAL
+        lam = daily * w * C.OUTPATIENT_DOW_WEIGHTS[day.weekday()]
+        lam *= C.SEASONAL_ARRIVAL[day.month - 1]
+        # Poisson via Knuth, same as ED arrivals
+        l, k, p = math.exp(-lam), 0, 1.0
+        while True:
+            p *= self.rng.random()
+            if p <= l:
+                return k
+            k += 1
+            if k > 400:
+                return k
+
+    def _outpatient_appointments(self, facility, day, hour, now):
+        """
+        Scheduled clinic and same-day-surgery visits.
+
+        These exist because the client names outpatient wait times as one of two
+        stated wait-time problems, and because outpatient is the bulk of a real
+        network's visit volume. The measure here is appointment time -> provider
+        seen, which is a different thing from the ED measures: the clock starts
+        at the scheduled time, not at arrival, and a patient who turns up early
+        does not get seen early.
+        """
+        units = self.dims.outpatient_units(facility.facility_id)
+        if not units:
+            return
+        n = self._outpatient_appointment_count(facility, day, hour)
+        if not n:
+            return
+        clinic = [u for u in units if u.unit_code == "OPC"]
+        surgical = [u for u in units if u.unit_code == "ASC"]
+        # Session load drives the wait: a clinic running 30 appointments an hour
+        # against 8 rooms slips, and that slip is the finding.
+        rooms = max(1, sum(u.staffed_beds for u in units))
+        load = n / rooms
+
+        for _ in range(n):
+            use_asc = surgical and self.rng.random() < C.OUTPATIENT_ASC_SHARE
+            pool = surgical if use_asc else (clinic or units)
+            unit = self.rng.choice(pool)
+            appt = now.replace(minute=self.rng.choice([0, 10, 15, 20, 30, 40, 45, 50]))
+            patient = self._get_patient()
+            enc = Encounter(
+                encounter_id=self._next_id("ENC"),
+                patient=patient,
+                facility_id=facility.facility_id,
+                encounter_class="ambulatory" if use_asc else "outpatient",
+                act_code="AMB",
+                patient_class="O",
+                appointment_time=appt,
+                outpatient_unit=unit,
+            )
+            enc.payer = self.dims.pick_payer()
+            dx = self.dims.pick_diagnosis("ED" if not use_asc else "IP")
+            enc.chief_complaint = dx[1][:60]
+            enc.diagnoses.append((1, dx[0], dx[1], dx[4]))
+
+            # no-show: the appointment exists, the patient never arrives
+            if self.rng.random() < C.OUTPATIENT_NO_SHOW_RATE:
+                enc.is_no_show = True
+                enc.ed_disposition = "NO SHOW"
+                enc.ed_departure = appt
+                self.encounters.append(enc)
+                continue
+
+            lo, hi = C.OUTPATIENT_ARRIVAL_OFFSET_MIN
+            enc.ed_arrival = appt + timedelta(minutes=self.rng.randint(lo, hi))
+            # wait is measured from the appointment, and degrades with load
+            delay = self._lognorm_minutes(C.OUTPATIENT_SEEN_DELAY_MIN) * (1.0 + max(0.0, load - 1.0) * 0.6)
+            enc.provider_seen_time = appt + timedelta(minutes=delay)
+            visit = self._lognorm_minutes(C.OUTPATIENT_VISIT_MIN)
+            enc.ed_departure = enc.provider_seen_time + timedelta(minutes=visit)
+            enc.ed_disposition = "HOME"
+
+            # a same-day surgery occasionally escalates to a real admission
+            if use_asc and self.rng.random() < C.ASC_ADMIT_PROB:
+                # ESI is an ED triage score, so an outpatient encounter has none.
+                # Escalation involves a clinical assessment, and unit selection
+                # needs an acuity, so assign one at that point only.
+                enc.esi_acuity = self.rng.choice([2, 3, 3])
+                bed = self._choose_unit(facility, enc)
+                if bed is not None:
+                    enc.admit_decision_time = enc.ed_departure
+                    enc.ed_disposition = "ADMITTED"
+                    self._admit(enc, bed, enc.ed_departure)
+            self.encounters.append(enc)
 
     # -- ED ---------------------------------------------------------------
     def _ed_arrival(self, facility, arrival, patient=None, forced_cohort=None,
@@ -305,10 +415,19 @@ class Simulation:
         workup = self._lognorm_minutes(C.ED_WORKUP_MIN_BY_ESI[enc.esi_acuity])
         decision_at = enc.triage_time + timedelta(minutes=workup)
 
+        # triage -> first physician/APP contact (door-to-doctor). Capped below
+        # the decision time: a patient cannot be worked up before being seen.
+        seen_delay = self._lognorm_minutes(C.PROVIDER_SEEN_MIN_BY_ESI[enc.esi_acuity])
+        enc.provider_seen_time = enc.triage_time + timedelta(
+            minutes=min(seen_delay, max(1.0, workup * 0.85)))
+
         # LWBS / eloped — long waits drive it, which is what makes the KPI real
         if enc.esi_acuity >= 4 and workup > 240 and self.rng.random() < 0.06:
             enc.ed_disposition = "LEFT WITHOUT BEING SEEN"
             enc.ed_departure = decision_at
+            # left before a provider ever saw them -- this is the correct null,
+            # and it is exactly the case a door-to-doctor average must exclude
+            enc.provider_seen_time = None
             self.encounters.append(enc)
             return enc
 
@@ -470,8 +589,37 @@ class Simulation:
         if enc.discharge_location == "DIED":
             enc.hospital_expire_flag = 1
             enc.deathtime = when
+        self._assign_drg(enc)
         self.active.remove(enc)
         self._consider_readmission(enc)
+
+    def _assign_drg(self, enc):
+        """
+        Assign an MS-DRG from the principal diagnosis.
+
+        This is a family lookup plus a severity draw, NOT a grouper. A real
+        assignment resolves principal diagnosis, every secondary diagnosis
+        graded for CC/MCC, OR procedures and discharge disposition through the
+        CMS Definitions Manual. Severity here is weighted by length of stay and
+        ICU exposure so the tier at least correlates with how sick the patient
+        actually was, rather than being noise.
+        """
+        if not enc.diagnoses:
+            return
+        family = R.drg_family_for(enc.diagnoses[0][1])
+        tiers = R.MSDRG_FAMILIES.get(family) or R.MSDRG_FAMILIES["OTHER_MEDICAL"]
+        icu = any(getattr(u, "is_critical_care", False) for u, _, _ in enc.stays)
+        los = enc.los_days or 0.0
+        severity = (1.0 if icu else 0.0) + (1.0 if los > 6 else 0.0) \
+            + (1.0 if enc.hospital_expire_flag else 0.0)
+        by_tier = {t[3]: t for t in tiers}
+        if severity >= 2 and "MCC" in by_tier:
+            pick = by_tier["MCC"]
+        elif severity >= 1:
+            pick = by_tier.get("CC") or by_tier.get("MCC") or tiers[-1]
+        else:
+            pick = by_tier.get("NONE") or tiers[-1]
+        enc.drg_code, enc.drg_weight = pick[0], pick[2]
 
     # -- readmission (CMS HRRP rules) -------------------------------------
     def _consider_readmission(self, enc):
@@ -544,11 +692,26 @@ class Simulation:
 
         bucket = self.snapshots_by_date[now.date()]
         for u in self.dims.units:
-            if u.unit_code == "ED":
+            # The bed feed is inpatient capacity for surge planning. ED holding
+            # and outpatient rooms are not inpatient beds and NHSN does not
+            # count them, so including them would dilute network occupancy with
+            # units that are structurally always empty.
+            if u.unit_code == "ED" or u.unit_code in C.OUTPATIENT_UNIT_CODES:
                 continue
             denom = u.staffed_beds - u.blocked_beds
             occupied = self.beds.occupied[u.unit_id]
             pending = pending_by_facility.get(u.facility_id, 0)
+            # Expected discharges in the next four hours. This was hard-coded to
+            # zero, which made the column dead and left the surge-planning view
+            # with only half its signal: pending_admissions is near-term demand,
+            # this is near-term supply.
+            horizon = now + timedelta(hours=4)
+            leaving = 0
+            for enc in self.active:
+                for unit, tin, tout in enc.stays:
+                    if unit.unit_id == u.unit_id and tout is not None and now <= tout <= horizon:
+                        leaving += 1
+                        break
             bucket.append({
                 "snapshot_datetime": now,
                 "facility_id": u.facility_id,
@@ -560,7 +723,7 @@ class Simulation:
                 "occupied_beds": occupied,
                 "available_beds": max(0, denom - occupied),
                 "pending_admissions": pending,
-                "pending_discharges": 0,
+                "pending_discharges": leaving,
                 # divide-by-zero is real here for the urgent care site
                 "occupancy_rate": round(occupied / denom, 4) if denom > 0 else None,
                 "is_at_capacity": (occupied / denom >= C.CAPACITY_THRESHOLD) if denom > 0 else None,
