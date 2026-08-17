@@ -16,13 +16,24 @@ thing.
 ```bash
 pip install -r requirements.txt
 
-python run.py --days 7            # smoke test, everything lands in ./out
-python validate.py out            # prove the data answers the client's questions
+python run.py --days 7 --no-streams   # smoke test, everything lands in ./out
+python validate.py out                # prove the data answers the client's questions
 ```
 
-`--days 7` finishes in well under a minute and writes every one of the seven
-feeds. Open the files, check the columns, then scale up. Generating 18 months
-first means any column mistake costs you the whole run again.
+A 7-day smoke run writes every batch feed. Open the files, check the columns,
+then scale up — generating 18 months first means any column mistake costs you
+the whole run again.
+
+**Timing.** Streams dominate the cost: 7 days *with* streams takes ~4 minutes
+and ~380 MB, against well under a minute for `--no-streams`. Use `--no-streams`
+while you are checking schemas and only generate streams when you actually need
+vitals or prescription events.
+
+**Window length matters for one KPI.** Readmission rate is right-censored by 30
+days, so a short run has too few eligible index admissions to compute it and
+`validate.py` will report it as *not computable* rather than print a misleading
+number. Use `--days 120` or more for anything readmission-related; short runs
+are fine for schema, DQ and staffing work.
 
 ### Warmup
 
@@ -179,9 +190,12 @@ definitions, not approximations:
 - **Bed capacity** — occupancy against the 85% shortage threshold, plus NHSN
   weekly-to-hourly reconciliation
 - **Staffing** — actual nurse-to-patient ratio against the California Title 22
-  mandated target, by department and shift
+  mandated target, by department and shift. Day/evening/night are each staffed
+  to census; **on-call is excluded** — it is a fixed cover team, not rostered
+  presence, and a ratio computed against it is meaningless
 - **Readmissions** — CMS HRRP index eligibility and exclusions, one per index,
-  with right-censoring of the trailing 30 days
+  with right-censoring of the trailing 30 days, and the numerator restricted to
+  readmissions whose index stay is itself in the eligible denominator
 - **Claims** — denial rate from `CLP02 = 4`, days-in-AR, revenue at risk by
   payer, and critically: contractual write-offs (`CO-45`/`97`/`24`) kept
   separate from true denials
@@ -224,10 +238,14 @@ The vitals stream dwarfs everything else. Measured, not estimated, from a
 
 | Artefact | Per day | 548 days (18 months) |
 |---|---|---|
-| All batch feeds (CSV + XLSX) | ~2 MB | **~1.2 GB** |
-| `prescription-events` raw | ~13 MB | ~7 GB |
+| All batch feeds (CSV + XLSX) | ~10 MB | **~5.5 GB** |
+| `prescription-events` gzipped | ~1.8 MB | ~1 GB |
 | `patient-vitals` raw JSONL | **~570 MB** | **~310 GB** |
-| `patient-vitals` gzipped | ~33 MB | ~18 GB |
+| `patient-vitals` gzipped | ~38 MB | ~21 GB |
+
+Batch is ~5× larger than it was before outpatient volume was added. `ehr` and
+`claims` are ~95% of it: outpatient is ~80% of all encounters, and claims volume
+tracks encounter volume, so both grew together.
 
 Why vitals is so large: `emit_vitals` is tall/EAV — one event per *parameter*
 per reading, six parameters in `VITAL_PARAMS`, every 5 minutes, for every

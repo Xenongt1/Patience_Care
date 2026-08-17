@@ -26,12 +26,22 @@ Two things follow from that:
 ### How to regenerate
 
 ```bash
-python run.py --days 7            # produces ./out
+python run.py --days 120          # produces ./out
 python validate.py out            # proves the KPIs are computable from it
 ```
 
-Reproducible from `--seed` + `--start` + `--days`. Figures in this document are from a 7-day
-run at **seed 20260812**, window **2026-08-06 → 2026-08-13**, with `--warmup 14`.
+Reproducible from `--seed` + `--start` + `--days`.
+
+> **Choose the window to fit the KPI.** Readmission rate is right-censored by 30 days: an index
+> admission discharged inside the final 30 days of the window has not yet been observed long
+> enough to count. A run shorter than ~60 days leaves too few eligible index admissions for the
+> rate to mean anything, and `validate.py` will correctly report it as **not computable** rather
+> than print a number. Use **≥120 days** for anything readmission-related. Short runs remain fine
+> for schema, DQ and staffing work.
+
+Column lists, null rates and enum domains in this document were read out of a 21-day
+`--no-streams` run; stream domains come from a separate run with streams enabled. Row counts are
+deliberately not pinned — see §3.
 
 ### Reading the column tables
 
@@ -89,7 +99,8 @@ can be mis-implemented.** The right-hand column is what the field is actually ca
 | "at risk of running out of bed capacity" | `is_at_capacity`, a **source column**, true at `occupancy_rate >= 0.85` | `occupancy_rate` is on a **0–1 scale**, not 0–100. A 0–100 range check passes silently and every figure is off by 100×. Do not re-derive this flag at a different threshold. |
 | "at risk of a pharmacy stockout" | `days_on_hand` vs `reorder_point`; `is_stockout` for an actual zero | `par_level`, `reorder_point` and `safety_stock` are **our additions** — FHIR `InventoryReport` has no reorder concept, so without them "at risk" cannot be expressed |
 | "critical patient-monitoring alerts" | **Derived in Silver** — NEWS2 aggregate from the six vitals parameters. Thresholds: ≥5 urgent, ≥7 emergency | **Not emitted.** The stream carries `warning` (single-parameter artifact flag) and `is_artifact`, which are *not* NEWS2. See §9. |
-| "patient wait times in **outpatient** departments" | **No source exists** | See §9.1 — this is the largest gap in the contract |
+| "patient wait times in **outpatient** departments" | `outpatient_visits`: `arrival_time → provider_seen_time` (patient wait), or `appointment_time → provider_seen_time` (appointment adherence) | Two different questions — pick one deliberately. **Exclude `is_no_show = 1`**, whose timestamps are legitimately null; counting them as a zero wait understates the metric. Early arrival makes `arrival_time − appointment_time` negative and is not an inversion. |
+| "patient wait times in **emergency** departments" | `ed_stays`: `triage_time → provider_seen_time` (door-to-doctor) | Not the same interval as the outpatient one — ED has no appointment, so there is no adherence measure. Do not average the two together. |
 
 ### 2.3 Platform vocabulary
 
@@ -109,17 +120,30 @@ can be mis-implemented.** The right-hand column is what the field is actually ca
 
 | # | Feed | Landing | Cadence | Format | Tables |
 |---|---|---|---|---|---|
-| 1 | EHR encounters & admissions | OneLake Files | Daily | CSV | 6 |
+| 1 | EHR encounters & admissions | OneLake Files | Daily | CSV | 7 <sup>†</sup> |
 | 2 | Billing & claims | OneLake Files | Daily | CSV | 4 |
 | 3 | Pharmacy inventory | OneLake Files | Daily snapshot | CSV | 1 |
 | 4 | Bed capacity | OneLake Files | Hourly + weekly roll-up | CSV | 2 |
 | 5 | Staff schedules | SharePoint | Weekly, per facility | XLSX | 1 |
 | 6 | Patient vitals | Eventstream (Kafka) | Continuous, 5-min archive | JSON | 1 topic |
 | 7 | Prescription issuance | Eventstream (Kafka) | Continuous | JSON | 1 topic |
-| — | Reference dimensions | OneLake Files | Day 0 + Mondays, full refresh | CSV | 5 |
+| — | Reference dimensions | OneLake Files | Day 0 + Mondays, full refresh | CSV | 7 <sup>‡</sup> |
+
+<sup>†</sup> includes `ehr/outpatient_visits`, the highest-volume feed in the contract — outpatient
+is the bulk of visits, so expect it to dominate row counts and sizing.
+
+<sup>‡</sup> includes `reference/dim_icd10` and `reference/dim_drg`. Note **`dim_staff` now
+changes between snapshots** (hires, terminations, unit transfers), so successive full refreshes
+are no longer byte-identical — it is SCD-2 material, and a pipeline that overwrites it loses
+history.
 
 **Batch path convention** `out/batch/<source>/<table>/<table>_YYYYMMDD.csv` — mirrors the target
 OneLake layout exactly, so `--onelake-*` writes the identical paths into the lakehouse.
+
+> **Row counts are not pinned in this document.** Transaction-feed volume scales with `--days`,
+> `--seed` and `--chaos`, so any figure written here would be wrong for your run. Read the counts
+> from the run you generated. Only the reference dimensions carry fixed per-snapshot sizes,
+> because those do not scale with the window.
 
 **Stream archive** `out/stream/<topic>.jsonl.gz` — gzipped by default (17× on vitals). Kept even
 when publishing to Kafka, because Eventstream has no Event Hubs Capture equivalent and this is
@@ -271,6 +295,58 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 <sup>1</sup> identifier — leading zeros are significant, never cast to a number
 
 
+### `reference/dim_icd10`
+
+**Landing** OneLake Files · **Cadence** Day 0 + every Monday (full refresh) · **Format** CSV · **Observed volume** 28 per snapshot · **Columns** 10
+
+The code set behind `ehr/diagnoses`. Real ICD-10-CM codes and descriptions; the grouping
+columns (`diagnosis_category`, `hrrp_cohort`, `readmission_risk_level`) are the generator's own
+and exist so a diagnosis dimension has something to roll up to.
+
+| Column | Type | Key | Null % | Domain / sample |
+|---|---|---|---:|---|
+| `icd10_code` | STRING | PK · FK ← `ehr/diagnoses.icd_code` | 0 | `A41.9`, `A41.51`, `R65.20` … (28 distinct) |
+| `icd10_description` | STRING |  | 0 | `Sepsis, unspecified organism`, `Sepsis due to Escherichia coli [E. coli]`, `Severe sepsis without septic shock` … (28 distinct) |
+| `icd_version` | INTEGER |  | 0 | `10` |
+| `code_chapter` | STRING |  | 0 | `A`, `R`, `I`, `J`, `E`, `N`, `K` |
+| `diagnosis_category` | STRING |  | 0 | `SEPSIS`, `HF`, `COPD` … (17 distinct) |
+| `care_setting` | STRING |  | 0 | `IP`, `BOTH`, `ED` |
+| `hrrp_cohort` | STRING |  | 0 | `AMI`, `HF`, `COPD`, `PN`, `OTHER` <sup>1</sup> |
+| `is_chronic` | BOOLEAN |  | 0 | `0`, `1` |
+| `readmission_risk_level` | STRING |  | 0 | `low`, `medium`, `high` |
+| `relative_frequency` | DECIMAL |  | 0 | `8.0`, `1.6`, `1.2` … (24 distinct) |
+
+<sup>1</sup> the CMS Hospital Readmissions Reduction Program cohorts. Join on the **principal**
+diagnosis (`seq_num = 1`) only — a secondary HF code does not make a stay an HF-cohort case.
+
+
+### `reference/dim_drg`
+
+**Landing** OneLake Files · **Cadence** Day 0 + every Monday (full refresh) · **Format** CSV · **Observed volume** 42 per snapshot · **Columns** 7
+
+Resolves `ehr/admissions.drg_code`. Enables case-mix adjustment — without it, comparing raw
+length-of-stay or cost across facilities compares patient mix, not performance.
+
+| Column | Type | Key | Null % | Domain / sample |
+|---|---|---|---:|---|
+| `drg_code` | STRING <sup>1</sup> | PK · FK ← `ehr/admissions.drg_code` | 0 | `871`, `872`, `291` … (42 distinct) |
+| `drg_description` | STRING |  | 0 | `Septicemia or severe sepsis without MV >96 hours with MCC`, `Heart failure and shock with MCC` … (42 distinct) |
+| `relative_weight` | DECIMAL |  | 0 | `1.85`, `1.05`, `1.4` … (29 distinct) |
+| `severity_tier` | STRING |  | 0 | `MCC`, `CC`, `NONE` <sup>2</sup> |
+| `drg_family` | STRING |  | 0 | `SEPSIS`, `HF`, `COPD` … (17 distinct) |
+| `drg_type` | STRING |  | 0 | `MED` <sup>3</sup> |
+| `weight_source` | STRING |  | 0 | `synthetic (approximate) — replace with the CMS FY relative weight file` |
+
+<sup>1</sup> identifier — `drg_code` is zero-padded three characters, never cast to a number
+
+<sup>2</sup> MS-DRG severity: **MCC** major complication/comorbidity, **CC** complication/
+comorbidity, **NONE** neither. The triplet is why one clinical condition maps to several codes.
+
+<sup>3</sup> **medical DRGs only.** No surgical DRGs are emitted, because no procedure feed
+exists to justify one — see §9. `relative_weight` is approximate and **must not be used for
+reimbursement modelling**; replace it with the CMS FY relative weight file first.
+
+
 ### — EHR — clinical core —
 
 *Anchored on: Synthea CSV column idiom + MIMIC-IV `admissions` / `transfers` / `edstays`*
@@ -278,7 +354,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `ehr/patients`
 
-**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Observed volume** 6,669 · **Columns** 32
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 32
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -320,7 +396,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `ehr/encounters`
 
-**Landing** OneLake Files · **Cadence** Daily — encounters closed on run_date − 1 · **Format** CSV · **Observed volume** 6,991 · **Columns** 21
+**Landing** OneLake Files · **Cadence** Daily — encounters closed on run_date − 1 · **Format** CSV · **Columns** 21
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -351,7 +427,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `ehr/admissions`
 
-**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Observed volume** 2,189 · **Columns** 25
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 25
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -386,13 +462,14 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `ehr/ed_stays`
 
-**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Observed volume** 6,468 · **Columns** 21
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 21
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
 | `subject_id` | UUID | FK patients.Id | 0 | `39e8234f-d349-405a-a7ad-78a744bcdcc3`, `e8a0c589-dd5e-46c1-bb6b-7a73f6add04e`, `ffc26862-5bae-4ffa-88eb-0c2f92b1c347` … (4,714 distinct) |
 | `stay_id` | STRING | PK | 0 | `ENC000016597`, `ENC000018383`, `ENC000017085` … (6,458 distinct) |
-| `hadm_id` | STRING | FK admissions.hadm_id | 74.18 | `HADM000017086`, `HADM000020866`, `HADM000002656` … (1,668 distinct) |
+| `encounter_id` | STRING | FK encounters.Id | 0 <sup>2</sup> | `ENC000016597`, `ENC000018383`, `ENC000017085` … (6,458 distinct) |
+| `hadm_id` | STRING | FK admissions.hadm_id | 74.18 <sup>3</sup> | `HADM000017086`, `HADM000020866`, `HADM000002656` … (1,668 distinct) |
 | `intime` | TIMESTAMP |  | 0.19 | `2026-08-05 14:31:00`, `2026-08-05 09:43:00`, `2026-08-05 13:59:00` … (5,072 distinct) |
 | `outtime` | TIMESTAMP |  | 0 | `2026-08-12 12:44:27`, `2026-08-05 00:36:25`, `2026-08-05 02:32:58` … (6,429 distinct) |
 | `gender` | STRING |  | 0 | `F`, `M`, `U` |
@@ -409,15 +486,83 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 | `acuity` | INTEGER |  | 0.23 | `3`, `4`, `2`, `5`, `1` |
 | `chiefcomplaint` | STRING |  | 0 | `Chest pain, unspecified`, `Unspecified abdominal pain`, `Essential (primary) hypertension`, `Type 2 diabetes mellitus with hyperglycemia`, `Urinary tract infection, site not specified`, `Unspecified atrial fibrillation`, `Dehydration`, `Chronic obstructive pulmonary disease with (acute) exacerbat`, `Heart failure, unspecified`, `Acute on chronic diastolic (congestive) heart failure`, `Chronic obstructive pulmonary disease with (acute) lower res`, `Myocardial infarction type 2`, `Pneumonia, unspecified organism`, `Unspecified bacterial pneumonia` … (+3) |
 | `triage_time` | TIMESTAMP |  | 0 | `2026-08-08 12:04:42`, `2026-08-04 21:59:38`, `2026-08-04 22:16:26` … (6,424 distinct) |
+| `provider_seen_time` | TIMESTAMP |  | 0.2 <sup>4</sup> | `2026-08-05 13:31:07`, `2026-08-04 22:18:55` … (high cardinality) |
 | `admit_decision_time` | TIMESTAMP |  | 73.69 | `2026-08-05 13:48:12`, `2026-08-04 23:33:16`, `2026-08-06 11:50:36` … (1,697 distinct) |
-| `facility_id` | STRING <sup>1</sup> | FK dim_facility | 0 | `330102`, `330101`, `050201`, `140401`, `030301`, `110501` |
+| `facility_id` | STRING <sup>1</sup> | FK dim_facility | 0 | `330102`, `330101`, `050201`, `140401`, `030301`, `110501`, `450601` |
+| `source_system` | STRING |  | 0 | `MERIDIAN_EHR_CORE`, `REGIONAL_HIS`, `COMMUNITY_CARE_EHR`, `ACADEMIC_CIS`, `URGENTCARE_CLOUD` |
 
 <sup>1</sup> identifier — leading zeros are significant, never cast to a number
+
+<sup>2</sup> the join key that makes a single visit fact possible. MIMIC-IV's `edstays` has no
+encounter concept, so this column is the generator's addition: without it the 74% of ED stays
+with a null `hadm_id` had **no join path to `encounters` at all**, and they are most of ED volume
+and the whole OP-18 denominator.
+
+<sup>3</sup> **legitimate null.** `hadm_id` is null for patients not admitted from the ED. This
+is faithful to MIMIC-IV and is not a defect — use `encounter_id` to join these rows.
+
+<sup>4</sup> door-to-doctor. `triage_time → provider_seen_time` is the interval; the residual
+nulls are injected defects, not patients who were never seen.
+
+
+### `ehr/outpatient_visits`
+
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 18
+
+Outpatient clinic (`OPC`) and ambulatory surgery (`ASC`) visits. This feed exists because the
+client names the problem directly — *"patient wait times in emergency **and outpatient**
+departments are trending in the wrong direction"* — and it is the larger half by volume:
+outpatient is normally the bulk of hospital visits, so it is also what brings total encounter
+volume in line with the *"several million patient visits a year"* in the brief.
+
+The wait-time timeline is `appointment_time → arrival_time → provider_seen_time →
+departure_time`. Note this is a **four**-point timeline against the ED's three: outpatient has a
+scheduled appointment, so it supports two distinct waits — *appointment adherence*
+(`appointment_time → provider_seen_time`, did the clinic run late) and *patient wait*
+(`arrival_time → provider_seen_time`, how long the patient sat there). They are different
+questions and a dashboard that conflates them will mislead. Patients also legitimately arrive
+before their appointment, so `arrival_time − appointment_time` is often negative — that is early
+arrival, **not** a temporal inversion.
+
+| Column | Type | Key | Null % | Domain / sample |
+|---|---|---|---:|---|
+| `visit_id` | STRING | PK | 0 | `ENC000036013`, `ENC000081587`, `ENC000081588` … (high cardinality) |
+| `encounter_id` | STRING | FK encounters.Id | 0 | `ENC000036013`, `ENC000081587`, `ENC000081588` … (high cardinality) |
+| `subject_id` | UUID | FK patients.Id | 0 | `dac34977-d9ec-49e4-8928-0c4a764d9d99`, `45488135-6529-41c7-8143-9adf1fc6ec3e` … (high cardinality) |
+| `facility_id` | STRING <sup>1</sup> | FK dim_facility | 0 | `050201`, `330101`, `450601`, `330102`, `030301`, `140401`, `110501` |
+| `unit_id` | STRING | FK dim_unit | 0 | `050201-ASC`, `330101-OPC`, `050201-OPC`, `450601-OPC` … (12 distinct) |
+| `clinic_type` | STRING |  | 0.26 | `OPC`, `ASC` — **plus DQ-invalid value(s) by design** |
+| `appointment_time` | TIMESTAMP |  | 0.2 | `2026-07-05 07:20:00`, `2026-07-05 07:30:00` … (slot-aligned) |
+| `arrival_time` | TIMESTAMP |  | 8.04 <sup>2</sup> | `2026-07-05 07:30:00`, `2026-07-05 07:13:00` … (high cardinality) |
+| `provider_seen_time` | TIMESTAMP |  | 8.04 <sup>2</sup> | `2026-07-05 07:42:06`, `2026-07-05 07:46:13` … (high cardinality) |
+| `departure_time` | TIMESTAMP |  | 0 | `2026-07-05 07:53:18`, `2026-07-05 08:39:25` … (high cardinality) |
+| `seen_by_provider_id` | STRING | FK dim_staff.staff_id | 0 | `STF000040`, `STF004249`, `STF001741` … (high cardinality) |
+| `visit_status` | STRING |  | 0.02 | `completed`, `no show`, `admitted` — **case varies by `source_system`** <sup>3</sup> |
+| `is_no_show` | BOOLEAN |  | 0 | `0`, `1` |
+| `escalated_to_inpatient` | BOOLEAN |  | 0 | `0`, `1` <sup>4</sup> |
+| `primary_diagnosis_code` | STRING | FK dim_icd10.icd10_code | 0 | `N39.0`, `E11.65`, `I10` … (28 distinct) |
+| `payer_id` | STRING | FK dim_payer.payer_id | 0 | `PAY001` … `PAY009` |
+| `mrn` | STRING <sup>1</sup> |  | 0 | `050629790`, `330740755`, `330513123` … (high cardinality) |
+| `source_system` | STRING |  | 0 | `MERIDIAN_EHR_CORE`, `URGENTCARE_CLOUD`, `ACADEMIC_CIS`, `REGIONAL_HIS`, `COMMUNITY_CARE_EHR` |
+
+<sup>1</sup> identifier — leading zeros are significant, never cast to a number
+
+<sup>2</sup> **legitimate null, not a defect.** A no-show never arrives and is never seen, so
+`arrival_time` and `provider_seen_time` are null together on those rows (`is_no_show = 1`).
+**Exclude no-shows from wait-time averages** — counting them as a zero wait understates the
+metric, and counting them as missing data hides a real operational signal. They belong in their
+own no-show rate.
+
+<sup>3</sup> the same status arrives as `completed`, `COMPLETED` and `Completed` depending on the
+emitting EHR. This is the standardisation problem the client describes, not a defect — see §8.
+
+<sup>4</sup> an ASC visit that became an inpatient admission. Where true, the corresponding
+`ehr/admissions` row exists and shares `subject_id`.
 
 
 ### `ehr/transfers`
 
-**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Observed volume** 7,039 · **Columns** 9
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 9
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -436,7 +581,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `ehr/diagnoses`
 
-**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Observed volume** 14,163 · **Columns** 9
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 9
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -460,7 +605,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `claims/claim_header`
 
-**Landing** OneLake Files · **Cadence** Daily — discharges 2–6 days prior · **Format** CSV · **Observed volume** 4,333 · **Columns** 25
+**Landing** OneLake Files · **Cadence** Daily — discharges 2–6 days prior · **Format** CSV · **Columns** 25
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -495,7 +640,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `claims/claim_line`
 
-**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Observed volume** 18,027 · **Columns** 13
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 13
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -518,7 +663,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `claims/remit`
 
-**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Observed volume** 4,157 · **Columns** 16
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 16
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -544,7 +689,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `claims/remit_adjustment`
 
-**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Observed volume** 8,306 · **Columns** 11
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 11
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -570,7 +715,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `beds/hourly_snapshot`
 
-**Landing** OneLake Files · **Cadence** Hourly, batched into one daily file · **Format** CSV · **Observed volume** 11,922 · **Columns** 13
+**Landing** OneLake Files · **Cadence** Hourly, batched into one daily file · **Format** CSV · **Columns** 13
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -593,7 +738,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `beds/nhsn_weekly`
 
-**Landing** OneLake Files · **Cadence** Weekly — week ending Sunday, measured Wednesday · **Format** CSV · **Observed volume** 6 · **Columns** 16
+**Landing** OneLake Files · **Cadence** Weekly — week ending Sunday, measured Wednesday · **Format** CSV · **Columns** 16
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -624,7 +769,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `pharmacy/inventory`
 
-**Landing** OneLake Files · **Cadence** Daily snapshot · **Format** CSV · **Observed volume** 7,136 · **Columns** 33
+**Landing** OneLake Files · **Cadence** Daily snapshot · **Format** CSV · **Columns** 33
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -672,7 +817,7 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 
 ### `sharepoint/staff_schedules (XLSX, header row 5)`
 
-**Landing** SharePoint document library · **Cadence** Weekly — Monday, one workbook per facility · **Format** XLSX · **Observed volume** 2,815 · **Columns** 18
+**Landing** SharePoint document library · **Cadence** Weekly — Monday, one workbook per facility · **Format** XLSX · **Columns** 19
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -680,15 +825,16 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 | `Unit` | STRING |  | 0 | `Medical/Surgical (MS)`, `Emergency Department (ED)`, `Medical Intensive Care (MICU)`, `Telemetry (TELE)`, `Step-Down (SDU)`, `Surgical Intensive Care (SICU)`, `Labor & Delivery (LD)`, `Cardiovascular ICU (CVICU)`, `Post-Anesthesia Care (PACU)`, `Postpartum (PP)`, `Specialty Care Oncology (ONC)`, `Pediatrics (PEDS)`, `Psychiatric (PSY)`, `Neonatal ICU (NICU)` … (+1) |
 | `Unit Code` | STRING | FK dim_unit.unit_code | 0 | `MS`, `ED`, `MICU`, `TELE`, `SDU`, `SICU`, `LD`, `CVICU`, `PACU`, `PP`, `ONC`, `PEDS`, `PSY`, `NICU` … (+1) |
 | `Work Date` | STRING |  | 0 | `2026-08-12`, `2026-08-11`, `2026-08-10`, `08/12/2026`, `08/11/2026`, `08/10/2026`, `2026-08-14`, `2026-08-15`, `2026-08-13`, `2026-08-16`, `08/16/2026`, `08/13/2026`, `08/14/2026`, `08/15/2026` |
-| `Shift` | STRING |  | 0 | `D`, `N` |
-| `Shift Start` | STRING |  | 0 | `07:00`, `19:00` |
-| `Shift End` | STRING |  | 0 | `19:00`, `07:00` |
+| `Shift` | STRING |  | 0 | `D`, `E`, `N`, `OC` <sup>2</sup> |
+| `Shift Start` | STRING |  | 0 | `07:00`, `15:00`, `23:00`, `19:00` |
+| `Shift End` | STRING |  | 0 | `15:00`, `23:00`, `07:00` |
 | `Staff ID` | STRING | FK dim_staff.staff_id | 0 | `STF002180`, `STF003512`, `STF002694` … (1,633 distinct) |
 | `Name` | STRING |  | 0 | `Johnson, Anthony`, `Rogers, Michelle`, `Wilson, Shannon` … (1,615 distinct) |
 | `Job Code` | STRING |  | 0 | `RN`, `LPN`, `NP` |
 | `Employment Type` | INTEGER |  | 0 | `1`, `2` |
-| `Scheduled Hours` | INTEGER |  | 0 | `12` |
-| `Actual Hours` | INTEGER |  | 0 | `12`, `14`, `16`, `0` |
+| `Scheduled Hours` | INTEGER |  | 0 | `8` (D/E/N), `12` (OC) |
+| `Actual Hours` | DECIMAL |  | 31.70 <sup>3</sup> | `8`, `10`, `12`, `14`, `16`, `0` |
+| `Status` | STRING |  | 0 | `completed`, `absent`, `scheduled`, `swapped`, `cancelled` |
 | `Overtime` | STRING |  | 89.73 | `Y` |
 | `Called Out` | STRING |  | 95.45 | `Y` |
 | `Floated In` | STRING |  | 94.81 | `Y` |
@@ -696,6 +842,18 @@ Every streamed event shares one envelope. Three fields carry engineering weight:
 | `Notes` | STRING |  | 50.52 | `orientee paired`, `float pool`, `double shift`, `agency` |
 
 <sup>1</sup> identifier — leading zeros are significant, never cast to a number
+
+<sup>2</sup> `D` 07:00–15:00, `E` 15:00–23:00, `N` 23:00–07:00 — three 8-hour shifts covering the
+day with no overlap, each staffed against the unit's census ratio. `OC` (on-call, 19:00, 12h) is
+**cover, not rostered presence**: it is a fixed small team, not scaled from census. A
+nurse-to-patient ratio computed against `OC` is meaningless — it yields one nurse "covering" a
+50-bed unit. **Exclude `OC` from any mandated-ratio or staffing-adequacy measure** and report it
+separately. See §9 on why the earlier two-shift model was replaced.
+
+<sup>3</sup> **legitimate null, not a defect.** `Actual Hours` is null while `Status` is
+`scheduled`, `swapped` or `cancelled` — the shift has not been worked yet. These rows are
+deliberately *not* in the answer key: they are the material that proves a completeness gate does
+not false-positive on a null that is supposed to be there.
 
 
 ### — Streaming — patient vitals —
@@ -821,7 +979,17 @@ defect — there is no third case.
 | `admissions.subject_id` | `patients.Id` | patient UUID | Must resolve |
 | `transfers.hadm_id` | `admissions.hadm_id` | `HADM…` | Must resolve; 1:N |
 | `diagnoses.hadm_id` | `admissions.hadm_id` | `HADM…` | Must resolve; 1:N |
-| `ed_stays.hadm_id` | `admissions.hadm_id` | `HADM…` | **Nullable by design** — empty for patients discharged from ED (74% of ED stays). See §9.2. |
+| `ed_stays.hadm_id` | `admissions.hadm_id` | `HADM…` | **Nullable by design** — empty for patients discharged from ED (74% of ED stays). Join via `encounter_id` instead. |
+| `ed_stays.encounter_id` | `encounters.Id` | `ENC…` | Must resolve; 1:1. The join path for ED-discharged patients |
+| `outpatient_visits.encounter_id` | `encounters.Id` | `ENC…` | Must resolve; 1:1 |
+| `outpatient_visits.subject_id` | `patients.Id` | patient UUID | Must resolve |
+| `outpatient_visits.unit_id` | `dim_unit.unit_id` | `330101-OPC` | Must resolve; `OPC`/`ASC` units only |
+| `outpatient_visits.payer_id` | `dim_payer.payer_id` | `PAY…` | Must resolve |
+| `outpatient_visits.primary_diagnosis_code` | `dim_icd10.icd10_code` | ICD-10-CM | Must resolve |
+| `outpatient_visits.seen_by_provider_id` | `dim_staff.staff_id` | `STF…` | Must resolve |
+| `admissions.drg_code` | `dim_drg.drg_code` | MS-DRG | Must resolve |
+| `diagnoses.icd_code` | `dim_icd10.icd10_code` | ICD-10-CM | Must resolve |
+| `admissions.index_encounter_id` | `encounters.Id` | `ENC…` | **Nullable, and resolves only within the window** — a readmission whose index stay pre-dates the extract points at nothing. Not an orphan defect. See §9.2. |
 | `claim_header.encounter_id` | `encounters.Id` | `ENC…` | Must resolve |
 | `claim_line.patient_control_number` | `claim_header.patient_control_number` | `PCN…` | Must resolve; 1:N |
 | `remit.patient_control_number` | `claim_header.patient_control_number` | `PCN…` | Must resolve; 1:1 |
@@ -853,11 +1021,21 @@ Full domains appear in the per-table sections. These are the ones most often mis
 | `dim_payer.payer_type` | Medicare, Medicare Advantage, Medicaid, Medicaid MC, Commercial, Self-Pay, Other | **7** |
 | `dim_facility.facility_type` | General Acute Care, Teaching, Regional, Community, Urgent Care | 5 |
 | `dim_facility.region` | Northeast, West, Midwest, South | 4 |
-| `dim_unit.unit_type` | 15 values — see `dim_unit` | **15** |
-| `encounters.EncounterClass` | emergency, inpatient | **2** — outpatient missing, see §9.1 |
+| `dim_unit.unit_type` | 17 values — see `dim_unit`, now including `Outpatient Clinic` (`OPC`) and `Ambulatory Surgery` (`ASC`) | **17** |
+| `encounters.EncounterClass` | outpatient, emergency, inpatient, ambulatory, urgentcare | **5** <sup>†</sup> |
+| `staff_schedules.Shift` | D, E, N, OC | **4** — `OC` is cover, exclude from ratio measures |
 | `remit.claim_status_code` | `1` processed as primary, `4` denied | X12 CLP02 |
 | `ed_stays.acuity` | 1–5 ESI, 1 = most acute | MIMIC-IV-ED |
 | `diagnoses.hrrp_cohort` | AMI, HF, PN, COPD, OTHER | CMS HRRP |
+| `dim_icd10.hrrp_cohort` | AMI, HF, PN, COPD, OTHER | CMS HRRP |
+| `dim_drg.severity_tier` | MCC, CC, NONE | MS-DRG |
+| `outpatient_visits.visit_status` | completed, no show, admitted | case varies by source system |
+
+<sup>†</sup> **case is not canonical.** `EncounterClass` arrives as `outpatient`, `OUTPATIENT`
+and `Outpatient` — and likewise for the others — because facilities run different EHRs. The
+five values above are the domain *after* case-folding. A Silver enum check that does not fold
+case first will reject roughly half of all encounters. Same applies to
+`outpatient_visits.visit_status`. See §8.
 
 > Two of these are commonly truncated. `payer_type` **must** keep Medicare Advantage separate —
 > its denial rate is calibrated to roughly 2× traditional Medicare, which is the most
@@ -872,18 +1050,35 @@ Every run injects data-quality defects at a configurable rate **and records each
 `out/dq_answer_key.json`. That file is the marking scheme. It must never land in Bronze
 alongside the data it grades.
 
-| Defect class | Rows (7-day run) | Check that should catch it |
-|---|---|---|
-| late event | 44,250 | late-data handling / watermarks |
-| null required field | 29,460 | completeness / `null_check` |
-| duplicate `event_id` | 14,674 | uniqueness / dedupe |
-| type non-conformance | 181 | type conformance — e.g. `"12.5 mg"` in a numeric column |
-| invalid code value | 153 | validity / domain (`enum_check`) |
-| numeric outlier | 110 | plausibility range |
-| duplicate row | 99 | uniqueness |
-| temporal inversion | 30 | temporal validity — discharge before admit |
-| orphan foreign key | 7 | cross-source referential integrity |
-| **Total** | **88,964** | |
+Defects are injected at two levels.
+
+**Row-level** — the value is wrong, but the file arrives intact:
+
+| Defect class | Check that should catch it |
+|---|---|
+| late event | late-data handling / watermarks |
+| null required field | completeness / `null_check` |
+| duplicate `event_id` | uniqueness / dedupe |
+| type non-conformance | type conformance — e.g. `"12.5 mg"` in a numeric column |
+| invalid code value | validity / domain (`enum_check`) |
+| numeric outlier | plausibility range |
+| duplicate row | uniqueness |
+| temporal inversion | temporal validity — discharge before admit |
+| orphan foreign key | cross-source referential integrity |
+
+**File-level** — the file itself is wrong or absent. These exist because the client success
+criteria require pipelines that *"can be demonstrated to recover from a failed run without
+manual data-fixing"*, and no row-level defect can produce that failure:
+
+| Defect class | Check that should catch it |
+|---|---|
+| `missing_file` | expected-arrival / freshness monitoring — the partition never lands |
+| `truncated_file` | row-count reconciliation against expected volume |
+
+> Counts vary by run length, seed and `--chaos`; read them from `by_type` in the answer key for
+> the run you actually generated rather than from a number pinned in this document. A 21-day
+> `--no-streams` run injects ~12,000; stream defects (late event, duplicate `event_id`) only
+> appear when streams are generated.
 
 `--chaos` multiplies the rates for the break-it test; `--no-defects` produces a clean baseline.
 **Always generate both.** When something looks wrong, the baseline tells you in one step whether
@@ -902,53 +1097,37 @@ Ranked by whether a **named client requirement** cannot be met without it. This 
 to "does it need implementing": the MUST items block a stated deliverable, the SHOULD items
 block a downstream design that has already been written, and the COULD items are realism.
 
+### 9.0 Closed since the first issue of this contract
+
+These were MUST or SHOULD gaps in the previous revision and are now implemented. They are listed
+because a consumer who read the earlier revision will have designed around their absence.
+
+| Was missing | Now |
+|---|---|
+| Outpatient encounters | `ehr/outpatient_visits` feed, `OPC`/`ASC` unit types, four-point wait timeline |
+| Urgent care facility emitted nothing | `450601` now emits, including an `urgentcare` encounter class |
+| Encounter volume ~10× under the brief | Outpatient volume brings the run in line with *"several million visits a year"* |
+| No file-level failure modes | `missing_file` and `truncated_file` defect classes, both in the answer key |
+| `ed_stays` had no `encounter_id` | Emitted and 100% populated — a single visit fact is now buildable |
+| `provider_seen_time` not emitted | Emitted on **both** `ed_stays` and `outpatient_visits` — door-to-doctor is computable |
+| `drg_code` null | Populated on every admission, resolved by `reference/dim_drg` |
+| No ICD-10 / DRG lookup tables | `reference/dim_icd10` and `reference/dim_drg` |
+| `source_system` absent from batch EHR | Present, and date format + enum casing now vary by it |
+| Reference dimensions never changed | Weekly hires, terminations and unit transfers — `dim_staff` is SCD-2 material |
+| Payer names never varied | Three spellings per payer in the claims feeds |
+| No legitimate nulls | `Actual Hours` null until a shift is worked; no-show visit timestamps null |
+| Only two shift types | `D`/`E`/`N` three-shift pattern plus `OC` cover |
+| `pending_discharges` dead | Populated |
+| Staff rows with `termination_date` ≤ `hire_date` | Minimum employment period enforced |
+
 ### 9.1 MUST — blocks a stated client requirement
 
-**No outpatient encounters exist.** The client request names the problem directly: *"Patient
-wait times in emergency and outpatient departments are trending in the wrong direction."*
-`EncounterClass` contains only `emergency` (4,788) and `inpatient` (2,187). There is **no
-outpatient encounter class and no outpatient or clinic unit type** among the 15. Half of a
-named business problem cannot be answered from this contract. Requires: an outpatient
-encounter class, outpatient/clinic unit types, and an outpatient arrival→seen timeline.
-
-**The urgent care facility emits nothing.** `450601 Meridian Urgent Care – Austin` exists in
-`dim_facility` and has a unit, but produced **0 encounters**. One of the seven facilities the
-client describes generates no data at all, so any per-facility view has a permanently empty
-row.
-
-**Encounter volume is roughly 10× under the brief.** 6,991 encounters in 7 days extrapolates to
-~365,000 a year against the client's *"several million patient visits a year"*. Adding
-outpatient volume closes most of this, since outpatient is normally the bulk of visits.
-
-**No file-level failure modes.** The client success criteria require pipelines that *"can be
-demonstrated to recover from a failed run without manual data-fixing"*. All 88,964 injected
-defects are **row**-level: every file always arrives, on time, complete. The generator cannot
-currently produce the failure a recovery demonstration needs. Requires: missing file, truncated
-file (<95% of expected rows), and late file drop — each recorded in the answer key.
-
-**21 staff rows have `termination_date` on or before `hire_date`,** and they are **not** in the
-answer key. Hire and termination offsets are drawn independently. Unaccounted defects break the
-central premise that every defect is traceable, and a temporal-validity check on `dim_staff`
-will flag rows nobody can explain.
+*None currently open.* Every gap that blocked a named client requirement in the previous
+revision is listed in §9.0. This is a statement about **coverage, not quality** — it means each
+stated question has source data behind it, not that the numbers are validated. See the caveat at
+the head of §9.2.
 
 ### 9.2 SHOULD — blocks a downstream design already written
-
-**`ed_stays` has no `encounter_id`.** 4,798 of 6,468 ED stays (74%) also have an empty
-`hadm_id`, so those rows have **no join path to `encounters` at all**. They correspond to the
-4,788 `emergency`-class encounters — conceptually 1:1, but with no key to connect them. This is
-faithful to MIMIC-IV, where `edstays.hadm_id` is genuinely null for non-admitted patients and
-no encounter concept exists. For this platform it means a single visit fact covering
-ED-discharged patients cannot be built, which is most of ED volume and the OP-18 denominator
-(n = 4,678). One added column fixes it.
-
-**`provider_seen_time` is not emitted.** Door-to-doctor cannot be computed. `triage_time` and
-`admit_decision_time` exist; first physician contact does not.
-
-**`drg_code` is null** in 0 of 177 populated rows. Blocks a DRG dimension and any case-mix
-adjustment. Requires parsing the CMS MS-DRG Definitions Manual rather than hard-coding.
-
-**No ICD-10 or DRG lookup tables.** Real ICD-10-CM codes are embedded in `ehr/diagnoses` but
-emitted as no code-set dimension, so a diagnosis dimension has nothing to build from.
 
 **NEWS2 is not emitted.** The client asks for *"an unusually high rate of critical
 patient-monitoring alerts"*. The six parameters and the thresholds (≥5 urgent, ≥7 emergency)
@@ -957,31 +1136,30 @@ exist, so the score is derivable in Silver — but nothing in the contract carri
 literature (alarms per bed per day, share clinically actionable) was never retrieved, so the
 critical-alert tile has no defensible benchmark yet.
 
-**`source_system` is absent from the batch EHR rows.** The client states facilities *"run on a
-mix of electronic health record (EHR) systems"*. The streams carry provenance; the batch feeds
-do not. Adding it — and varying date format and casing by it — turns a flat column into the
-standardisation problem the client actually has.
+**No procedure feed.** `reference/dim_drg` therefore carries medical DRGs only. Surgical case
+mix, OR utilisation and procedure-level costing are all unbuildable, and `ASC` visits record
+that a surgery happened without recording which one.
 
-**Reference dimensions never change.** Successive snapshots are byte-identical, so there are no
-hires, terminations or unit moves across the window and nothing to test SCD-2 against.
+**`relative_weight` in `dim_drg` is synthetic.** Approximate values, not the CMS FY relative
+weight file. Adequate for building a case-mix *pipeline*; **not** adequate for any statement
+about reimbursement or payer mix. Replace the file before quoting a figure.
+
+**Readmission linkage is only as good as `index_encounter_id`.** Readmissions whose index stay
+pre-dates the extract window carry an `index_encounter_id` that resolves to nothing. That is
+faithful — a real extract has the same edge — but any readmission-rate measure **must** restrict
+its numerator to readmissions whose index stay is itself in the eligible denominator, or the
+rate is computed across two different populations and is wrong at every window length.
 
 ### 9.3 COULD — realism and test coverage
 
-- **Legitimate nulls.** `Actual Hours` is populated in 272 of 272 rows; a real roster has it
-  null until the shift completes, as does `paid_amount` until payment. Legitimate nulls test
-  that the DQ gate does **not** false-positive — no such material exists today.
-- **Only two shift types.** `D` and `N`. Evening and on-call are real patterns, and evening is
-  where understaffing concentrates.
-- **Payer names never vary.** Spelled identically every time, so a standardisation rule has
-  nothing to resolve.
 - **Missing fields** referenced by downstream designs: `is_readmission_related` (HRRP penalty
   exposure), `is_high_risk` on patients, `last_restocked_at` on inventory.
-- **`pending_discharges` is dead.** All 11,922 rows carry `0`. It is meant to be the near-term
-  supply signal — expected discharges in the next few hours — and paired with
-  `pending_admissions` (which is populated, 5–8 typical) it is half of the surge-planning
-  picture the client asks for under *"where capacity is tight and where it is available"*.
-  Either populate it or remove it; a permanently-zero column invites a dashboard tile that
-  always reads zero.
+- **No appointment-scheduling history.** `outpatient_visits` carries the appointment that
+  happened, not reschedules or cancellations, so clinic-utilisation and slot-fill analysis has
+  no denominator.
+- **No-show risk is uncorrelated with patient attributes.** Drawn at a flat rate, so a model
+  built on it will find nothing — deliberate for now, but it means the feed cannot support a
+  predictive no-show use case.
 
 ### 9.4 Explicitly out of scope for this contract
 
@@ -1022,7 +1200,10 @@ documentation edit that makes the mismatch invisible.
   FDA `product.txt` and RxNorm Prescribable Content release into `refdata/` and they are used
   automatically. Verify the live `product.txt` header casing first — FDA docs render CamelCase
   but the file appears to be uppercase.
-- MS-DRG assignment (see §9.2).
+- MS-DRG **relative weights**. Assignment itself is now implemented — `admissions.drg_code` is
+  populated and resolves to `reference/dim_drg` — but the weights are approximate synthetic
+  values, not the CMS FY relative weight file. Medical DRGs only, since there is no procedure
+  feed. Do not model reimbursement on them (see §9.2).
 - NEWS2 systolic BP and SpO₂ Scale 2 bands need confirming against the official RCP chart; the
   PDF extracted from disagreed with the canonical table.
 - Alarm rates — alarms per bed per day, share clinically actionable — not retrieved.
