@@ -354,7 +354,7 @@ reimbursement modelling**; replace it with the CMS FY relative weight file first
 
 ### `ehr/patients`
 
-**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 32
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 33
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -388,15 +388,21 @@ reimbursement modelling**; replace it with the CMS FY relative weight file first
 | `Income` | STRING |  | 0 | `41183`, `37805`, `16000` … (4,860 distinct) |
 | `phone` | STRING |  | 0 | `663.856.5165x75692`, `001-405-408-8423x04220`, `001-711-572-2216x384` … (4,958 distinct) |
 | `email` | STRING |  | 0 | `snyderpamela@example.com`, `lmartin@example.org`, `psmith@example.com` … (4,898 distinct) |
-| `mrn` | STRING <sup>1</sup> | AK per facility | 0 | `330837549`, `330239746`, `140632059` … (6,279 distinct) |
-| `source_facility_id` | STRING <sup>1</sup> | FK dim_facility | 0 | `330102`, `330101`, `050201`, `140401`, `030301`, `110501` |
+| `mrn` | STRING <sup>1</sup> | AK per facility | 0 | `330837549`, `330239746`, `140632059` … (high cardinality) |
+| `source_facility_id` | STRING <sup>1</sup> | FK dim_facility | 0 | `330102`, `330101`, `050201`, `140401`, `030301`, `110501`, `450601` |
+| `is_high_risk` | BOOLEAN |  | 0 | `0`, `1` <sup>2</sup> |
 
 <sup>1</sup> identifier — leading zeros are significant, never cast to a number
+
+<sup>2</sup> a **source** flag, rising with age (~3% at 45, capped at 42%). It is the patient's
+standing clinical risk, not a readmission prediction and not derived from anything else in this
+contract. Do not re-derive it, and do not treat it as a modelling target — nothing downstream
+depends on it, so a model trained on it is fitting the generator, not clinical reality.
 
 
 ### `ehr/encounters`
 
-**Landing** OneLake Files · **Cadence** Daily — encounters closed on run_date − 1 · **Format** CSV · **Columns** 21
+**Landing** OneLake Files · **Cadence** Daily — encounters closed on run_date − 1 · **Format** CSV · **Columns** 22
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -404,10 +410,10 @@ reimbursement modelling**; replace it with the CMS FY relative weight file first
 | `Start` | TIMESTAMP |  | 0.17 | `2026-08-05 14:31:00`, `2026-08-05 09:43:00`, `2026-08-05 09:08:00` … (5,418 distinct) |
 | `Stop` | TIMESTAMP |  | 0 | `2026-08-05 18:47:02`, `2026-08-05 21:06:44`, `2026-08-05 12:25:53` … (6,939 distinct) |
 | `Patient` | STRING | FK patients.Id | 0.1 | `39e8234f-d349-405a-a7ad-78a744bcdcc3`, `e8a0c589-dd5e-46c1-bb6b-7a73f6add04e`, `31cde0a2-2d3c-4c12-b086-d5cd29ce8e81` … (4,955 distinct) |
-| `Organization` | STRING <sup>1</sup> | FK dim_facility | 0 | `330102`, `330101`, `050201`, `140401`, `030301`, `110501` |
+| `Organization` | STRING <sup>1</sup> | FK dim_facility | 0 | `330102`, `330101`, `050201`, `140401`, `030301`, `110501`, `450601` |
 | `Provider` | STRING | FK dim_staff | 0 | `STF002949`, `STF000875`, `STF000153` … (3,751 distinct) |
 | `Payer` | STRING | FK dim_payer | 0 | `PAY001`, `PAY002`, `PAY005`, `PAY004`, `PAY003`, `PAY006`, `PAY007`, `PAY008`, `PAY009` |
-| `EncounterClass` | STRING |  | 0.19 | `emergency`, `inpatient` — **plus 2 DQ-invalid value(s) by design** |
+| `EncounterClass` | STRING |  | 0.15 | `outpatient`, `emergency`, `inpatient`, `ambulatory`, `urgentcare` — **case varies by `source_system`** <sup>2</sup> — plus 4 DQ-invalid value(s) by design |
 | `Code` | STRING |  | 0 | `R07.9`, `R10.9`, `I10` … (28 distinct) |
 | `Description` | STRING |  | 0 | `Chest pain, unspecified`, `Unspecified abdominal pain`, `Essential (primary) hypertension` … (28 distinct) |
 | `Base_Encounter_Cost` | DECIMAL |  | 0 | `594.99`, `852.84`, `640.53` … (6,677 distinct) |
@@ -415,19 +421,31 @@ reimbursement modelling**; replace it with the CMS FY relative weight file first
 | `Payer_Coverage` | STRING |  | 100 | — |
 | `ReasonCode` | STRING |  | 0 | `R07.9`, `R10.9`, `I10` … (28 distinct) |
 | `ReasonDescription` | STRING |  | 7.45 | `Chest pain, unspecified`, `Unspecified abdominal pain`, `Essential (primary) hypertension`, `Type 2 diabetes mellitus with hyperglycemia`, `Urinary tract infection, site not specified`, `Unspecified atrial fibrillation`, `Dehydration`, `Chronic obstructive pulmonary disease with (acute) exacerbat`, `Heart failure, unspecified`, `Acute on chronic diastolic (congestive) heart failure`, `Chronic obstructive pulmonary disease with (acute) lower res`, `Myocardial infarction type 2`, `Pneumonia, unspecified organism`, `Unspecified bacterial pneumonia` … (+3) |
-| `facility_id` | STRING <sup>1</sup> | FK dim_facility | 0 | `330102`, `330101`, `050201`, `140401`, `030301`, `110501` |
-| `unit_id` | STRING | FK dim_unit | 0 | `330102-ED`, `330101-ED`, `050201-ED` … (67 distinct) |
-| `encounter_class_code` | STRING |  | 0 | `EMER`, `IMP` — **plus 3 DQ-invalid value(s) by design** |
+| `facility_id` | STRING <sup>1</sup> | FK dim_facility | 0 | `330102`, `330101`, `050201`, `140401`, `030301`, `110501`, `450601` |
+| `unit_id` | STRING | FK dim_unit | 0 | `330102-MS`, `330101-OPC`, `050201-ED` … (81 distinct) <sup>3</sup> |
+| `encounter_class_code` | STRING |  | 0.01 | `AMB`, `EMER`, `IMP` — **plus 4 DQ-invalid value(s) by design** |
 | `encounter_status` | STRING |  | 0 | `finished` |
-| `patient_class` | STRING |  | 0 | `E`, `I` — **plus 5 DQ-invalid value(s) by design** |
-| `mrn` | STRING <sup>1</sup> | FK patients.mrn | 0 | `330631380`, `330837549`, `330239746` … (6,492 distinct) |
+| `patient_class` | STRING |  | 0.02 | `O`, `E`, `I` — **plus 4 DQ-invalid value(s) by design** |
+| `mrn` | STRING <sup>1</sup> | FK patients.mrn | 0 | `330631380`, `330837549`, `330239746` … (high cardinality) |
+| `source_system` | STRING |  | 0 | `MERIDIAN_EHR_CORE`, `REGIONAL_HIS`, `COMMUNITY_CARE_EHR`, `ACADEMIC_CIS`, `URGENTCARE_CLOUD` |
 
 <sup>1</sup> identifier — leading zeros are significant, never cast to a number
+
+<sup>2</sup> **not canonical.** The same class arrives as `outpatient`, `OUTPATIENT` and
+`Outpatient` depending on which EHR emitted the row. Case-fold before any enum check or
+grouping; one that does not will reject or split roughly half of all encounters. `AMB` /
+`ambulatory` and `outpatient` are both outpatient-class — `urgentcare` is its own class,
+emitted only by `450601`. See §8.
+
+<sup>3</sup> **`unit_id` reflects where the encounter actually happened**, including `OPC` and
+`ASC` for outpatient. Outpatient encounters previously carried an `-ED` unit, which inflated ED
+encounter volume against `dim_unit` by roughly 8×. If you have a saved extract from before this
+correction, re-pull it — any per-unit or ED-volume figure taken from it is wrong.
 
 
 ### `ehr/admissions`
 
-**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 25
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 27
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -454,15 +472,27 @@ reimbursement modelling**; replace it with the CMS FY relative weight file first
 | `transferred_in_within_6h` | BOOLEAN |  | 0 | `0`, `1` |
 | `is_readmission` | BOOLEAN |  | 0 | `0`, `1` |
 | `is_planned_readmission` | BOOLEAN |  | 0 | `0`, `1` |
-| `index_encounter_id` | STRING | FK encounters.Id | 93.01 | `ENC000002164`, `ENC000003402`, `ENC000004057` … (153 distinct) |
+| `index_encounter_id` | STRING | FK encounters.Id | 93.01 <sup>2</sup> | `ENC000002164`, `ENC000003402`, `ENC000004057` … (153 distinct) |
 | `encounter_id` | STRING | FK encounters.Id | 0 | `ENC000013581`, `ENC000000263`, `ENC000000317` … (2,188 distinct) |
+| `drg_code` | STRING <sup>1</sup> | FK dim_drg.drg_code | 0 | `291`, `871`, `194`, `689`, `292`, `309` … (39 distinct) |
+| `source_system` | STRING |  | 0 | `MERIDIAN_EHR_CORE`, `REGIONAL_HIS`, `ACADEMIC_CIS`, `COMMUNITY_CARE_EHR` <sup>3</sup> |
 
 <sup>1</sup> identifier — leading zeros are significant, never cast to a number
+
+<sup>2</sup> populated only on rows where `is_readmission = 1`, and **resolves only within the
+window** — a readmission whose index stay pre-dates the extract points at an encounter that was
+never emitted. That is faithful to a real extract, not an orphan defect. Any readmission-rate
+measure must restrict its numerator to readmissions whose index stay is in the eligible
+denominator, or numerator and denominator are drawn from different populations.
+
+<sup>3</sup> which EHR the row came from. **`admittime` / `dischtime` date format and enum casing
+vary by this column** — see §8. Note `URGENTCARE_CLOUD` does not appear here: the urgent care
+facility does not admit.
 
 
 ### `ehr/ed_stays`
 
-**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 21
+**Landing** OneLake Files · **Cadence** Daily · **Format** CSV · **Columns** 24
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -605,7 +635,7 @@ emitting EHR. This is the standardisation problem the client describes, not a de
 
 ### `claims/claim_header`
 
-**Landing** OneLake Files · **Cadence** Daily — discharges 2–6 days prior · **Format** CSV · **Columns** 25
+**Landing** OneLake Files · **Cadence** Daily — discharges 2–6 days prior · **Format** CSV · **Columns** 26
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -634,8 +664,14 @@ emitting EHR. This is the standardisation problem the client describes, not a de
 | `medical_record_number` | STRING <sup>1</sup> | FK patients.mrn | 0 | `330239746`, `330967638`, `330617124` … (4,126 distinct) |
 | `prior_authorization_number` | STRING |  | 58.23 | `AUTH41830870`, `AUTH86434287`, `AUTH13676334` … (1,809 distinct) |
 | `submission_date` | DATE |  | 0 | `2026-08-11`, `2026-08-12`, `2026-08-13`, `2026-08-10`, `2026-08-09`, `2026-08-08`, `2026-08-07` |
+| `is_readmission_related` | BOOLEAN |  | 0 | `0`, `1` <sup>2</sup> |
 
 <sup>1</sup> identifier — leading zeros are significant, never cast to a number
+
+<sup>2</sup> the claim bills a stay flagged `admissions.is_readmission`. It is **HRRP penalty
+exposure on the billing side**, and it is *not* the readmission-rate numerator: it carries no
+index link, applies no HRRP exclusion, and includes planned readmissions. Use
+`ehr/admissions` for the rate; use this only to price it.
 
 
 ### `claims/claim_line`
@@ -769,7 +805,7 @@ emitting EHR. This is the standardisation problem the client describes, not a de
 
 ### `pharmacy/inventory`
 
-**Landing** OneLake Files · **Cadence** Daily snapshot · **Format** CSV · **Columns** 33
+**Landing** OneLake Files · **Cadence** Daily snapshot · **Format** CSV · **Columns** 34
 
 | Column | Type | Key | Null % | Domain / sample |
 |---|---|---|---:|---|
@@ -806,8 +842,13 @@ emitting EHR. This is the standardisation problem the client describes, not a de
 | `extended_value` | DECIMAL |  | 0 | `58.8`, `1.8`, `2.1` … (1,145 distinct) |
 | `last_count_variance` | INTEGER |  | 0 | `0`, `1`, `-1`, `2`, `-2` |
 | `is_stockout` | BOOLEAN |  | 0 | `0` |
+| `last_restocked_at` | DATE |  | 0 | `2026-07-08`, `2026-07-04`, `2026-06-25` … (29 distinct) <sup>2</sup> |
 
 <sup>1</sup> identifier — leading zeros are significant, never cast to a number
+
+<sup>2</sup> a **date, not a timestamp**, despite the `_at` suffix — there is no restock time of
+day. Paired with `days_on_hand` it gives replenishment lead time; on its own it does not indicate
+whether stock is currently adequate.
 
 
 ### — Staff rostering —
@@ -1119,6 +1160,8 @@ because a consumer who read the earlier revision will have designed around their
 | Only two shift types | `D`/`E`/`N` three-shift pattern plus `OC` cover |
 | `pending_discharges` dead | Populated |
 | Staff rows with `termination_date` ≤ `hire_date` | Minimum employment period enforced |
+| `is_readmission_related`, `is_high_risk`, `last_restocked_at` | All three emitted and documented |
+| Outpatient encounters carried an `-ED` unit | Corrected — `encounters.unit_id` is now the real unit, including `OPC`/`ASC` |
 
 ### 9.1 MUST — blocks a stated client requirement
 
@@ -1152,8 +1195,6 @@ rate is computed across two different populations and is wrong at every window l
 
 ### 9.3 COULD — realism and test coverage
 
-- **Missing fields** referenced by downstream designs: `is_readmission_related` (HRRP penalty
-  exposure), `is_high_risk` on patients, `last_restocked_at` on inventory.
 - **No appointment-scheduling history.** `outpatient_visits` carries the appointment that
   happened, not reschedules or cancellations, so clinic-utilisation and slot-fill analysis has
   no denominator.

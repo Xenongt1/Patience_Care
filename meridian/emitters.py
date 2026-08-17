@@ -285,7 +285,14 @@ class Emitters:
                 "ReasonDescription": e.chief_complaint,
                 # our additions
                 "facility_id": e.facility_id,
-                "unit_id": e.stays[0][0].unit_id if e.stays else f"{e.facility_id}-ED",
+                # An outpatient encounter has no inpatient stay, so it used to
+                # fall through to the ED default below -- which was written when
+                # ED was the only stay-less encounter. That put every outpatient
+                # visit in the Emergency Department and inflated ED encounter
+                # volume several-fold against dim_unit.
+                "unit_id": (e.stays[0][0].unit_id if e.stays
+                            else e.outpatient_unit.unit_id if e.outpatient_unit
+                            else f"{e.facility_id}-ED"),
                 "encounter_class_code": e.act_code,
                 "encounter_status": "finished",
                 "patient_class": e.patient_class,
