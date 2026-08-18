@@ -1,0 +1,10 @@
+payer_id,payer_name,payer_type,claim_filing_indicator_code,share,prompt_pay_days
+PAY001,Medicare Part A/B,Medicare,MB,0.242,30
+PAY002,Vantage Medicare Advantage,Medicare Advantage,16,0.16,60
+PAY003,State Medicaid FFS,Medicaid,MC,0.118,30
+PAY004,Harborview Medicaid MC,Medicaid MC,MC,0.118,45
+PAY005,Atlas Health Commercial,Commercial,CI,0.126,40
+PAY006,Northwind PPO,Commercial,CI,0.101,40
+PAY007,Ironbridge HMO,Commercial,CI,0.06,40
+PAY008,Self-Pay,Self-Pay,09,0.042,0
+PAY009,Other / Workers Comp,Other,WC,0.033,45

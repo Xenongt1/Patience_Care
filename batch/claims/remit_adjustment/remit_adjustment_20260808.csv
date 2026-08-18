@@ -1,0 +1,657 @@
+patient_control_number,adjustment_seq,group_code,group_code_description,reason_code,reason_code_description,amount,quantity,remark_code,remark_code_description,is_denial
+PCN000000679,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,16469.82,,,,0
+PCN000000679,2,PR,Patient Responsibility,2,Coinsurance Amount,1441.1,,,,0
+PCN000002053,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,10097.64,,,,0
+PCN000002053,2,PR,Patient Responsibility,1,Deductible Amount,1581.92,,,,0
+PCN000003025,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,28521.86,,,,0
+PCN000003025,2,PR,Patient Responsibility,1,Deductible Amount,3702.07,,,,0
+PCN000005713,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,9026.95,,,,0
+PCN000005713,2,PR,Patient Responsibility,2,Coinsurance Amount,1458.11,,,,0
+PCN000006428,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6716.03,,,,0
+PCN000006428,2,PR,Patient Responsibility,1,Deductible Amount,948.33,,,,0
+PCN000006734,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,19096.78,,,,0
+PCN000006734,2,PR,Patient Responsibility,2,Coinsurance Amount,4249.12,,,,0
+PCN000008336,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6749.88,,,,0
+PCN000008336,2,PR,Patient Responsibility,3,Co-payment Amount,1095.49,,,,0
+PCN000008512,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,10113.56,,,,0
+PCN000008512,2,PR,Patient Responsibility,2,Coinsurance Amount,1350.67,,,,0
+PCN000009292,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6800.45,,,,0
+PCN000009292,2,PR,Patient Responsibility,2,Coinsurance Amount,668.11,,,,0
+PCN000009614,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,9481.06,,,,0
+PCN000009614,2,CO,Contractual Obligation,96,Non-covered charge(s).,7283.54,,,,1
+PCN000010325,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6975.54,,,,0
+PCN000010325,2,PR,Patient Responsibility,3,Co-payment Amount,1303.91,,,,0
+PCN000010669,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,10653.94,,,,0
+PCN000010669,2,PR,Patient Responsibility,1,Deductible Amount,2197.41,,,,0
+PCN000011061,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,7173.4,,,,0
+PCN000011061,2,PR,Patient Responsibility,3,Co-payment Amount,461.44,,,,0
+PCN000011223,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6867.07,,,,0
+PCN000011223,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,9037.57,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000011395,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,7903.42,,,,0
+PCN000011395,2,CO,Contractual Obligation,50,"These are non-covered services because this is not deemed a ""medical necessity"" by the payer.",6185.8,,,,1
+PCN000011465,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4887.31,,,,0
+PCN000011465,2,PR,Patient Responsibility,3,Co-payment Amount,2313.64,,,,0
+PCN000011712,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6778.69,,,,0
+PCN000011712,2,CO,Contractual Obligation,29,The time limit for filing has expired.,5377.94,,,,1
+PCN000011764,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,7293.89,,,,0
+PCN000011764,2,PR,Patient Responsibility,2,Coinsurance Amount,473.82,,,,0
+PCN000011766,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,8530.2,,,,0
+PCN000011766,2,PR,Patient Responsibility,1,Deductible Amount,399.24,,,,0
+PCN000011948,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4402.95,,,,0
+PCN000011948,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,6922.89,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000011966,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,3854.83,,,,0
+PCN000011966,2,PR,Patient Responsibility,3,Co-payment Amount,944.53,,,,0
+PCN000011993,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,8176.12,,,,0
+PCN000011993,2,CO,Contractual Obligation,197,Precertification/authorization/notification/pre-treatment absent.,6058.09,,,,1
+PCN000012951,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6682.62,,,,0
+PCN000012951,2,PR,Patient Responsibility,3,Co-payment Amount,164.3,,,,0
+PCN000013146,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,7671.23,,,,0
+PCN000013146,2,PR,Patient Responsibility,1,Deductible Amount,371.56,,,,0
+PCN000013211,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5643.2,,,,0
+PCN000013211,2,PR,Patient Responsibility,1,Deductible Amount,512.53,,,,0
+PCN000013242,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,7252.29,,,,0
+PCN000013242,2,PR,Patient Responsibility,1,Deductible Amount,774.64,,,,0
+PCN000013589,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5768.11,,,,0
+PCN000013589,2,PR,Patient Responsibility,1,Deductible Amount,1460.94,,,,0
+PCN000014344,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,3244.74,,,,0
+PCN000014344,2,PR,Patient Responsibility,2,Coinsurance Amount,78.11,,,,0
+PCN000014814,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4767.8,,,,0
+PCN000014814,2,CO,Contractual Obligation,204,This service/equipment/drug is not covered under the patient's current benefit plan,10854.64,,,,1
+PCN000014885,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6893.32,,,,0
+PCN000014885,2,PR,Patient Responsibility,1,Deductible Amount,2283.56,,,,0
+PCN000014898,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6327.49,,,,0
+PCN000014898,2,PR,Patient Responsibility,2,Coinsurance Amount,100.12,,,,0
+PCN000015019,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,3946.74,,,,0
+PCN000015019,2,PR,Patient Responsibility,1,Deductible Amount,830.91,,,,0
+PCN000015316,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,9475.5,,,,0
+PCN000015316,2,PR,Patient Responsibility,3,Co-payment Amount,591.46,,,,0
+PCN000015400,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,7821.99,,,,0
+PCN000015400,2,PR,Patient Responsibility,1,Deductible Amount,670.62,,,,0
+PCN000015470,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2410.99,,,,0
+PCN000015470,2,PR,Patient Responsibility,3,Co-payment Amount,723.02,,,,0
+PCN000015535,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,3673.66,,,,0
+PCN000015535,2,PR,Patient Responsibility,1,Deductible Amount,1596.82,,,,0
+PCN000015600,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4218.95,,,,0
+PCN000015600,2,PR,Patient Responsibility,3,Co-payment Amount,1313.9,,,,0
+PCN000015867,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2099.67,,,,0
+PCN000015867,2,OA,Other Adjustment,18,Exact duplicate claim/service,4492.6,,,,1
+PCN000016082,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,3127.12,,,,0
+PCN000016082,2,PR,Patient Responsibility,2,Coinsurance Amount,849.68,,,,0
+PCN000016098,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5188.71,,,,0
+PCN000016098,2,PR,Patient Responsibility,2,Coinsurance Amount,779.06,,,,0
+PCN000016130,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2361.78,,,,0
+PCN000016130,2,PR,Patient Responsibility,3,Co-payment Amount,135.89,,,,0
+PCN000016190,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5418.72,,,,0
+PCN000016190,2,PR,Patient Responsibility,3,Co-payment Amount,668.81,,,,0
+PCN000017133,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5106.6,,,,0
+PCN000017133,2,CO,Contractual Obligation,181,Procedure code was invalid on the date of service.,4038.28,,,,1
+PCN000017353,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,8428.11,,,,0
+PCN000017353,2,PR,Patient Responsibility,3,Co-payment Amount,1311.34,,,,0
+PCN000017607,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1334.68,,,,0
+PCN000017607,2,PR,Patient Responsibility,1,Deductible Amount,68.73,,,,0
+PCN000017679,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1825.51,,,,0
+PCN000017679,2,PR,Patient Responsibility,1,Deductible Amount,233.95,,,,0
+PCN000017718,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1525.08,,,,0
+PCN000017718,2,PR,Patient Responsibility,2,Coinsurance Amount,300.7,,,,0
+PCN000017772,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1328.28,,,,0
+PCN000017772,2,PR,Patient Responsibility,3,Co-payment Amount,28.46,,,,0
+PCN000017774,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1236.41,,,,0
+PCN000017774,2,PR,Patient Responsibility,2,Coinsurance Amount,243.04,,,,0
+PCN000017788,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,645.43,,,,0
+PCN000017788,2,PR,Patient Responsibility,2,Coinsurance Amount,2.31,,,,0
+PCN000017789,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1253.71,,,,0
+PCN000017789,2,PR,Patient Responsibility,2,Coinsurance Amount,14.03,,,,0
+PCN000017794,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1467.72,,,,0
+PCN000017794,2,PR,Patient Responsibility,1,Deductible Amount,416.85,,,,0
+PCN000017803,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2631.05,,,,0
+PCN000017803,2,PR,Patient Responsibility,2,Coinsurance Amount,111.45,,,,0
+PCN000017811,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2308.91,,,,0
+PCN000017811,2,CO,Contractual Obligation,11,The diagnosis is inconsistent with the procedure.,2091.79,,,,1
+PCN000017826,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1922.07,,,,0
+PCN000017826,2,PR,Patient Responsibility,1,Deductible Amount,142.9,,,,0
+PCN000017830,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,950.84,,,,0
+PCN000017830,2,PR,Patient Responsibility,3,Co-payment Amount,404.34,,,,0
+PCN000017849,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1327.76,,,,0
+PCN000017849,2,PR,Patient Responsibility,2,Coinsurance Amount,148.63,,,,0
+PCN000017858,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,826.58,,,,0
+PCN000017858,2,PR,Patient Responsibility,3,Co-payment Amount,109.84,,,,0
+PCN000017859,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1720.43,,,,0
+PCN000017859,2,PR,Patient Responsibility,2,Coinsurance Amount,70.02,,,,0
+PCN000017870,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,986.7,,,,0
+PCN000017870,2,PR,Patient Responsibility,1,Deductible Amount,9.19,,,,0
+PCN000017891,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,857.21,,,,0
+PCN000017891,2,PR,Patient Responsibility,1,Deductible Amount,305.97,,,,0
+PCN000017893,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,848.58,,,,0
+PCN000017893,2,PR,Patient Responsibility,3,Co-payment Amount,69.41,,,,0
+PCN000017901,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,917.43,,,,0
+PCN000017901,2,PR,Patient Responsibility,3,Co-payment Amount,107.98,,,,0
+PCN000017927,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1275.4,,,,0
+PCN000017927,2,PR,Patient Responsibility,3,Co-payment Amount,77.66,,,,0
+PCN000017932,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1127.33,,,,0
+PCN000017932,2,PR,Patient Responsibility,1,Deductible Amount,395.39,,,,0
+PCN000017936,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,669.27,,,,0
+PCN000017936,2,PR,Patient Responsibility,2,Coinsurance Amount,48.79,,,,0
+PCN000017955,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1735.88,,,,0
+PCN000017955,2,PR,Patient Responsibility,3,Co-payment Amount,170.54,,,,0
+PCN000017957,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2256.33,,,,0
+PCN000017957,2,PR,Patient Responsibility,1,Deductible Amount,127.11,,,,0
+PCN000017963,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,658.76,,,,0
+PCN000017963,2,PR,Patient Responsibility,3,Co-payment Amount,89.65,,,,0
+PCN000017972,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1866.35,,,,0
+PCN000017972,2,PR,Patient Responsibility,3,Co-payment Amount,91.23,,,,0
+PCN000017976,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1428.24,,,,0
+PCN000017976,2,CO,Contractual Obligation,204,This service/equipment/drug is not covered under the patient's current benefit plan,1660.23,,,,1
+PCN000017980,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,630.22,,,,0
+PCN000017980,2,PR,Patient Responsibility,3,Co-payment Amount,87.61,,,,0
+PCN000018009,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1041.18,,,,0
+PCN000018009,2,PR,Patient Responsibility,3,Co-payment Amount,397.92,,,,0
+PCN000018067,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1153.48,,,,0
+PCN000018067,2,PR,Patient Responsibility,2,Coinsurance Amount,64.74,,,,0
+PCN000018070,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1274.78,,,,0
+PCN000018070,2,PR,Patient Responsibility,1,Deductible Amount,189.69,,,,0
+PCN000018079,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,987.39,,,,0
+PCN000018079,2,PR,Patient Responsibility,2,Coinsurance Amount,49.18,,,,0
+PCN000018090,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1705.28,,,,0
+PCN000018090,2,PR,Patient Responsibility,2,Coinsurance Amount,92.01,,,,0
+PCN000018099,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2030.16,,,,0
+PCN000018099,2,PR,Patient Responsibility,2,Coinsurance Amount,23.48,,,,0
+PCN000018100,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1269.11,,,,0
+PCN000018100,2,PR,Patient Responsibility,1,Deductible Amount,153.33,,,,0
+PCN000018143,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,964.45,,,,0
+PCN000018143,2,PR,Patient Responsibility,3,Co-payment Amount,180.55,,,,0
+PCN000018173,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2297.45,,,,0
+PCN000018173,2,PR,Patient Responsibility,1,Deductible Amount,186.57,,,,0
+PCN000018210,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1555.45,,,,0
+PCN000018210,2,PR,Patient Responsibility,3,Co-payment Amount,99.66,,,,0
+PCN000018213,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1678.47,,,,0
+PCN000018213,2,PR,Patient Responsibility,1,Deductible Amount,85.98,,,,0
+PCN000018217,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,408.43,,,,0
+PCN000018217,2,PR,Patient Responsibility,3,Co-payment Amount,155.26,,,,0
+PCN000018232,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1707.01,,,,0
+PCN000018232,2,PR,Patient Responsibility,2,Coinsurance Amount,413.5,,,,0
+PCN000018238,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,738.36,,,,0
+PCN000018238,2,PR,Patient Responsibility,1,Deductible Amount,178.74,,,,0
+PCN000018240,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1291.21,,,,0
+PCN000018240,2,PR,Patient Responsibility,1,Deductible Amount,0.85,,,,0
+PCN000018243,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1184.2,,,,0
+PCN000018243,2,PR,Patient Responsibility,1,Deductible Amount,156.69,,,,0
+PCN000018257,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1669.97,,,,0
+PCN000018257,2,PR,Patient Responsibility,2,Coinsurance Amount,72.99,,,,0
+PCN000018261,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,503.17,,,,0
+PCN000018261,2,CO,Contractual Obligation,227,Information requested from the patient/insured/responsible party was not provided or was insufficient/incomplete.,1002.91,,,,1
+PCN000018263,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1687.33,,,,0
+PCN000018263,2,PR,Patient Responsibility,1,Deductible Amount,99.81,,,,0
+PCN000018267,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1832.85,,,,0
+PCN000018267,2,PR,Patient Responsibility,1,Deductible Amount,269.44,,,,0
+PCN000018291,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1597.7,,,,0
+PCN000018291,2,PR,Patient Responsibility,2,Coinsurance Amount,477.3,,,,0
+PCN000018292,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1908.8,,,,0
+PCN000018292,2,PR,Patient Responsibility,1,Deductible Amount,261.6,,,,0
+PCN000018296,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,526.85,,,,0
+PCN000018296,2,PR,Patient Responsibility,1,Deductible Amount,9.6,,,,0
+PCN000018299,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1859.52,,,,0
+PCN000018299,2,PR,Patient Responsibility,1,Deductible Amount,195.89,,,,0
+PCN000018300,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1151.19,,,,0
+PCN000018300,2,PR,Patient Responsibility,2,Coinsurance Amount,309.07,,,,0
+PCN000018303,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,817.72,,,,0
+PCN000018303,2,PR,Patient Responsibility,3,Co-payment Amount,132.35,,,,0
+PCN000018314,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,759.2,,,,0
+PCN000018314,2,PR,Patient Responsibility,1,Deductible Amount,57.79,,,,0
+PCN000018317,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1473.45,,,,0
+PCN000018317,2,PR,Patient Responsibility,3,Co-payment Amount,155.7,,,,0
+PCN000018319,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1603.29,,,,0
+PCN000018319,2,PR,Patient Responsibility,2,Coinsurance Amount,204.56,,,,0
+PCN000018320,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,688.67,,,,0
+PCN000018320,2,PR,Patient Responsibility,3,Co-payment Amount,85.76,,,,0
+PCN000018361,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,809.66,,,,0
+PCN000018361,2,PR,Patient Responsibility,3,Co-payment Amount,178.6,,,,0
+PCN000018369,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1183.96,,,,0
+PCN000018369,2,CO,Contractual Obligation,50,"These are non-covered services because this is not deemed a ""medical necessity"" by the payer.",1043.01,,,,1
+PCN000018387,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1110.37,,,,0
+PCN000018387,2,PR,Patient Responsibility,3,Co-payment Amount,281.34,,,,0
+PCN000018389,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,245.52,,,,0
+PCN000018389,2,PR,Patient Responsibility,3,Co-payment Amount,57.96,,,,0
+PCN000018401,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1570.04,,,,0
+PCN000018401,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,1093.24,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000018407,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,842.42,,,,0
+PCN000018407,2,PR,Patient Responsibility,2,Coinsurance Amount,21.75,,,,0
+PCN000018408,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1025.55,,,,0
+PCN000018408,2,PR,Patient Responsibility,2,Coinsurance Amount,492.77,,,,0
+PCN000018411,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1010.61,,,,0
+PCN000018411,2,PR,Patient Responsibility,1,Deductible Amount,105.79,,,,0
+PCN000018419,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1628.01,,,,0
+PCN000018419,2,PR,Patient Responsibility,2,Coinsurance Amount,191.91,,,,0
+PCN000018426,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,937.22,,,,0
+PCN000018426,2,PR,Patient Responsibility,2,Coinsurance Amount,195.61,,,,0
+PCN000018433,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2361.85,,,,0
+PCN000018433,2,PR,Patient Responsibility,1,Deductible Amount,110.15,,,,0
+PCN000018441,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2107.44,,,,0
+PCN000018441,2,PR,Patient Responsibility,3,Co-payment Amount,321.29,,,,0
+PCN000018458,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1575.59,,,,0
+PCN000018458,2,PR,Patient Responsibility,2,Coinsurance Amount,204.43,,,,0
+PCN000018460,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1751.86,,,,0
+PCN000018460,2,PR,Patient Responsibility,3,Co-payment Amount,499.85,,,,0
+PCN000018466,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1299.6,,,,0
+PCN000018466,2,PR,Patient Responsibility,3,Co-payment Amount,251.51,,,,0
+PCN000018471,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,885.24,,,,0
+PCN000018471,2,PR,Patient Responsibility,3,Co-payment Amount,5.85,,,,0
+PCN000018486,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1100.43,,,,0
+PCN000018486,2,PR,Patient Responsibility,1,Deductible Amount,89.27,,,,0
+PCN000018489,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,829.85,,,,0
+PCN000018489,2,PR,Patient Responsibility,2,Coinsurance Amount,304.54,,,,0
+PCN000018510,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1294.49,,,,0
+PCN000018510,2,PR,Patient Responsibility,2,Coinsurance Amount,601.08,,,,0
+PCN000018514,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1230.99,,,,0
+PCN000018514,2,PR,Patient Responsibility,3,Co-payment Amount,144.69,,,,0
+PCN000018535,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2376.57,,,,0
+PCN000018535,2,PR,Patient Responsibility,1,Deductible Amount,245.66,,,,0
+PCN000018541,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1634.41,,,,0
+PCN000018541,2,PR,Patient Responsibility,1,Deductible Amount,172.66,,,,0
+PCN000018564,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1724.19,,,,0
+PCN000018564,2,PR,Patient Responsibility,2,Coinsurance Amount,230.24,,,,0
+PCN000018569,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1450.92,,,,0
+PCN000018569,2,PR,Patient Responsibility,3,Co-payment Amount,50.39,,,,0
+PCN000018612,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1639.51,,,,0
+PCN000018612,2,PR,Patient Responsibility,1,Deductible Amount,388.19,,,,0
+PCN000018618,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1199.84,,,,0
+PCN000018618,2,PR,Patient Responsibility,3,Co-payment Amount,13.94,,,,0
+PCN000018622,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,406.27,,,,0
+PCN000018622,2,PR,Patient Responsibility,2,Coinsurance Amount,22.5,,,,0
+PCN000018624,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,812.57,,,,0
+PCN000018624,2,PR,Patient Responsibility,2,Coinsurance Amount,191.79,,,,0
+PCN000018629,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1355.22,,,,0
+PCN000018629,2,PR,Patient Responsibility,3,Co-payment Amount,90.49,,,,0
+PCN000018631,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,412.46,,,,0
+PCN000018631,2,PR,Patient Responsibility,2,Coinsurance Amount,17.78,,,,0
+PCN000018637,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1835.63,,,,0
+PCN000018637,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,1619.55,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000018640,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1203.95,,,,0
+PCN000018640,2,PR,Patient Responsibility,2,Coinsurance Amount,276.08,,,,0
+PCN000018642,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,570.37,,,,0
+PCN000018642,2,PR,Patient Responsibility,2,Coinsurance Amount,83.75,,,,0
+PCN000018652,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,830.43,,,,0
+PCN000018652,2,PR,Patient Responsibility,2,Coinsurance Amount,71.25,,,,0
+PCN000018663,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1566.2,,,,0
+PCN000018663,2,PR,Patient Responsibility,2,Coinsurance Amount,285.1,,,,0
+PCN000018664,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,995.88,,,,0
+PCN000018664,2,PR,Patient Responsibility,3,Co-payment Amount,93.18,,,,0
+PCN000018670,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1685.92,,,,0
+PCN000018670,2,PR,Patient Responsibility,3,Co-payment Amount,17.6,,,,0
+PCN000018671,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,926.87,,,,0
+PCN000018671,2,PR,Patient Responsibility,2,Coinsurance Amount,184.6,,,,0
+PCN000018686,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,590.3,,,,0
+PCN000018686,2,PR,Patient Responsibility,3,Co-payment Amount,74.86,,,,0
+PCN000018688,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,302.7,,,,0
+PCN000018688,2,PR,Patient Responsibility,1,Deductible Amount,59.7,,,,0
+PCN000018689,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,492.93,,,,0
+PCN000018689,2,PR,Patient Responsibility,2,Coinsurance Amount,7.07,,,,0
+PCN000018694,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1277.01,,,,0
+PCN000018694,2,PR,Patient Responsibility,3,Co-payment Amount,183.24,,,,0
+PCN000018710,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1073.4,,,,0
+PCN000018710,2,PR,Patient Responsibility,1,Deductible Amount,330.22,,,,0
+PCN000018724,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,745.34,,,,0
+PCN000018724,2,PR,Patient Responsibility,2,Coinsurance Amount,68.02,,,,0
+PCN000018737,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1545.42,,,,0
+PCN000018737,2,PR,Patient Responsibility,2,Coinsurance Amount,7.48,,,,0
+PCN000018749,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1190.42,,,,0
+PCN000018749,2,PR,Patient Responsibility,3,Co-payment Amount,71.12,,,,0
+PCN000018750,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1223.25,,,,0
+PCN000018750,2,CO,Contractual Obligation,96,Non-covered charge(s).,1522.13,,,,1
+PCN000018765,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1747.4,,,,0
+PCN000018765,2,PR,Patient Responsibility,1,Deductible Amount,516.89,,,,0
+PCN000018781,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1696.13,,,,0
+PCN000018781,2,PR,Patient Responsibility,2,Coinsurance Amount,485.09,,,,0
+PCN000018807,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1244.96,,,,0
+PCN000018807,2,PR,Patient Responsibility,3,Co-payment Amount,149.13,,,,0
+PCN000018814,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1256.24,,,,0
+PCN000018814,2,PR,Patient Responsibility,3,Co-payment Amount,298.2,,,,0
+PCN000018824,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,985.19,,,,0
+PCN000018824,2,PR,Patient Responsibility,1,Deductible Amount,204.66,,,,0
+PCN000018828,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1068.5,,,,0
+PCN000018828,2,PR,Patient Responsibility,1,Deductible Amount,76.17,,,,0
+PCN000018836,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,595.46,,,,0
+PCN000018836,2,PR,Patient Responsibility,2,Coinsurance Amount,129.37,,,,0
+PCN000018857,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,487.29,,,,0
+PCN000018857,2,PR,Patient Responsibility,2,Coinsurance Amount,83.24,,,,0
+PCN000018886,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1277.5,,,,0
+PCN000018886,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,2670.79,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000018889,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,812.24,,,,0
+PCN000018889,2,PR,Patient Responsibility,3,Co-payment Amount,386.59,,,,0
+PCN000018895,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1790.9,,,,0
+PCN000018895,2,PR,Patient Responsibility,3,Co-payment Amount,134.93,,,,0
+PCN000018924,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,467.66,,,,0
+PCN000018924,2,PR,Patient Responsibility,3,Co-payment Amount,34.77,,,,0
+PCN000018942,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,525.92,,,,0
+PCN000018942,2,PR,Patient Responsibility,3,Co-payment Amount,42.45,,,,0
+PCN000018948,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1194.83,,,,0
+PCN000018948,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,1794.8,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000000429,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,7476.93,,,,0
+PCN000000429,2,PR,Patient Responsibility,2,Coinsurance Amount,3316.98,,,,0
+PCN000000489,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6008.38,,,,0
+PCN000000489,2,PR,Patient Responsibility,3,Co-payment Amount,2195.31,,,,0
+PCN000001175,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,10939.55,,,,0
+PCN000001175,2,PR,Patient Responsibility,3,Co-payment Amount,1763.44,,,,0
+PCN000001371,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,8430.29,,,,0
+PCN000001371,2,PR,Patient Responsibility,3,Co-payment Amount,3091.72,,,,0
+PCN000002655,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,13034.2,,,,0
+PCN000002655,2,PR,Patient Responsibility,1,Deductible Amount,1129.97,,,,0
+PCN000005417,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,10998.65,,,,0
+PCN000005417,2,PR,Patient Responsibility,3,Co-payment Amount,872.44,,,,0
+PCN000005684,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,8650.83,,,,0
+PCN000005684,2,PR,Patient Responsibility,3,Co-payment Amount,1152.34,,,,0
+PCN000006782,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,7734.02,,,,0
+PCN000006782,2,PR,Patient Responsibility,3,Co-payment Amount,1338.7,,,,0
+PCN000007538,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,8482.9,,,,0
+PCN000007538,2,PR,Patient Responsibility,1,Deductible Amount,1544.4,,,,0
+PCN000008122,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6632.86,,,,0
+PCN000008122,2,PR,Patient Responsibility,3,Co-payment Amount,1776.6,,,,0
+PCN000008377,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5130.61,,,,0
+PCN000008377,2,PR,Patient Responsibility,1,Deductible Amount,1803.3,,,,0
+PCN000008738,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,11362.73,,,,0
+PCN000008738,2,PR,Patient Responsibility,1,Deductible Amount,18.12,,,,0
+PCN000008774,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4792.5,,,,0
+PCN000008774,2,PR,Patient Responsibility,3,Co-payment Amount,1242.68,,,,0
+PCN000009047,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6648.76,,,,0
+PCN000009047,2,PR,Patient Responsibility,1,Deductible Amount,1547.76,,,,0
+PCN000009233,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,7453.0,,,,0
+PCN000009233,2,PR,Patient Responsibility,1,Deductible Amount,43.88,,,,0
+PCN000009328,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,9780.99,,,,0
+PCN000009328,2,PR,Patient Responsibility,2,Coinsurance Amount,1345.51,,,,0
+PCN000009491,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,8610.33,,,,0
+PCN000009491,2,PR,Patient Responsibility,1,Deductible Amount,989.21,,,,0
+PCN000009591,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6266.77,,,,0
+PCN000009591,2,PR,Patient Responsibility,3,Co-payment Amount,308.0,,,,0
+PCN000009715,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6542.07,,,,0
+PCN000009715,2,PR,Patient Responsibility,2,Coinsurance Amount,829.07,,,,0
+PCN000010767,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4023.93,,,,0
+PCN000010767,2,PR,Patient Responsibility,1,Deductible Amount,1329.84,,,,0
+PCN000010780,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4220.95,,,,0
+PCN000010780,2,PR,Patient Responsibility,2,Coinsurance Amount,572.03,,,,0
+PCN000010935,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,8043.9,,,,0
+PCN000010935,2,PR,Patient Responsibility,3,Co-payment Amount,587.44,,,,0
+PCN000011137,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,3959.0,,,,0
+PCN000011137,2,PR,Patient Responsibility,2,Coinsurance Amount,769.88,,,,0
+PCN000011264,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4347.5,,,,0
+PCN000011264,2,PR,Patient Responsibility,1,Deductible Amount,1200.28,,,,0
+PCN000011547,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4923.42,,,,0
+PCN000011547,2,PR,Patient Responsibility,2,Coinsurance Amount,530.5,,,,0
+PCN000011802,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,10677.52,,,,0
+PCN000011802,2,PR,Patient Responsibility,1,Deductible Amount,530.71,,,,0
+PCN000012163,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5157.83,,,,0
+PCN000012163,2,CO,Contractual Obligation,31,Patient cannot be identified as our insured.,6670.16,,,,1
+PCN000012198,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5035.5,,,,0
+PCN000012198,2,PR,Patient Responsibility,2,Coinsurance Amount,1568.21,,,,0
+PCN000012382,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,8443.85,,,,0
+PCN000012382,2,PR,Patient Responsibility,3,Co-payment Amount,3775.78,,,,0
+PCN000012436,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4065.95,,,,0
+PCN000012436,2,PR,Patient Responsibility,2,Coinsurance Amount,260.72,,,,0
+PCN000012673,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,7169.36,,,,0
+PCN000012673,2,PR,Patient Responsibility,1,Deductible Amount,126.52,,,,0
+PCN000012704,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4242.86,,,,0
+PCN000012704,2,PR,Patient Responsibility,2,Coinsurance Amount,1304.67,,,,0
+PCN000012875,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2725.53,,,,0
+PCN000012875,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,5058.7,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000013100,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,3407.99,,,,0
+PCN000013100,2,PR,Patient Responsibility,1,Deductible Amount,541.58,,,,0
+PCN000013123,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,7294.4,,,,0
+PCN000013123,2,PR,Patient Responsibility,3,Co-payment Amount,1320.75,,,,0
+PCN000013131,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,6529.58,,,,0
+PCN000013131,2,PR,Patient Responsibility,1,Deductible Amount,1073.21,,,,0
+PCN000013299,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4998.43,,,,0
+PCN000013299,2,PR,Patient Responsibility,1,Deductible Amount,2091.61,,,,0
+PCN000013365,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5051.76,,,,0
+PCN000013365,2,PR,Patient Responsibility,2,Coinsurance Amount,509.47,,,,0
+PCN000013434,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5275.94,,,,0
+PCN000013434,2,PR,Patient Responsibility,2,Coinsurance Amount,811.01,,,,0
+PCN000013519,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5377.58,,,,0
+PCN000013519,2,PR,Patient Responsibility,3,Co-payment Amount,212.76,,,,0
+PCN000013581,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4554.18,,,,0
+PCN000013581,2,PR,Patient Responsibility,2,Coinsurance Amount,463.9,,,,0
+PCN000013765,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4038.81,,,,0
+PCN000013765,2,PR,Patient Responsibility,3,Co-payment Amount,705.6,,,,0
+PCN000014040,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2470.57,,,,0
+PCN000014040,2,PR,Patient Responsibility,1,Deductible Amount,252.56,,,,0
+PCN000014314,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,5080.38,,,,0
+PCN000014314,2,PR,Patient Responsibility,1,Deductible Amount,540.05,,,,0
+PCN000014554,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,3809.6,,,,0
+PCN000014554,2,PR,Patient Responsibility,3,Co-payment Amount,311.68,,,,0
+PCN000014560,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2686.6,,,,0
+PCN000014560,2,PR,Patient Responsibility,1,Deductible Amount,598.56,,,,0
+PCN000014566,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,3420.65,,,,0
+PCN000014566,2,PR,Patient Responsibility,3,Co-payment Amount,331.45,,,,0
+PCN000014895,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2283.26,,,,0
+PCN000014895,2,PR,Patient Responsibility,3,Co-payment Amount,509.84,,,,0
+PCN000015226,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,8279.75,,,,0
+PCN000015226,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,6185.64,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000015453,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2589.64,,,,0
+PCN000015453,2,PR,Patient Responsibility,3,Co-payment Amount,81.92,,,,0
+PCN000015477,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4082.21,,,,0
+PCN000015477,2,PR,Patient Responsibility,2,Coinsurance Amount,815.72,,,,0
+PCN000015491,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2827.68,,,,0
+PCN000015491,2,PR,Patient Responsibility,2,Coinsurance Amount,701.17,,,,0
+PCN000015541,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1609.21,,,,0
+PCN000015541,2,PR,Patient Responsibility,3,Co-payment Amount,432.75,,,,0
+PCN000016086,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,4467.83,,,,0
+PCN000016086,2,PR,Patient Responsibility,3,Co-payment Amount,103.7,,,,0
+PCN000016106,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1957.73,,,,0
+PCN000016106,2,PR,Patient Responsibility,2,Coinsurance Amount,661.95,,,,0
+PCN000016504,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1450.53,,,,0
+PCN000016504,2,PR,Patient Responsibility,3,Co-payment Amount,555.09,,,,0
+PCN000016516,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,629.27,,,,0
+PCN000016516,2,PR,Patient Responsibility,3,Co-payment Amount,110.7,,,,0
+PCN000016554,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1454.2,,,,0
+PCN000016554,2,PR,Patient Responsibility,3,Co-payment Amount,229.88,,,,0
+PCN000016559,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1000.72,,,,0
+PCN000016559,2,PR,Patient Responsibility,3,Co-payment Amount,75.7,,,,0
+PCN000016565,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,703.47,,,,0
+PCN000016565,2,PR,Patient Responsibility,3,Co-payment Amount,77.8,,,,0
+PCN000016569,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1054.56,,,,0
+PCN000016569,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,1223.16,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000016572,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1766.46,,,,0
+PCN000016572,2,PR,Patient Responsibility,2,Coinsurance Amount,176.81,,,,0
+PCN000016597,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,750.74,,,,0
+PCN000016597,2,PR,Patient Responsibility,3,Co-payment Amount,84.88,,,,0
+PCN000016598,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,670.95,,,,0
+PCN000016598,2,PR,Patient Responsibility,1,Deductible Amount,156.49,,,,0
+PCN000016605,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1159.71,,,,0
+PCN000016605,2,PR,Patient Responsibility,2,Coinsurance Amount,86.08,,,,0
+PCN000016611,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,483.13,,,,0
+PCN000016611,2,PR,Patient Responsibility,1,Deductible Amount,119.31,,,,0
+PCN000016618,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1421.36,,,,0
+PCN000016618,2,PR,Patient Responsibility,1,Deductible Amount,29.19,,,,0
+PCN000016623,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1413.69,,,,0
+PCN000016623,2,PR,Patient Responsibility,1,Deductible Amount,224.05,,,,0
+PCN000016629,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,905.51,,,,0
+PCN000016629,2,PR,Patient Responsibility,3,Co-payment Amount,37.42,,,,0
+PCN000016635,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,835.53,,,,0
+PCN000016635,2,PR,Patient Responsibility,2,Coinsurance Amount,92.48,,,,0
+PCN000016650,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,797.08,,,,0
+PCN000016650,2,PR,Patient Responsibility,2,Coinsurance Amount,326.1,,,,0
+PCN000016652,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1215.86,,,,0
+PCN000016652,2,PR,Patient Responsibility,2,Coinsurance Amount,190.76,,,,0
+PCN000016656,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,503.41,,,,0
+PCN000016656,2,PR,Patient Responsibility,3,Co-payment Amount,183.16,,,,0
+PCN000016666,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,877.2,,,,0
+PCN000016666,2,PR,Patient Responsibility,2,Coinsurance Amount,146.64,,,,0
+PCN000016690,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,323.26,,,,0
+PCN000016690,2,PR,Patient Responsibility,3,Co-payment Amount,27.4,,,,0
+PCN000016699,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1240.55,,,,0
+PCN000016699,2,PR,Patient Responsibility,2,Coinsurance Amount,235.39,,,,0
+PCN000016712,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,824.95,,,,0
+PCN000016712,2,PR,Patient Responsibility,3,Co-payment Amount,19.21,,,,0
+PCN000016723,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,347.04,,,,0
+PCN000016723,2,PR,Patient Responsibility,1,Deductible Amount,72.5,,,,0
+PCN000016731,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,831.94,,,,0
+PCN000016731,2,PR,Patient Responsibility,1,Deductible Amount,134.9,,,,0
+PCN000016732,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,593.85,,,,0
+PCN000016732,2,PR,Patient Responsibility,3,Co-payment Amount,222.46,,,,0
+PCN000016735,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,760.67,,,,0
+PCN000016735,2,PR,Patient Responsibility,3,Co-payment Amount,105.16,,,,0
+PCN000016741,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1153.55,,,,0
+PCN000016741,2,PR,Patient Responsibility,2,Coinsurance Amount,176.95,,,,0
+PCN000016786,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1207.95,,,,0
+PCN000016786,2,PR,Patient Responsibility,2,Coinsurance Amount,474.95,,,,0
+PCN000016797,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,524.51,,,,0
+PCN000016797,2,PR,Patient Responsibility,3,Co-payment Amount,190.32,,,,0
+PCN000016798,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1142.17,,,,0
+PCN000016798,2,PR,Patient Responsibility,1,Deductible Amount,5.54,,,,0
+PCN000016841,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2306.01,,,,0
+PCN000016841,2,PR,Patient Responsibility,1,Deductible Amount,269.08,,,,0
+PCN000016865,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1435.37,,,,0
+PCN000016865,2,PR,Patient Responsibility,2,Coinsurance Amount,75.99,,,,0
+PCN000016869,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,727.35,,,,0
+PCN000016869,2,OA,Other Adjustment,18,Exact duplicate claim/service,1258.03,,,,1
+PCN000016922,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1222.03,,,,0
+PCN000016922,2,PR,Patient Responsibility,2,Coinsurance Amount,241.15,,,,0
+PCN000016955,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1159.93,,,,0
+PCN000016955,2,PR,Patient Responsibility,3,Co-payment Amount,409.92,,,,0
+PCN000016961,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1418.17,,,,0
+PCN000016961,2,CO,Contractual Obligation,50,"These are non-covered services because this is not deemed a ""medical necessity"" by the payer.",2004.09,,,,1
+PCN000017002,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,802.41,,,,0
+PCN000017002,2,PR,Patient Responsibility,1,Deductible Amount,129.6,,,,0
+PCN000017004,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,966.31,,,,0
+PCN000017004,2,CO,Contractual Obligation,197,Precertification/authorization/notification/pre-treatment absent.,833.24,,,,1
+PCN000017017,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,500.23,,,,0
+PCN000017017,2,PR,Patient Responsibility,3,Co-payment Amount,24.14,,,,0
+PCN000017025,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1005.84,,,,0
+PCN000017025,2,PR,Patient Responsibility,3,Co-payment Amount,448.32,,,,0
+PCN000017028,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,610.08,,,,0
+PCN000017028,2,PR,Patient Responsibility,1,Deductible Amount,225.53,,,,0
+PCN000017041,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1317.01,,,,0
+PCN000017041,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,2837.77,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000017045,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1494.77,,,,0
+PCN000017045,2,PR,Patient Responsibility,1,Deductible Amount,169.39,,,,0
+PCN000017084,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,825.0,,,,0
+PCN000017084,2,CO,Contractual Obligation,146,Diagnosis was invalid for the date(s) of service reported.,1875.71,,,,1
+PCN000017105,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1461.12,,,,0
+PCN000017105,2,PR,Patient Responsibility,3,Co-payment Amount,17.46,,,,0
+PCN000017114,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2033.79,,,,0
+PCN000017114,2,PR,Patient Responsibility,3,Co-payment Amount,211.06,,,,0
+PCN000017122,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,557.79,,,,0
+PCN000017122,2,PR,Patient Responsibility,3,Co-payment Amount,41.82,,,,0
+PCN000017163,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1810.08,,,,0
+PCN000017163,2,PR,Patient Responsibility,3,Co-payment Amount,82.59,,,,0
+PCN000017177,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,799.01,,,,0
+PCN000017177,2,PR,Patient Responsibility,3,Co-payment Amount,375.19,,,,0
+PCN000017192,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1251.0,,,,0
+PCN000017192,2,PR,Patient Responsibility,2,Coinsurance Amount,183.89,,,,0
+PCN000017193,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1849.57,,,,0
+PCN000017193,2,PR,Patient Responsibility,2,Coinsurance Amount,263.79,,,,0
+PCN000017198,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,467.13,,,,0
+PCN000017198,2,CO,Contractual Obligation,198,Precertification/notification/authorization/pre-treatment exceeded.,637.65,,,,1
+PCN000017217,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1611.86,,,,0
+PCN000017217,2,PR,Patient Responsibility,1,Deductible Amount,66.64,,,,0
+PCN000017220,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1217.91,,,,0
+PCN000017220,2,PR,Patient Responsibility,1,Deductible Amount,209.38,,,,0
+PCN000017225,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1587.11,,,,0
+PCN000017225,2,PR,Patient Responsibility,1,Deductible Amount,489.85,,,,0
+PCN000017228,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2190.2,,,,0
+PCN000017228,2,PR,Patient Responsibility,3,Co-payment Amount,29.96,,,,0
+PCN000017251,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,939.37,,,,0
+PCN000017251,2,PR,Patient Responsibility,1,Deductible Amount,67.86,,,,0
+PCN000017268,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1604.12,,,,0
+PCN000017268,2,PR,Patient Responsibility,2,Coinsurance Amount,129.65,,,,0
+PCN000017270,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,969.44,,,,0
+PCN000017270,2,PR,Patient Responsibility,2,Coinsurance Amount,65.84,,,,0
+PCN000017277,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,627.37,,,,0
+PCN000017277,2,CO,Contractual Obligation,109,Claim/service not covered by this payer/contractor. You must send the claim/service to the correct payer/contractor.,586.79,,,,1
+PCN000017279,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,878.85,,,,0
+PCN000017279,2,PR,Patient Responsibility,3,Co-payment Amount,296.25,,,,0
+PCN000017280,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1016.55,,,,0
+PCN000017280,2,PR,Patient Responsibility,3,Co-payment Amount,208.56,,,,0
+PCN000017282,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,664.62,,,,0
+PCN000017282,2,PR,Patient Responsibility,1,Deductible Amount,95.87,,,,0
+PCN000017289,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1236.8,,,,0
+PCN000017289,2,PR,Patient Responsibility,2,Coinsurance Amount,254.96,,,,0
+PCN000017294,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2243.34,,,,0
+PCN000017294,2,PR,Patient Responsibility,3,Co-payment Amount,114.92,,,,0
+PCN000017299,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1586.53,,,,0
+PCN000017299,2,PR,Patient Responsibility,3,Co-payment Amount,65.83,,,,0
+PCN000017333,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1490.47,,,,0
+PCN000017333,2,PR,Patient Responsibility,2,Coinsurance Amount,75.01,,,,0
+PCN000017337,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,769.36,,,,0
+PCN000017337,2,PR,Patient Responsibility,2,Coinsurance Amount,196.35,,,,0
+PCN000017338,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,702.98,,,,0
+PCN000017338,2,PR,Patient Responsibility,3,Co-payment Amount,20.02,,,,0
+PCN000017352,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1090.77,,,,0
+PCN000017352,2,PR,Patient Responsibility,1,Deductible Amount,109.71,,,,0
+PCN000017400,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1353.16,,,,0
+PCN000017400,2,PR,Patient Responsibility,2,Coinsurance Amount,125.89,,,,0
+PCN000017408,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1502.93,,,,0
+PCN000017408,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,934.17,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000017420,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1064.68,,,,0
+PCN000017420,2,PR,Patient Responsibility,2,Coinsurance Amount,74.16,,,,0
+PCN000017430,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1018.33,,,,0
+PCN000017430,2,PR,Patient Responsibility,2,Coinsurance Amount,318.85,,,,0
+PCN000017437,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,978.25,,,,0
+PCN000017437,2,CO,Contractual Obligation,197,Precertification/authorization/notification/pre-treatment absent.,673.74,,,,1
+PCN000017446,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,911.06,,,,0
+PCN000017446,2,PR,Patient Responsibility,1,Deductible Amount,126.16,,,,0
+PCN000017483,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,890.06,,,,0
+PCN000017483,2,PR,Patient Responsibility,1,Deductible Amount,36.95,,,,0
+PCN000017487,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,947.86,,,,0
+PCN000017487,2,PR,Patient Responsibility,1,Deductible Amount,249.22,,,,0
+PCN000017493,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,322.43,,,,0
+PCN000017493,2,PR,Patient Responsibility,1,Deductible Amount,31.0,,,,0
+PCN000017503,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1866.01,,,,0
+PCN000017503,2,PR,Patient Responsibility,2,Coinsurance Amount,24.07,,,,0
+PCN000017509,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,607.43,,,,0
+PCN000017509,2,PR,Patient Responsibility,1,Deductible Amount,4.48,,,,0
+PCN000017514,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,459.8,,,,0
+PCN000017514,2,PR,Patient Responsibility,2,Coinsurance Amount,10.57,,,,0
+PCN000017531,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,793.62,,,,0
+PCN000017531,2,PR,Patient Responsibility,3,Co-payment Amount,143.86,,,,0
+PCN000017536,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1005.18,,,,0
+PCN000017536,2,CO,Contractual Obligation,16,Claim/service lacks information or has submission/billing error(s).,1500.95,,MA130,"Your claim contains incomplete and/or invalid information, and no appeal rights are afforded because the claim is unprocessable.",1
+PCN000017538,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,873.02,,,,0
+PCN000017538,2,CO,Contractual Obligation,29,The time limit for filing has expired.,1803.26,,,,1
+PCN000017550,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1096.91,,,,0
+PCN000017550,2,PR,Patient Responsibility,2,Coinsurance Amount,74.28,,,,0
+PCN000017551,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,973.19,,,,0
+PCN000017551,2,PR,Patient Responsibility,1,Deductible Amount,34.39,,,,0
+PCN000017560,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1244.39,,,,0
+PCN000017560,2,PR,Patient Responsibility,3,Co-payment Amount,96.27,,,,0
+PCN000017577,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1469.64,,,,0
+PCN000017577,2,PR,Patient Responsibility,1,Deductible Amount,41.86,,,,0
+PCN000017578,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1438.92,,,,0
+PCN000017578,2,PR,Patient Responsibility,1,Deductible Amount,202.49,,,,0
+PCN000017580,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1054.17,,,,0
+PCN000017580,2,PR,Patient Responsibility,3,Co-payment Amount,374.87,,,,0
+PCN000017599,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2144.48,,,,0
+PCN000017599,2,PR,Patient Responsibility,2,Coinsurance Amount,117.54,,,,0
+PCN000017601,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,956.66,,,,0
+PCN000017601,2,PR,Patient Responsibility,1,Deductible Amount,8.82,,,,0
+PCN000017602,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1242.87,,,,0
+PCN000017602,2,CO,Contractual Obligation,252,An attachment/other documentation is required to adjudicate this claim/service.,1089.34,,,,1
+PCN000017618,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1023.97,,,,0
+PCN000017618,2,PR,Patient Responsibility,2,Coinsurance Amount,52.51,,,,0
+PCN000017621,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,922.33,,,,0
+PCN000017621,2,PR,Patient Responsibility,1,Deductible Amount,192.05,,,,0
+PCN000017626,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,561.49,,,,0
+PCN000017626,2,PR,Patient Responsibility,1,Deductible Amount,61.93,,,,0
+PCN000017638,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,898.56,,,,0
+PCN000017638,2,PR,Patient Responsibility,1,Deductible Amount,72.6,,,,0
+PCN000017650,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2637.86,,,,0
+PCN000017650,2,PR,Patient Responsibility,2,Coinsurance Amount,268.59,,,,0
+PCN000017658,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,747.05,,,,0
+PCN000017658,2,PR,Patient Responsibility,3,Co-payment Amount,223.4,,,,0
+PCN000017671,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1407.69,,,,0
+PCN000017671,2,PR,Patient Responsibility,3,Co-payment Amount,79.32,,,,0
+PCN000017673,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,787.9,,,,0
+PCN000017673,2,PR,Patient Responsibility,3,Co-payment Amount,79.73,,,,0
+PCN000017684,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,2019.44,,,,0
+PCN000017684,2,PR,Patient Responsibility,3,Co-payment Amount,348.42,,,,0
+PCN000017690,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1021.39,,,,0
+PCN000017690,2,PR,Patient Responsibility,1,Deductible Amount,496.93,,,,0
+PCN000017697,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,572.88,,,,0
+PCN000017697,2,PR,Patient Responsibility,3,Co-payment Amount,120.24,,,,0
+PCN000017711,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,741.2,,,,0
+PCN000017711,2,PR,Patient Responsibility,3,Co-payment Amount,76.57,,,,0
+PCN000017736,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1116.9,,,,0
+PCN000017736,2,PR,Patient Responsibility,3,Co-payment Amount,138.35,,,,0
+PCN000017737,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1117.01,,,,0
+PCN000017737,2,PR,Patient Responsibility,2,Coinsurance Amount,58.0,,,,0
+PCN000017740,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,1544.34,,,,0
+PCN000017740,2,PR,Patient Responsibility,2,Coinsurance Amount,261.69,,,,0
+PCN000017749,1,CO,Contractual Obligation,45,Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.,622.57,,,,0
+PCN000017749,2,CO,Contractual Obligation,96,Non-covered charge(s).,585.28,,,,1
