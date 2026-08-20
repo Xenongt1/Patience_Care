@@ -72,6 +72,14 @@
             "name": "dim_staff"
           },
           {
+            "folder": "reference/dim_drg",
+            "name": "dim_drg"
+          },
+          {
+            "folder": "reference/dim_icd10",
+            "name": "dim_icd10"
+          },
+          {
             "folder": "beds/hourly_snapshot",
             "name": "bed_hourly_snapshot"
           },
