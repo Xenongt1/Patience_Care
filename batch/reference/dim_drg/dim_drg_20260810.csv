@@ -1,0 +1,43 @@
+drg_code,drg_description,relative_weight,severity_tier,drg_family,drg_type,weight_source
+871,Septicemia or severe sepsis without MV >96 hours with MCC,1.85,MCC,SEPSIS,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+872,Septicemia or severe sepsis without MV >96 hours without MCC,1.05,NONE,SEPSIS,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+291,Heart failure and shock with MCC,1.4,MCC,HF,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+292,Heart failure and shock with CC,0.9,CC,HF,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+293,Heart failure and shock without CC/MCC,0.62,NONE,HF,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+190,Chronic obstructive pulmonary disease with MCC,1.18,MCC,COPD,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+191,Chronic obstructive pulmonary disease with CC,0.9,CC,COPD,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+192,Chronic obstructive pulmonary disease without CC/MCC,0.71,NONE,COPD,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+193,Simple pneumonia and pleurisy with MCC,1.38,MCC,PN,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+194,Simple pneumonia and pleurisy with CC,0.93,CC,PN,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+195,Simple pneumonia and pleurisy without CC/MCC,0.69,NONE,PN,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+280,"Acute myocardial infarction, discharged alive with MCC",1.7,MCC,AMI,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+281,"Acute myocardial infarction, discharged alive with CC",1.02,CC,AMI,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+282,"Acute myocardial infarction, discharged alive without CC/MCC",0.75,NONE,AMI,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+637,Diabetes with MCC,1.32,MCC,DIABETES,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+638,Diabetes with CC,0.82,CC,DIABETES,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+639,Diabetes without CC/MCC,0.58,NONE,DIABETES,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+682,Renal failure with MCC,1.55,MCC,RENAL,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+683,Renal failure with CC,0.94,CC,RENAL,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+684,Renal failure without CC/MCC,0.62,NONE,RENAL,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+064,Intracranial hemorrhage or cerebral infarction with MCC,1.75,MCC,STROKE,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+065,Intracranial hemorrhage or cerebral infarction with CC,1.05,CC,STROKE,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+066,Intracranial hemorrhage or cerebral infarction without CC/MCC,0.78,NONE,STROKE,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+689,Kidney and urinary tract infections with MCC,1.1,MCC,UTI,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+690,Kidney and urinary tract infections without MCC,0.75,NONE,UTI,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+308,Cardiac arrhythmia and conduction disorders with MCC,1.12,MCC,ARRHYTHMIA,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+309,Cardiac arrhythmia and conduction disorders with CC,0.75,CC,ARRHYTHMIA,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+310,Cardiac arrhythmia and conduction disorders without CC/MCC,0.55,NONE,ARRHYTHMIA,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+189,Pulmonary edema and respiratory failure,1.2,MCC,RESP_FAILURE,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+377,Gastrointestinal hemorrhage with MCC,1.62,MCC,GI_BLEED,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+378,Gastrointestinal hemorrhage with CC,0.92,CC,GI_BLEED,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+379,Gastrointestinal hemorrhage without CC/MCC,0.65,NONE,GI_BLEED,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+371,Major gastrointestinal disorders and peritoneal infections with MCC,1.85,MCC,GI_INFECTION,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+372,Major gastrointestinal disorders and peritoneal infections with CC,1.1,CC,GI_INFECTION,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+373,Major gastrointestinal disorders and peritoneal infections without CC/MCC,0.78,NONE,GI_INFECTION,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+640,"Miscellaneous disorders of nutrition, metabolism, fluids and electrolytes with MCC",1.0,MCC,FLUID_ELECTROLYTE,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+641,"Miscellaneous disorders of nutrition, metabolism, fluids and electrolytes without MCC",0.65,NONE,FLUID_ELECTROLYTE,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+304,Hypertension with MCC,1.0,MCC,HYPERTENSION,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+305,Hypertension without MCC,0.6,NONE,HYPERTENSION,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+313,Chest pain,0.55,NONE,CHEST_PAIN,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+947,Signs and symptoms with MCC,1.0,MCC,OTHER_MEDICAL,MED,synthetic (approximate) — replace with the CMS FY relative weight file
+948,Signs and symptoms without MCC,0.65,NONE,OTHER_MEDICAL,MED,synthetic (approximate) — replace with the CMS FY relative weight file

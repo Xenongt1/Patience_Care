@@ -12,59 +12,71 @@ unit_id,facility_id,unit_code,unit_name,unit_type,building,floor,licensed_beds,s
 330101-LD,330101,LD,Labor & Delivery (LD),Labor & Delivery,Main,6,17,16,0,2.0,0,1
 330101-PP,330101,PP,Postpartum (PP),Postpartum,North Tower,6,23,21,1,4.0,0,0
 330101-PSY,330101,PSY,Psychiatric (PSY),Psychiatric,Main,9,25,23,1,6.0,0,0
-330102-ED,330102,ED,Emergency Department (ED),Emergency Department,Main,6,58,52,1,4.0,0,1
-330102-MICU,330102,MICU,Medical Intensive Care (MICU),Medical Intensive Care,Main,5,34,31,0,2.0,1,1
-330102-SICU,330102,SICU,Surgical Intensive Care (SICU),Surgical Intensive Care,Main,8,24,21,0,2.0,1,1
-330102-CVICU,330102,CVICU,Cardiovascular ICU (CVICU),Cardiovascular ICU,North Tower,3,21,20,1,2.0,1,1
-330102-NICU,330102,NICU,Neonatal ICU (NICU),Neonatal ICU,Main,5,18,16,0,2.0,1,1
-330102-SDU,330102,SDU,Step-Down (SDU),Step-Down,Main,8,37,36,0,3.0,0,1
-330102-TELE,330102,TELE,Telemetry (TELE),Telemetry,Main,5,55,49,2,4.0,0,1
-330102-PACU,330102,PACU,Post-Anesthesia Care (PACU),Post-Anesthesia Care,North Tower,2,18,16,0,2.0,0,1
-330102-MS,330102,MS,Medical/Surgical (MS),Medical/Surgical,North Tower,8,201,179,1,5.0,0,0
-330102-ONC,330102,ONC,Specialty Care Oncology (ONC),Specialty Care Oncology,Main,8,34,30,1,4.0,0,0
-330102-PEDS,330102,PEDS,Pediatrics (PEDS),Pediatrics,North Tower,2,30,27,1,4.0,0,0
-330102-LD,330102,LD,Labor & Delivery (LD),Labor & Delivery,Main,1,24,22,1,2.0,0,1
-330102-PP,330102,PP,Postpartum (PP),Postpartum,North Tower,8,34,33,0,4.0,0,0
-330102-PSY,330102,PSY,Psychiatric (PSY),Psychiatric,Main,2,37,36,1,6.0,0,0
-330102-REHAB,330102,REHAB,Rehabilitation (REHAB),Rehabilitation,North Tower,6,18,16,0,5.0,0,0
-050201-ED,050201,ED,Emergency Department (ED),Emergency Department,Main,9,38,36,1,4.0,0,1
-050201-MICU,050201,MICU,Medical Intensive Care (MICU),Medical Intensive Care,Main,4,21,19,0,2.0,1,1
-050201-SICU,050201,SICU,Surgical Intensive Care (SICU),Surgical Intensive Care,Main,9,15,15,0,2.0,1,1
-050201-CVICU,050201,CVICU,Cardiovascular ICU (CVICU),Cardiovascular ICU,Main,6,13,12,0,2.0,1,1
-050201-SDU,050201,SDU,Step-Down (SDU),Step-Down,Main,7,23,21,1,3.0,0,1
-050201-TELE,050201,TELE,Telemetry (TELE),Telemetry,Main,1,34,32,1,4.0,0,1
+330101-OPC,330101,OPC,Outpatient Clinic (OPC),Outpatient Clinic,Main,6,81,72,1,8.0,0,0
+330101-ASC,330101,ASC,Ambulatory Surgery (ASC),Ambulatory Surgery,Main,5,11,10,0,4.0,0,1
+330102-ED,330102,ED,Emergency Department (ED),Emergency Department,Main,8,58,52,1,4.0,0,1
+330102-MICU,330102,MICU,Medical Intensive Care (MICU),Medical Intensive Care,North Tower,3,34,33,1,2.0,1,1
+330102-SICU,330102,SICU,Surgical Intensive Care (SICU),Surgical Intensive Care,Main,5,24,21,0,2.0,1,1
+330102-CVICU,330102,CVICU,Cardiovascular ICU (CVICU),Cardiovascular ICU,Main,8,21,20,0,2.0,1,1
+330102-NICU,330102,NICU,Neonatal ICU (NICU),Neonatal ICU,Main,5,18,16,1,2.0,1,1
+330102-SDU,330102,SDU,Step-Down (SDU),Step-Down,North Tower,2,37,34,1,3.0,0,1
+330102-TELE,330102,TELE,Telemetry (TELE),Telemetry,North Tower,8,55,49,0,4.0,0,1
+330102-PACU,330102,PACU,Post-Anesthesia Care (PACU),Post-Anesthesia Care,Main,8,18,16,0,2.0,0,1
+330102-MS,330102,MS,Medical/Surgical (MS),Medical/Surgical,North Tower,2,201,178,7,5.0,0,0
+330102-ONC,330102,ONC,Specialty Care Oncology (ONC),Specialty Care Oncology,Main,1,34,32,1,4.0,0,0
+330102-PEDS,330102,PEDS,Pediatrics (PEDS),Pediatrics,North Tower,8,30,29,0,4.0,0,0
+330102-LD,330102,LD,Labor & Delivery (LD),Labor & Delivery,Main,2,24,23,1,2.0,0,1
+330102-PP,330102,PP,Postpartum (PP),Postpartum,North Tower,6,34,31,1,4.0,0,0
+330102-PSY,330102,PSY,Psychiatric (PSY),Psychiatric,Main,9,37,35,1,6.0,0,0
+330102-REHAB,330102,REHAB,Rehabilitation (REHAB),Rehabilitation,Main,4,18,16,0,5.0,0,0
+330102-OPC,330102,OPC,Outpatient Clinic (OPC),Outpatient Clinic,Main,9,113,109,3,8.0,0,0
+330102-ASC,330102,ASC,Ambulatory Surgery (ASC),Ambulatory Surgery,Main,6,15,13,0,4.0,0,1
+050201-ED,050201,ED,Emergency Department (ED),Emergency Department,Main,7,38,34,1,4.0,0,1
+050201-MICU,050201,MICU,Medical Intensive Care (MICU),Medical Intensive Care,Main,1,21,20,0,2.0,1,1
+050201-SICU,050201,SICU,Surgical Intensive Care (SICU),Surgical Intensive Care,Main,4,15,13,1,2.0,1,1
+050201-CVICU,050201,CVICU,Cardiovascular ICU (CVICU),Cardiovascular ICU,Main,2,13,12,0,2.0,1,1
+050201-SDU,050201,SDU,Step-Down (SDU),Step-Down,Main,8,23,21,1,3.0,0,1
+050201-TELE,050201,TELE,Telemetry (TELE),Telemetry,Main,8,34,30,1,4.0,0,1
 050201-PACU,050201,PACU,Post-Anesthesia Care (PACU),Post-Anesthesia Care,Main,4,11,10,0,2.0,0,1
-050201-MS,050201,MS,Medical/Surgical (MS),Medical/Surgical,Main,2,125,113,2,5.0,0,0
-050201-ONC,050201,ONC,Specialty Care Oncology (ONC),Specialty Care Oncology,Main,8,21,19,1,4.0,0,0
-050201-PEDS,050201,PEDS,Pediatrics (PEDS),Pediatrics,Main,8,19,17,0,4.0,0,0
-050201-LD,050201,LD,Labor & Delivery (LD),Labor & Delivery,Main,4,15,14,0,2.0,0,1
-050201-PP,050201,PP,Postpartum (PP),Postpartum,Main,5,21,20,0,4.0,0,0
-050201-PSY,050201,PSY,Psychiatric (PSY),Psychiatric,Main,3,23,22,1,6.0,0,0
-030301-ED,030301,ED,Emergency Department (ED),Emergency Department,Main,1,28,27,0,4.0,0,1
-030301-MICU,030301,MICU,Medical Intensive Care (MICU),Medical Intensive Care,Main,9,14,13,0,2.0,1,1
-030301-SDU,030301,SDU,Step-Down (SDU),Step-Down,North Tower,5,15,13,0,3.0,0,1
-030301-TELE,030301,TELE,Telemetry (TELE),Telemetry,Main,1,22,20,0,4.0,0,1
-030301-PACU,030301,PACU,Post-Anesthesia Care (PACU),Post-Anesthesia Care,Main,2,8,8,0,2.0,0,1
-030301-MS,030301,MS,Medical/Surgical (MS),Medical/Surgical,Main,8,82,72,3,5.0,0,0
-030301-PEDS,030301,PEDS,Pediatrics (PEDS),Pediatrics,Main,5,12,11,0,4.0,0,0
-030301-LD,030301,LD,Labor & Delivery (LD),Labor & Delivery,North Tower,2,10,10,0,2.0,0,1
-030301-PP,030301,PP,Postpartum (PP),Postpartum,Main,5,14,12,0,4.0,0,0
-140401-ED,140401,ED,Emergency Department (ED),Emergency Department,Main,2,35,32,1,4.0,0,1
-140401-MICU,140401,MICU,Medical Intensive Care (MICU),Medical Intensive Care,Main,8,19,17,0,2.0,1,1
-140401-SICU,140401,SICU,Surgical Intensive Care (SICU),Surgical Intensive Care,Main,6,14,13,0,2.0,1,1
-140401-CVICU,140401,CVICU,Cardiovascular ICU (CVICU),Cardiovascular ICU,Main,8,12,11,0,2.0,1,1
-140401-SDU,140401,SDU,Step-Down (SDU),Step-Down,Main,6,20,18,1,3.0,0,1
-140401-TELE,140401,TELE,Telemetry (TELE),Telemetry,North Tower,1,31,29,1,4.0,0,1
-140401-PACU,140401,PACU,Post-Anesthesia Care (PACU),Post-Anesthesia Care,Main,9,10,10,0,2.0,0,1
-140401-MS,140401,MS,Medical/Surgical (MS),Medical/Surgical,Main,8,112,106,2,5.0,0,0
-140401-ONC,140401,ONC,Specialty Care Oncology (ONC),Specialty Care Oncology,Main,7,19,18,0,4.0,0,0
-140401-PEDS,140401,PEDS,Pediatrics (PEDS),Pediatrics,Main,2,17,16,1,4.0,0,0
-140401-LD,140401,LD,Labor & Delivery (LD),Labor & Delivery,North Tower,8,14,13,0,2.0,0,1
-140401-PP,140401,PP,Postpartum (PP),Postpartum,Main,7,19,17,0,4.0,0,0
-140401-PSY,140401,PSY,Psychiatric (PSY),Psychiatric,Main,2,20,19,0,6.0,0,0
-110501-ED,110501,ED,Emergency Department (ED),Emergency Department,Main,5,12,12,0,4.0,0,1
-110501-MICU,110501,MICU,Medical Intensive Care (MICU),Medical Intensive Care,Main,6,6,5,0,2.0,1,1
-110501-TELE,110501,TELE,Telemetry (TELE),Telemetry,Main,7,9,8,0,4.0,0,1
-110501-PACU,110501,PACU,Post-Anesthesia Care (PACU),Post-Anesthesia Care,Main,6,4,4,0,2.0,0,1
-110501-MS,110501,MS,Medical/Surgical (MS),Medical/Surgical,Main,2,31,28,1,5.0,0,0
-450601-ED,450601,ED,Emergency Department (ED),Emergency Department,Main,6,18,17,0,4.0,0,1
+050201-MS,050201,MS,Medical/Surgical (MS),Medical/Surgical,Main,5,125,118,2,5.0,0,0
+050201-ONC,050201,ONC,Specialty Care Oncology (ONC),Specialty Care Oncology,Main,3,21,20,1,4.0,0,0
+050201-PEDS,050201,PEDS,Pediatrics (PEDS),Pediatrics,Main,1,19,18,0,4.0,0,0
+050201-LD,050201,LD,Labor & Delivery (LD),Labor & Delivery,Main,9,15,14,0,2.0,0,1
+050201-PP,050201,PP,Postpartum (PP),Postpartum,North Tower,5,21,19,1,4.0,0,0
+050201-PSY,050201,PSY,Psychiatric (PSY),Psychiatric,Main,1,23,20,0,6.0,0,0
+050201-OPC,050201,OPC,Outpatient Clinic (OPC),Outpatient Clinic,Main,2,75,71,2,8.0,0,0
+050201-ASC,050201,ASC,Ambulatory Surgery (ASC),Ambulatory Surgery,Main,8,10,9,0,4.0,0,1
+030301-ED,030301,ED,Emergency Department (ED),Emergency Department,Main,5,28,25,1,4.0,0,1
+030301-MICU,030301,MICU,Medical Intensive Care (MICU),Medical Intensive Care,North Tower,2,14,14,0,2.0,1,1
+030301-SDU,030301,SDU,Step-Down (SDU),Step-Down,Main,5,15,13,0,3.0,0,1
+030301-TELE,030301,TELE,Telemetry (TELE),Telemetry,Main,2,22,20,1,4.0,0,1
+030301-PACU,030301,PACU,Post-Anesthesia Care (PACU),Post-Anesthesia Care,Main,8,8,7,0,2.0,0,1
+030301-MS,030301,MS,Medical/Surgical (MS),Medical/Surgical,Main,6,82,76,1,5.0,0,0
+030301-PEDS,030301,PEDS,Pediatrics (PEDS),Pediatrics,Main,8,12,11,0,4.0,0,0
+030301-LD,030301,LD,Labor & Delivery (LD),Labor & Delivery,Main,6,10,9,0,2.0,0,1
+030301-PP,030301,PP,Postpartum (PP),Postpartum,North Tower,1,14,13,0,4.0,0,0
+030301-OPC,030301,OPC,Outpatient Clinic (OPC),Outpatient Clinic,Main,9,55,53,0,8.0,0,0
+030301-ASC,030301,ASC,Ambulatory Surgery (ASC),Ambulatory Surgery,Main,8,7,7,0,4.0,0,1
+140401-ED,140401,ED,Emergency Department (ED),Emergency Department,Main,7,35,33,0,4.0,0,1
+140401-MICU,140401,MICU,Medical Intensive Care (MICU),Medical Intensive Care,Main,2,19,18,1,2.0,1,1
+140401-SICU,140401,SICU,Surgical Intensive Care (SICU),Surgical Intensive Care,North Tower,8,14,13,0,2.0,1,1
+140401-CVICU,140401,CVICU,Cardiovascular ICU (CVICU),Cardiovascular ICU,Main,7,12,11,0,2.0,1,1
+140401-SDU,140401,SDU,Step-Down (SDU),Step-Down,Main,2,20,19,0,3.0,0,1
+140401-TELE,140401,TELE,Telemetry (TELE),Telemetry,Main,5,31,30,1,4.0,0,1
+140401-PACU,140401,PACU,Post-Anesthesia Care (PACU),Post-Anesthesia Care,Main,6,10,9,0,2.0,0,1
+140401-MS,140401,MS,Medical/Surgical (MS),Medical/Surgical,Main,7,112,101,4,5.0,0,0
+140401-ONC,140401,ONC,Specialty Care Oncology (ONC),Specialty Care Oncology,Main,6,19,17,0,4.0,0,0
+140401-PEDS,140401,PEDS,Pediatrics (PEDS),Pediatrics,Main,2,17,15,1,4.0,0,0
+140401-LD,140401,LD,Labor & Delivery (LD),Labor & Delivery,Main,6,14,13,0,2.0,0,1
+140401-PP,140401,PP,Postpartum (PP),Postpartum,Main,2,19,17,1,4.0,0,0
+140401-PSY,140401,PSY,Psychiatric (PSY),Psychiatric,Main,9,20,18,0,6.0,0,0
+140401-OPC,140401,OPC,Outpatient Clinic (OPC),Outpatient Clinic,North Tower,6,68,64,2,8.0,0,0
+140401-ASC,140401,ASC,Ambulatory Surgery (ASC),Ambulatory Surgery,Main,1,9,8,0,4.0,0,1
+110501-ED,110501,ED,Emergency Department (ED),Emergency Department,Main,7,12,11,0,4.0,0,1
+110501-MICU,110501,MICU,Medical Intensive Care (MICU),Medical Intensive Care,Main,3,6,6,0,2.0,1,1
+110501-TELE,110501,TELE,Telemetry (TELE),Telemetry,Main,2,9,8,0,4.0,0,1
+110501-PACU,110501,PACU,Post-Anesthesia Care (PACU),Post-Anesthesia Care,Main,7,4,4,0,2.0,0,1
+110501-MS,110501,MS,Medical/Surgical (MS),Medical/Surgical,Main,8,31,27,0,5.0,0,0
+110501-OPC,110501,OPC,Outpatient Clinic (OPC),Outpatient Clinic,North Tower,6,23,22,0,8.0,0,0
+450601-ED,450601,ED,Emergency Department (ED),Emergency Department,Main,8,18,16,0,4.0,0,1
+450601-OPC,450601,OPC,Outpatient Clinic (OPC),Outpatient Clinic,Main,7,36,34,1,8.0,0,0

@@ -1,8 +1,8 @@
 facility_id,facility_name,facility_type,region,city,state,zip,county,emergency_services,licensed_beds,staffed_beds,ownership
-330101,Meridian General Hospital – Boston,General Acute Care,Northeast,Boston,MA,02118,Suffolk,1,420,389,Voluntary non-profit - Private
-330102,Meridian University Hospital,Teaching,Northeast,Boston,MA,02215,Suffolk,1,610,584,Voluntary non-profit - Church
-050201,Meridian General Hospital – Oakland,General Acute Care,West,Oakland,CA,94609,Alameda,1,380,350,Voluntary non-profit - Private
-030301,Meridian Regional Medical Center – Phoenix,Regional,West,Phoenix,AZ,85006,Maricopa,1,250,186,Proprietary
-140401,Meridian General Hospital – Chicago,General Acute Care,Midwest,Chicago,IL,60612,Cook,1,340,319,Voluntary non-profit - Private
-110501,Meridian Community Hospital – Savannah,Community,South,Savannah,GA,31404,Chatham,1,95,57,Government - Local
-450601,Meridian Urgent Care – Austin,Urgent Care,South,Austin,TX,78702,Travis,0,0,17,Proprietary
+330101,Meridian General Hospital – Boston,General Acute Care,Northeast,Boston,MA,02118,Suffolk,1,420,471,Voluntary non-profit - Private
+330102,Meridian University Hospital,Teaching,Northeast,Boston,MA,02215,Suffolk,1,610,707,Voluntary non-profit - Church
+050201,Meridian General Hospital – Oakland,General Acute Care,West,Oakland,CA,94609,Alameda,1,380,429,Voluntary non-profit - Private
+030301,Meridian Regional Medical Center – Phoenix,Regional,West,Phoenix,AZ,85006,Maricopa,1,250,248,Proprietary
+140401,Meridian General Hospital – Chicago,General Acute Care,Midwest,Chicago,IL,60612,Cook,1,340,386,Voluntary non-profit - Private
+110501,Meridian Community Hospital – Savannah,Community,South,Savannah,GA,31404,Chatham,1,95,78,Government - Local
+450601,Meridian Urgent Care – Austin,Urgent Care,South,Austin,TX,78702,Travis,0,0,50,Proprietary

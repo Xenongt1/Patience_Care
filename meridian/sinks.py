@@ -74,7 +74,11 @@ class LocalBatchSink(BatchSink):
         return full
 
     def write_csv(self, path, rows, fieldnames=None):
-        if not rows:
+        # No rows and no known column order -- nothing writable. With explicit
+        # fieldnames an empty feed still lands as a header-only file, so a
+        # legitimately quiet day is distinguishable from a partition that never
+        # arrived. Callers that pass fieldnames are opting into that.
+        if not rows and not fieldnames:
             return 0
         fieldnames = fieldnames or list(rows[0].keys())
         full = self._full(path)
@@ -124,7 +128,11 @@ class OneLakeBatchSink(BatchSink):
         return len(data)
 
     def write_csv(self, path, rows, fieldnames=None):
-        if not rows:
+        # No rows and no known column order -- nothing writable. With explicit
+        # fieldnames an empty feed still lands as a header-only file, so a
+        # legitimately quiet day is distinguishable from a partition that never
+        # arrived. Callers that pass fieldnames are opting into that.
+        if not rows and not fieldnames:
             return 0
         fieldnames = fieldnames or list(rows[0].keys())
         buf = io.StringIO()

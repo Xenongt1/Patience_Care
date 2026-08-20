@@ -468,7 +468,14 @@ class Emitters:
 
             for seq, code, title, cohort in e.diagnoses:
                 diagnoses.append({
-                    "subject_id": p["Id"], "hadm_id": e.hadm_id or e.encounter_id,
+                    # NULL for anything that was never admitted -- outpatient and
+                    # ED-discharged encounters have no hadm_id to point at. It
+                    # used to fall back to the encounter id, which put `ENC...`
+                    # values in a column documented as FK admissions.hadm_id and
+                    # broke the join for 4 rows in 5 once outpatient volume
+                    # arrived. Same shape as ed_stays.hadm_id: nullable by
+                    # design, join via encounter_id instead.
+                    "subject_id": p["Id"], "hadm_id": e.hadm_id,
                     "encounter_id": e.encounter_id,
                     "seq_num": seq, "icd_code": code, "icd_version": 10,
                     "icd_title": title, "hrrp_cohort": cohort,
@@ -490,6 +497,41 @@ class Emitters:
     # =====================================================================
     # Source 2 — Billing & claims (daily CSV, cloud files)
     # =====================================================================
+    # Column order for the four claims tables, needed so a day with no claims
+    # still lands a header-only file. Claims bill discharges CODING_LAG_DAYS
+    # (2-6) back, so the first two days of any window are structurally empty --
+    # everything that far back pre-dates emit_from and was never in the EHR
+    # extract. Skipping the write entirely left a hole in a feed the contract
+    # calls daily, and a freshness check cannot tell that hole apart from a real
+    # late delivery. An empty partition that arrives on time is the honest
+    # signal: nothing to bill, feed healthy.
+    CLAIM_HEADER_FIELDS = (
+        "patient_control_number", "encounter_id", "hadm_id", "subject_id",
+        "facility_id", "total_charge_amount", "claim_filing_indicator_code",
+        "payer_id", "payer_name", "type_of_bill", "statement_date_from",
+        "statement_date_to", "admission_date_and_hour", "discharge_time",
+        "admission_type_code", "admission_source_code", "patient_status_code",
+        "drg_code", "principal_diagnosis", "admitting_diagnosis",
+        "other_diagnoses", "attending_provider_npi", "medical_record_number",
+        "prior_authorization_number", "is_readmission_related", "submission_date")
+    CLAIM_LINE_FIELDS = (
+        "patient_control_number", "line_control_number", "revenue_code",
+        "revenue_code_description", "procedure_code", "procedure_code_qualifier",
+        "procedure_description", "line_charge_amount", "unit_type", "unit_count",
+        "non_covered_amount", "service_date_from", "service_date_to")
+    REMIT_FIELDS = (
+        "patient_control_number", "payer_id", "claim_status_code",
+        "claim_status_description", "total_claim_charge_amount",
+        "claim_payment_amount", "patient_responsibility_amount",
+        "payer_claim_control_number", "drg_code", "drg_weight",
+        "check_eft_trace_number", "payment_method_code", "check_date",
+        "remit_date", "is_appealed", "is_overturned_on_appeal")
+    REMIT_ADJUSTMENT_FIELDS = (
+        "patient_control_number", "adjustment_seq", "group_code",
+        "group_code_description", "reason_code", "reason_code_description",
+        "amount", "quantity", "remark_code", "remark_code_description",
+        "is_denial")
+
     def emit_claims(self, run_date):
         d = _dstr(run_date)
         headers, lines, remits, adjustments = [], [], [], []
@@ -513,10 +555,14 @@ class Emitters:
                     continue
                 self._build_claim(e, run_date, headers, lines, remits, adjustments)
 
-        self._write(f"claims/claim_header/claim_header_{d}.csv", headers)
-        self._write(f"claims/claim_line/claim_line_{d}.csv", lines)
-        self._write(f"claims/remit/remit_{d}.csv", remits)
-        self._write(f"claims/remit_adjustment/remit_adjustment_{d}.csv", adjustments)
+        self._write(f"claims/claim_header/claim_header_{d}.csv", headers,
+                    list(self.CLAIM_HEADER_FIELDS))
+        self._write(f"claims/claim_line/claim_line_{d}.csv", lines,
+                    list(self.CLAIM_LINE_FIELDS))
+        self._write(f"claims/remit/remit_{d}.csv", remits,
+                    list(self.REMIT_FIELDS))
+        self._write(f"claims/remit_adjustment/remit_adjustment_{d}.csv", adjustments,
+                    list(self.REMIT_ADJUSTMENT_FIELDS))
         self.stats["claims"] += len(headers)
         self.stats["denials"] += sum(1 for r in remits if r.get("claim_status_code") == "4")
 
