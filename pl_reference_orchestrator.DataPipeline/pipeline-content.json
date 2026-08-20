@@ -4,6 +4,7 @@
       {
         "type": "ForEach",
         "typeProperties": {
+          "isSequential": true,
           "items": {
             "value": "@variables('tableList')",
             "type": "Expression"
@@ -69,6 +70,62 @@
           {
             "folder": "reference/dim_staff",
             "name": "dim_staff"
+          },
+          {
+            "folder": "beds/hourly_snapshot",
+            "name": "bed_hourly_snapshot"
+          },
+          {
+            "folder": "beds/nhsn_weekly",
+            "name": "bed_nhsn_weekly"
+          },
+          {
+            "folder": "claims/claim_header",
+            "name": "claim_header"
+          },
+          {
+            "folder": "claims/claim_line",
+            "name": "claim_line"
+          },
+          {
+            "folder": "claims/remit",
+            "name": "remit"
+          },
+          {
+            "folder": "claims/remit_adjustment",
+            "name": "remit_adjustment"
+          },
+          {
+            "folder": "ehr/patients",
+            "name": "patients"
+          },
+          {
+            "folder": "ehr/encounters",
+            "name": "encounters"
+          },
+          {
+            "folder": "ehr/admissions",
+            "name": "admissions"
+          },
+          {
+            "folder": "ehr/ed_stays",
+            "name": "ed_stays"
+          },
+          {
+            "folder": "ehr/transfers",
+            "name": "transfers"
+          },
+          {
+            "folder": "ehr/diagnoses",
+            "name": "diagnoses"
+          },
+          {
+            "folder": "pharmacy/inventory",
+            "name": "pharmacy_inventory"
+          },
+          {
+            "folder": "sharepoint/staff_schedules",
+            "name": "staff_schedules"
           }
         ]
       }
