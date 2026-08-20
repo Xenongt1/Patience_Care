@@ -22,7 +22,7 @@
 
 # MARKDOWN ********************
 
-# # **A function that helps me to check the columns of the various data**
+# # **A function that helps me to check the columns of the various data and turn them into Bronze Tables for easy use**
 
 # CELL ********************
 
