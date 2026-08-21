@@ -731,7 +731,7 @@ import json
 with open("/lakehouse/default/Files/raw/dq_answer_key.json") as f:
     answer_key = json.load(f)   # adjust path to wherever you landed it
 
-print(f"Answer key covers {len(answer_key)} known injected defects")
+#####################print(f"Answer key covers {len(answer_key)} known injected defects")
 print(answer_key[0] if answer_key else "empty")   # inspect the shape first
 
 """
