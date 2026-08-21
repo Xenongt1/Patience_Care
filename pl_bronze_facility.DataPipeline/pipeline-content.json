@@ -1,0 +1,189 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "WebActivity",
+        "typeProperties": {
+          "method": "GET",
+          "relativeUrl": {
+            "value": "repos/Xenongt1/Patience_Care/contents/batch/@{pipeline().parameters.pTableFolder}?ref=feature/mubarak/data_gen",
+            "type": "Expression"
+          },
+          "headers": {}
+        },
+        "externalReferences": {
+          "connection": "1c654580-9b8f-4820-910e-92fa47e2ac41"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "ingesting_data",
+        "description": "Testing the ingestion of the facilities data ",
+        "dependsOn": []
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "items": {
+            "value": "@json(activity('ingesting_data').output.Response)",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "Copy",
+              "typeProperties": {
+                "source": {
+                  "type": "DelimitedTextSource",
+                  "formatSettings": {
+                    "type": "DelimitedTextReadSettings"
+                  },
+                  "storeSettings": {
+                    "type": "HttpReadSettings",
+                    "requestMethod": "GET"
+                  },
+                  "datasetSettings": {
+                    "type": "DelimitedText",
+                    "typeProperties": {
+                      "location": {
+                        "type": "HttpServerLocation",
+                        "relativeUrl": {
+                          "value": "@replace(item().download_url, 'https://raw.githubusercontent.com', '')",
+                          "type": "Expression"
+                        }
+                      },
+                      "columnDelimiter": ",",
+                      "quoteChar": "\"",
+                      "escapeChar": "\\",
+                      "firstRowAsHeader": true
+                    },
+                    "schema": [],
+                    "externalReferences": {
+                      "connection": "6108254f-baef-481c-9193-d2f5f4a2ff38"
+                    },
+                    "annotations": []
+                  }
+                },
+                "sink": {
+                  "type": "DelimitedTextSink",
+                  "formatSettings": {
+                    "type": "DelimitedTextWriteSettings",
+                    "fileExtension": ".txt"
+                  },
+                  "storeSettings": {
+                    "type": "LakehouseWriteSettings"
+                  },
+                  "datasetSettings": {
+                    "type": "DelimitedText",
+                    "typeProperties": {
+                      "location": {
+                        "type": "LakehouseLocation",
+                        "folderPath": {
+                          "value": "raw/@{pipeline().parameters.pTableFolder}",
+                          "type": "Expression"
+                        },
+                        "fileName": {
+                          "value": "@{item().name}",
+                          "type": "Expression"
+                        }
+                      },
+                      "columnDelimiter": ",",
+                      "quoteChar": "\"",
+                      "escapeChar": "\\",
+                      "firstRowAsHeader": true
+                    },
+                    "schema": [],
+                    "linkedService": {
+                      "name": "lh_bronze",
+                      "properties": {
+                        "type": "Lakehouse",
+                        "typeProperties": {
+                          "artifactId": "8f229c4d-90c2-bed4-4048-a0c49197c9e0",
+                          "workspaceId": "00000000-0000-0000-0000-000000000000",
+                          "rootFolder": "Files"
+                        },
+                        "annotations": []
+                      }
+                    },
+                    "annotations": []
+                  }
+                },
+                "translator": {
+                  "type": "TabularTranslator",
+                  "typeConversion": true,
+                  "typeConversionSettings": {
+                    "allowDataTruncation": true,
+                    "treatBooleanAsNumber": false
+                  }
+                },
+                "enableStaging": false
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "copy_facilities_data",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "forEachFacilitiesFile",
+        "dependsOn": [
+          {
+            "activity": "ingesting_data",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "pTableFolder": {
+        "type": "string",
+        "defaultValue": "reference/dim_facility"
+      },
+      "pTableName": {
+        "type": "string",
+        "defaultValue": "dim_facility"
+      }
+    },
+    "variables": {
+      "tableList": {
+        "type": "Array",
+        "defaultValue": [
+          {
+            "folder": "reference/dim_facility",
+            "name": "dim_facility"
+          },
+          {
+            "folder": "reference/dim_unit",
+            "name": "dim_unit"
+          },
+          {
+            "folder": "reference/dim_payer",
+            "name": "dim_payer"
+          },
+          {
+            "folder": "reference/dim_drug",
+            "name": "dim_drug"
+          },
+          {
+            "folder": "reference/dim_icd10",
+            "name": "dim_icd10"
+          },
+          {
+            "folder": "reference/dim_drg",
+            "name": "dim_drg"
+          }
+        ]
+      }
+    }
+  }
+}

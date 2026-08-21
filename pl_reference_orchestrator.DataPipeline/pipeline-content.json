@@ -1,0 +1,142 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "isSequential": true,
+          "items": {
+            "value": "@variables('tableList')",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "InvokePipeline",
+              "typeProperties": {
+                "parameters": {
+                  "pTableFolder": {
+                    "value": "@item().folder",
+                    "type": "Expression"
+                  },
+                  "pTableName": {
+                    "value": "@item().name",
+                    "type": "Expression"
+                  }
+                },
+                "waitOnCompletion": true,
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "pipelineId": "d79d8b61-8875-b8e9-4dbd-b34480aa8bd1",
+                "operationType": "InvokeFabricPipeline"
+              },
+              "externalReferences": {
+                "connection": "802fe816-0d0c-4727-8f91-eb6f46ab0a35"
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Invoke_pipeline_reference",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "ForEach1",
+        "dependsOn": []
+      }
+    ],
+    "variables": {
+      "tableList": {
+        "type": "Array",
+        "defaultValue": [
+          {
+            "folder": "reference/dim_facility",
+            "name": "dim_facility"
+          },
+          {
+            "folder": "reference/dim_unit",
+            "name": "dim_unit"
+          },
+          {
+            "folder": "reference/dim_payer",
+            "name": "dim_payer"
+          },
+          {
+            "folder": "reference/dim_drug",
+            "name": "dim_drug"
+          },
+          {
+            "folder": "reference/dim_staff",
+            "name": "dim_staff"
+          },
+          {
+            "folder": "reference/dim_drg",
+            "name": "dim_drg"
+          },
+          {
+            "folder": "reference/dim_icd10",
+            "name": "dim_icd10"
+          },
+          {
+            "folder": "beds/hourly_snapshot",
+            "name": "bed_hourly_snapshot"
+          },
+          {
+            "folder": "beds/nhsn_weekly",
+            "name": "bed_nhsn_weekly"
+          },
+          {
+            "folder": "claims/claim_header",
+            "name": "claim_header"
+          },
+          {
+            "folder": "claims/claim_line",
+            "name": "claim_line"
+          },
+          {
+            "folder": "claims/remit",
+            "name": "remit"
+          },
+          {
+            "folder": "claims/remit_adjustment",
+            "name": "remit_adjustment"
+          },
+          {
+            "folder": "ehr/patients",
+            "name": "patients"
+          },
+          {
+            "folder": "ehr/encounters",
+            "name": "encounters"
+          },
+          {
+            "folder": "ehr/admissions",
+            "name": "admissions"
+          },
+          {
+            "folder": "ehr/ed_stays",
+            "name": "ed_stays"
+          },
+          {
+            "folder": "ehr/transfers",
+            "name": "transfers"
+          },
+          {
+            "folder": "ehr/diagnoses",
+            "name": "diagnoses"
+          },
+          {
+            "folder": "pharmacy/inventory",
+            "name": "pharmacy_inventory"
+          },
+          {
+            "folder": "sharepoint/staff_schedules",
+            "name": "staff_schedules"
+          }
+        ]
+      }
+    }
+  }
+}
