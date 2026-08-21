@@ -20,6 +20,17 @@
 # META   }
 # META }
 
+# CELL ********************
+
+spark.sql("DROP TABLE IF EXISTS dq_run_results")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # MARKDOWN ********************
 
 # **_Shared Imports + DQ helper function**
@@ -261,315 +272,6 @@ log_dq_run(silver, "silver_patients")
 # META   "language_group": "synapse_pyspark"
 # META }
 
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_encounters")
-silver = (raw_bronze
-    .withColumn("Start_ts", F.to_timestamp("Start"))
-    .withColumn("Stop_ts", F.to_timestamp("Stop"))
-    .withColumn("Base_Encounter_Cost_float", F.col("Base_Encounter_Cost").cast("float"))
-    .withColumn("Total_Claim_Cost_float", F.col("Total_Claim_Cost").cast("float"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("Id").isNull(), "encounter Id null")
-silver = add_issue(silver, F.col("Stop_ts") < F.col("Start_ts"), "Stop before Start")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_encounters")
-log_dq_run(silver, "silver_encounters")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_admissions")
-silver = (raw_bronze
-    .withColumn("admittime_ts", F.to_timestamp("admittime"))
-    .withColumn("dischtime_ts", F.to_timestamp("dischtime"))
-    .withColumn("is_readmission_bool", F.col("is_readmission").cast("boolean"))
-    .withColumn("hospital_expire_flag_bool", F.col("hospital_expire_flag").cast("boolean"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("hadm_id").isNull(), "hadm_id null")
-silver = add_issue(silver, F.col("dischtime_ts") < F.col("admittime_ts"), "dischtime before admittime")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_admissions")
-log_dq_run(silver, "silver_admissions")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_ed_stays")
-silver = (raw_bronze
-    .withColumn("intime_ts", F.to_timestamp("intime"))
-    .withColumn("outtime_ts", F.to_timestamp("outtime"))
-    .withColumn("acuity_int", F.col("acuity").cast("int"))
-    .withColumn("heartrate_int", F.col("heartrate").cast("int"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("stay_id").isNull(), "stay_id null")
-silver = add_issue(silver, (F.col("acuity_int") < 1) | (F.col("acuity_int") > 5), "acuity out of 1-5 range")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_ed_stays")
-log_dq_run(silver, "silver_ed_stays")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_transfers")
-silver = (raw_bronze
-    .withColumn("intime_ts", F.to_timestamp("intime"))
-    .withColumn("outtime_ts", F.to_timestamp("outtime"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("transfer_id").isNull(), "transfer_id null")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_transfers")
-log_dq_run(silver, "silver_transfers")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_diagnoses")
-silver = (raw_bronze
-    .withColumn("seq_num_int", F.col("seq_num").cast("int"))
-    .withColumn("icd_version_int", F.col("icd_version").cast("int"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("icd_code").isNull(), "icd_code null")
-silver = add_issue(silver, ~F.col("icd_version_int").isin([9, 10]), "invalid icd_version")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_diagnoses")
-log_dq_run(silver, "silver_diagnoses")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_claim_header")
-silver = (raw_bronze
-    .withColumn("total_charge_amount_float", F.col("total_charge_amount").cast("float"))
-    .withColumn("is_readmission_related_bool", F.col("is_readmission_related").cast("boolean"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
-silver = add_issue(silver, (F.col("total_charge_amount_float").isNull()) | (F.col("total_charge_amount_float") < 0), "invalid total_charge_amount")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_claim_header")
-log_dq_run(silver, "silver_claim_header")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_claim_line")
-silver = (raw_bronze
-    .withColumn("line_charge_amount_float", F.col("line_charge_amount").cast("float"))
-    .withColumn("unit_count_int", F.col("unit_count").cast("int"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_claim_line")
-log_dq_run(silver, "silver_claim_line")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_remit")
-silver = (raw_bronze
-    .withColumn("claim_payment_amount_float", F.col("claim_payment_amount").cast("float"))
-    .withColumn("is_appealed_bool", F.col("is_appealed").cast("boolean"))
-    .withColumn("is_overturned_on_appeal_bool", F.col("is_overturned_on_appeal").cast("boolean"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_remit")
-log_dq_run(silver, "silver_remit")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_remit_adjustment")
-silver = (raw_bronze
-    .withColumn("amount_float", F.col("amount").cast("float"))
-    .withColumn("is_denial_bool", F.col("is_denial").cast("boolean"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_remit_adjustment")
-log_dq_run(silver, "silver_remit_adjustment")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# MARKDOWN ********************
-
-# **Beds — two tables, straightforward, both facts (no collapse-to-latest)**
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_bed_hourly")
-silver = (raw_bronze
-    .withColumn("snapshot_datetime_ts", F.to_timestamp("snapshot_datetime"))
-    .withColumn("occupied_beds_int", F.col("occupied_beds").cast("int"))
-    .withColumn("available_beds_int", F.col("available_beds").cast("int"))
-    .withColumn("occupancy_rate_float", F.col("occupancy_rate").cast("float"))
-    .withColumn("is_at_capacity_bool", F.col("is_at_capacity").cast("boolean"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("snapshot_datetime_ts").isNull(), "snapshot_datetime unparseable")
-silver = add_issue(silver, (F.col("occupancy_rate_float") < 0) | (F.col("occupancy_rate_float") > 1), "occupancy_rate out of 0-1 range")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_bed_hourly")
-log_dq_run(silver, "silver_bed_hourly")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_bed_nhsn")
-silver = (raw_bronze
-    .withColumn("week_ending_date_d", F.to_date("week_ending_date"))
-    .withColumn("all_hospital_inpatient_beds_int", F.col("all_hospital_inpatient_beds").cast("int"))
-    .withColumn("all_hospital_inpatient_occupancy_int", F.col("all_hospital_inpatient_occupancy").cast("int"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("week_ending_date_d").isNull(), "week_ending_date unparseable")
-silver = add_issue(silver, F.col("all_hospital_inpatient_occupancy_int") > F.col("all_hospital_inpatient_beds_int"), "occupancy exceeds bed count")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_bed_nhsn")
-log_dq_run(silver, "silver_bed_nhsn")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# MARKDOWN ********************
-
-# **Pharmacy inventory**
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_pharmacy_inventory")
-silver = (raw_bronze
-    .withColumn("qty_on_hand_int", F.col("qty_on_hand").cast("int"))
-    .withColumn("reorder_point_int", F.col("reorder_point").cast("int"))
-    .withColumn("is_stockout_bool", F.col("is_stockout").cast("boolean"))
-    .withColumn("is_controlled_bool", F.col("is_controlled").cast("boolean"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("ndc11").isNull(), "ndc11 null")
-silver = add_issue(silver, (F.col("qty_on_hand_int").isNull()) | (F.col("qty_on_hand_int") < 0), "invalid qty_on_hand")
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_pharmacy_inventory")
-log_dq_run(silver, "silver_pharmacy_inventory")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# MARKDOWN ********************
-
-# **staff_schedules — legitimate nulls matter here**
-
-# CELL ********************
-
-raw_bronze = spark.read.table("dbo_1.bronze_staff_schedules")
-silver = (raw_bronze
-    .withColumn("scheduled_hours_float", F.col("scheduled_hours").cast("float"))
-    .withColumn("actual_hours_float", F.col("actual_hours").cast("float"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-silver = add_issue(silver, F.col("staff_id").isNull(), "staff_id null")
-silver = add_issue(silver, F.col("facility_id").isNull(), "facility_id null")
-# Overtime, called_out, floated_in, notes being blank is NORMAL — most shifts
-# aren't overtime — so we deliberately do NOT flag those as issues here.
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_staff_schedules")
-log_dq_run(silver, "silver_staff_schedules")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
 # MARKDOWN ********************
 
 # ##### The bed reconciliation cross-check
@@ -723,18 +425,548 @@ for table, note in checks_to_review:
 
 # CELL ********************
 
-"""
+
 
 # Read the answer key — treat as reference data, never write it into Bronze/Silver/Gold tables
-import json
+#import json
 
-with open("/lakehouse/default/Files/raw/dq_answer_key.json") as f:
-    answer_key = json.load(f)   # adjust path to wherever you landed it
+#with open("/lakehouse/default/Files/raw/dq_answer_key.json") as f:
+    #answer_key = json.load(f)   # adjust path to wherever you landed it
+#print(f"Answer key covers {len(answer_key)} known injected defects")
+#print(answer_key[0] if answer_key else "empty")   # inspect the shape first
 
-#####################print(f"Answer key covers {len(answer_key)} known injected defects")
-print(answer_key[0] if answer_key else "empty")   # inspect the shape first
+# METADATA ********************
 
-"""
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+# Small dimension lookups — safe to collect to driver, these tables are tiny
+valid_facility_ids = [r["facility_id"] for r in spark.read.table("silver_facility").select("facility_id").collect()]
+valid_unit_ids = [r["unit_id"] for r in spark.read.table("silver_unit").select("unit_id").collect()]
+valid_staff_ids = [r["staff_id"] for r in spark.read.table("silver_staff").select("staff_id").distinct().collect()]
+
+# Patient lookup stays a DataFrame — this table can be large, we join to it, never collect it
+patient_lookup = spark.read.table("silver_patients").select(
+    F.col("Id").alias("_patient_lookup_id"),
+    "canonical_patient_key"
+)
+
+def add_patient_key(df, patient_col):
+    """Joins df to silver_patients on patient_col == Id, adds canonical_patient_key,
+    and flags rows whose patient reference didn't resolve to anyone in silver_patients."""
+    joined = df.join(
+        patient_lookup,
+        df[patient_col] == patient_lookup["_patient_lookup_id"],
+        how="left"
+    ).drop("_patient_lookup_id")
+    joined = add_issue(joined, F.col("canonical_patient_key").isNull(), f"{patient_col} not found in silver_patients")
+    return joined
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_encounters")
+silver = (raw_bronze
+    .withColumn("Start_ts", F.to_timestamp("Start"))
+    .withColumn("Stop_ts", F.to_timestamp("Stop"))
+    .withColumn("Base_Encounter_Cost_float", F.col("Base_Encounter_Cost").cast("float"))
+    .withColumn("Total_Claim_Cost_float", F.col("Total_Claim_Cost").cast("float"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("Id").isNull(), "encounter Id null")
+silver = add_issue(silver, F.col("Stop_ts") < F.col("Start_ts"), "Stop before Start")
+silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
+silver = add_issue(silver, (F.col("unit_id").isNotNull()) & (~F.col("unit_id").isin(valid_unit_ids)), "unit_id not found in silver_unit")
+
+silver = add_patient_key(silver, "Patient")
+
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_encounters")
+log_dq_run(silver, "silver_encounters")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_admissions")
+silver = (raw_bronze
+    .withColumn("admittime_ts", F.to_timestamp("admittime"))
+    .withColumn("dischtime_ts", F.to_timestamp("dischtime"))
+    .withColumn("is_readmission_bool", F.col("is_readmission").cast("boolean"))
+    .withColumn("hospital_expire_flag_bool", F.col("hospital_expire_flag").cast("boolean"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("hadm_id").isNull(), "hadm_id null")
+silver = add_issue(silver, F.col("dischtime_ts") < F.col("admittime_ts"), "dischtime before admittime")
+silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
+
+silver = add_patient_key(silver, "subject_id")
+
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_admissions")
+log_dq_run(silver, "silver_admissions")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_ed_stays")
+silver = (raw_bronze
+    .withColumn("intime_ts", F.to_timestamp("intime"))
+    .withColumn("outtime_ts", F.to_timestamp("outtime"))
+    .withColumn("acuity_int", F.col("acuity").cast("int"))
+    .withColumn("heartrate_int", F.col("heartrate").cast("int"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("stay_id").isNull(), "stay_id null")
+silver = add_issue(silver, (F.col("acuity_int") < 1) | (F.col("acuity_int") > 5), "acuity out of 1-5 range")
+silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
+
+# hadm_id here is optional (an ED visit doesn't always turn into an admission),
+# so only flag it when it's populated but doesn't match a real admission
+valid_hadm_ids = [r["hadm_id"] for r in spark.read.table("silver_admissions").select("hadm_id").distinct().collect()]
+silver = add_issue(silver, (F.col("hadm_id").isNotNull()) & (~F.col("hadm_id").isin(valid_hadm_ids)), "hadm_id not found in silver_admissions")
+
+silver = add_patient_key(silver, "subject_id")
+
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_ed_stays")
+log_dq_run(silver, "silver_ed_stays")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_transfers")
+silver = (raw_bronze
+    .withColumn("intime_ts", F.to_timestamp("intime"))
+    .withColumn("outtime_ts", F.to_timestamp("outtime"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("transfer_id").isNull(), "transfer_id null")
+silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
+silver = add_issue(silver, (F.col("unit_id").isNotNull()) & (~F.col("unit_id").isin(valid_unit_ids)), "unit_id not found in silver_unit")
+
+silver = add_patient_key(silver, "subject_id")
+
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_transfers")
+log_dq_run(silver, "silver_transfers")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_diagnoses")
+silver = (raw_bronze
+    .withColumn("seq_num_int", F.col("seq_num").cast("int"))
+    .withColumn("icd_version_int", F.col("icd_version").cast("int"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("icd_code").isNull(), "icd_code null")
+silver = add_issue(silver, ~F.col("icd_version_int").isin([9, 10]), "invalid icd_version")
+silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
+
+silver = add_patient_key(silver, "subject_id")
+
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_diagnoses")
+log_dq_run(silver, "silver_diagnoses")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# MARKDOWN ********************
+
+# _silver_claim_header — facility + patient + attending provider NPI_
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_claim_header")
+silver = (raw_bronze
+    .withColumn("total_charge_amount_float", F.col("total_charge_amount").cast("float"))
+    .withColumn("is_readmission_related_bool", F.col("is_readmission_related").cast("boolean"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
+silver = add_issue(silver, (F.col("total_charge_amount_float").isNull()) | (F.col("total_charge_amount_float") < 0), "invalid total_charge_amount")
+silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
+
+valid_npis = [r["npi"] for r in spark.read.table("silver_staff").select("npi").distinct().collect()]
+silver = add_issue(silver, (F.col("attending_provider_npi").isNotNull()) & (~F.col("attending_provider_npi").isin(valid_npis)), "attending_provider_npi not found in silver_staff")
+
+silver = add_patient_key(silver, "subject_id")
+
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_claim_header")
+log_dq_run(silver, "silver_claim_header")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+valid_claim_numbers = [r["patient_control_number"] for r in
+                        spark.read.table("silver_claim_header").select("patient_control_number").distinct().collect()]
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_claim_line")
+silver = (raw_bronze
+    .withColumn("line_charge_amount_float", F.col("line_charge_amount").cast("float"))
+    .withColumn("unit_count_int", F.col("unit_count").cast("int"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
+silver = add_issue(silver, ~F.col("patient_control_number").isin(valid_claim_numbers), "patient_control_number not found in silver_claim_header")
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").saveAsTable("silver_claim_line")
+log_dq_run(silver, "silver_claim_line")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_remit")
+silver = (raw_bronze
+    .withColumn("claim_payment_amount_float", F.col("claim_payment_amount").cast("float"))
+    .withColumn("is_appealed_bool", F.col("is_appealed").cast("boolean"))
+    .withColumn("is_overturned_on_appeal_bool", F.col("is_overturned_on_appeal").cast("boolean"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
+silver = add_issue(silver, ~F.col("patient_control_number").isin(valid_claim_numbers), "patient_control_number not found in silver_claim_header")
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").saveAsTable("silver_remit")
+log_dq_run(silver, "silver_remit")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_remit_adjustment")
+silver = (raw_bronze
+    .withColumn("amount_float", F.col("amount").cast("float"))
+    .withColumn("is_denial_bool", F.col("is_denial").cast("boolean"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
+silver = add_issue(silver, ~F.col("patient_control_number").isin(valid_claim_numbers), "patient_control_number not found in silver_claim_header")
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").saveAsTable("silver_remit_adjustment")
+log_dq_run(silver, "silver_remit_adjustment")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_bed_hourly")
+silver = (raw_bronze
+    .withColumn("snapshot_datetime_ts", F.to_timestamp("snapshot_datetime"))
+    .withColumn("occupied_beds_int", F.col("occupied_beds").cast("int"))
+    .withColumn("available_beds_int", F.col("available_beds").cast("int"))
+    .withColumn("occupancy_rate_float", F.col("occupancy_rate").cast("float"))
+    .withColumn("is_at_capacity_bool", F.col("is_at_capacity").cast("boolean"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("snapshot_datetime_ts").isNull(), "snapshot_datetime unparseable")
+silver = add_issue(silver, (F.col("occupancy_rate_float") < 0) | (F.col("occupancy_rate_float") > 1), "occupancy_rate out of 0-1 range")
+silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
+silver = add_issue(silver, ~F.col("unit_id").isin(valid_unit_ids), "unit_id not found in silver_unit")
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").saveAsTable("silver_bed_hourly")
+log_dq_run(silver, "silver_bed_hourly")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+valid_facility_names = [r["facility_name"] for r in spark.read.table("silver_facility").select("facility_name").collect()]
+
+raw_bronze = spark.read.table("dbo_1.bronze_bed_nhsn")
+silver = (raw_bronze
+    .withColumn("week_ending_date_d", F.to_date("week_ending_date"))
+    .withColumn("all_hospital_inpatient_beds_int", F.col("all_hospital_inpatient_beds").cast("int"))
+    .withColumn("all_hospital_inpatient_occupancy_int", F.col("all_hospital_inpatient_occupancy").cast("int"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("week_ending_date_d").isNull(), "week_ending_date unparseable")
+silver = add_issue(silver, F.col("all_hospital_inpatient_occupancy_int") > F.col("all_hospital_inpatient_beds_int"), "occupancy exceeds bed count")
+silver = add_issue(silver, ~F.col("facility_name").isin(valid_facility_names), "facility_name not found in silver_facility")
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").saveAsTable("silver_bed_nhsn")
+log_dq_run(silver, "silver_bed_nhsn")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_pharmacy_inventory")
+silver = (raw_bronze
+    .withColumn("qty_on_hand_int", F.col("qty_on_hand").cast("int"))
+    .withColumn("reorder_point_int", F.col("reorder_point").cast("int"))
+    .withColumn("is_stockout_bool", F.col("is_stockout").cast("boolean"))
+    .withColumn("is_controlled_bool", F.col("is_controlled").cast("boolean"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("ndc11").isNull(), "ndc11 null")
+silver = add_issue(silver, (F.col("qty_on_hand_int").isNull()) | (F.col("qty_on_hand_int") < 0), "invalid qty_on_hand")
+silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").saveAsTable("silver_pharmacy_inventory")
+log_dq_run(silver, "silver_pharmacy_inventory")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_staff_schedules")
+silver = (raw_bronze
+    .withColumn("scheduled_hours_float", F.col("scheduled_hours").cast("float"))
+    .withColumn("actual_hours_float", F.col("actual_hours").cast("float"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+silver = add_issue(silver, F.col("staff_id").isNull(), "staff_id null")
+silver = add_issue(silver, F.col("facility_id").isNull(), "facility_id null")
+silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
+silver = add_issue(silver, ~F.col("staff_id").isin(valid_staff_ids), "staff_id not found in silver_staff")
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+silver.write.format("delta").mode("overwrite").saveAsTable("silver_staff_schedules")
+log_dq_run(silver, "silver_staff_schedules")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dq_run_results").orderBy(F.col("run_timestamp").desc()).show(25, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("silver_staff_schedules").filter("_dq_passed = FALSE").select("_dq_issues").distinct().show(20, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("silver_diagnoses").select("facility_id").distinct().count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("silver_facility").filter("_dq_passed = FALSE").select("facility_id", "facility_name", "_dq_issues").show(20, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dbo_1.bronze_facility").select(
+    "facility_id", "facility_name", "facility_type", "licensed_beds", "staffed_beds"
+).show(20, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_bronze = spark.read.table("dbo_1.bronze_facility")
+
+w = Window.partitionBy("facility_id").orderBy(F.col("_batch_id").desc())
+bronze = (raw_bronze
+    .withColumn("_rn", F.row_number().over(w))
+    .filter("_rn = 1")
+    .drop("_rn")
+)
+
+# Matches actual values in the source data (confirmed against bronze_facility)
+valid_facility_type = ["general acute care", "teaching", "regional", "community", "urgent care"]
+
+silver = (bronze
+    .withColumn("facility_type_folded", F.lower(F.trim("facility_type")))
+    .withColumn("emergency_services_bool", F.col("emergency_services").cast("boolean"))
+    .withColumn("licensed_beds_int", F.col("licensed_beds").cast("int"))
+    .withColumn("staffed_beds_int", F.col("staffed_beds").cast("int"))
+    .withColumn("_dq_issues", F.array().cast("array<string>"))
+)
+
+silver = add_issue(silver, F.col("facility_id").isNull(), "facility_id null")
+silver = add_issue(silver, ~F.col("facility_type_folded").isin(valid_facility_type), "invalid facility_type")
+
+# Urgent care legitimately has 0 licensed inpatient beds — only flag <0 (impossible),
+# and only require >0 for facility types that actually admit inpatients
+silver = add_issue(silver,
+    (F.col("licensed_beds_int").isNull()) |
+    (F.col("licensed_beds_int") < 0) |
+    ((F.col("licensed_beds_int") == 0) & (F.col("facility_type_folded") != "urgent care")),
+    "invalid licensed_beds"
+)
+
+# Removed the staffed_beds > licensed_beds hard-fail: this dataset shows staffed
+# capacity legitimately exceeding licensed capacity across most facilities
+# (surge staffing / licensed vs. operational bed counts are different concepts).
+# Kept as an informational flag only, not a DQ failure.
+silver = silver.withColumn(
+    "staffed_exceeds_licensed_info",
+    F.col("staffed_beds_int") > F.col("licensed_beds_int")
+)
+
+silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
+silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
+
+silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_facility")
+log_dq_run(silver, "silver_facility")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("silver_facility").select("facility_id", "facility_name", "_dq_passed", "_dq_issues", "staffed_exceeds_licensed_info").show(20, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dq_run_results").filter("table_name = 'silver_staff_schedules'").orderBy(F.col("run_timestamp").desc()).show(5, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("silver_staff_schedules").filter("_dq_passed = FALSE").select("facility_id").distinct().show(20, truncate=False)
 
 # METADATA ********************
 
