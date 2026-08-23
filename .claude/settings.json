@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/User2/AppData/Local/Temp/claude/docx_extract/**)"
+    ]
+  }
+}
