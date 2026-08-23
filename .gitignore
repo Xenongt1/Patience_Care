@@ -1,0 +1,41 @@
+# --- Python ---
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+pip-log.txt
+
+# --- Node (e.g. .opencode/ tooling) ---
+node_modules/
+
+# --- Secrets / credentials ---
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.key
+credentials*.json
+*.auth.json
+
+# --- Claude Code / opencode tooling (local-only, not project deliverables) ---
+.claude/
+.opencode/
+CLAUDE.md
+AGENTS.md
+
+# --- Playwright MCP scratch (screenshots, session traces) ---
+.playwright-mcp/
+
+# --- Office/circulation docx builds ---
+# Markdown is the source of truth for data-model/contract docs; docx is a
+# generated circulation copy and should not be tracked.
+*.docx
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
