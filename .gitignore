@@ -23,6 +23,7 @@ credentials*.json
 # --- Claude Code / opencode tooling (local-only, not project deliverables) ---
 .claude/
 .opencode/
+.mcp.json
 CLAUDE.md
 AGENTS.md
 
