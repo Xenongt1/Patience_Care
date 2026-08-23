@@ -1,0 +1,57 @@
+# --- Python ---
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+pip-log.txt
+
+# --- Terraform ---
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+# tfvars often carry subscription/tenant IDs or secrets - keep out of git.
+# Commit a terraform.tfvars.example instead when one is needed.
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# --- Node (e.g. .opencode/ tooling) ---
+node_modules/
+
+# --- Secrets / credentials ---
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.key
+credentials*.json
+*.auth.json
+
+# --- Claude Code local overrides ---
+.claude/settings.local.json
+CLAUDE.md
+AGENTS.md
+
+# --- Playwright MCP scratch (screenshots, session traces) ---
+.playwright-mcp/
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+
+# --- Office temp files ---
+~$*.docx
+~$*.xlsx
+~$*.pptx
