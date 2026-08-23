@@ -29,6 +29,12 @@ AGENTS.md
 # --- Playwright MCP scratch (screenshots, session traces) ---
 .playwright-mcp/
 
+# --- meridian generator (from feature/mubarak/data_gen) ---
+# Reproducible generator output and licensed reference data; regenerate, don't track.
+out/
+refdata/
+data-generation-schema-spec.md
+
 # --- Office/circulation docx builds ---
 # Markdown is the source of truth for data-model/contract docs; docx is a
 # generated circulation copy and should not be tracked.
