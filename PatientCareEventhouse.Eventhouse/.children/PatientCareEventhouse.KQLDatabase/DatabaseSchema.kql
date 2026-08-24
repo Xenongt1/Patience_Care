@@ -195,11 +195,11 @@
 // Operational dashboard reads recent activity only (GENERATOR-README: 30-60 days of vitals
 // is enough to answer "what needs action today"). [ASSUMPTION] 60-day hot cache / 180-day
 // retention — no client-confirmed retention requirement exists yet; revisit once one does.
-.alter table PatientVitalsRaw policy retention softdelete = 180d
+.alter table PatientVitalsRaw policy retention '{"SoftDeletePeriod": "180.00:00:00", "Recoverability": "Enabled"}'
 .alter table PatientVitalsRaw policy caching hot = 60d
-.alter table PatientVitals policy retention softdelete = 180d
+.alter table PatientVitals policy retention '{"SoftDeletePeriod": "180.00:00:00", "Recoverability": "Enabled"}'
 .alter table PatientVitals policy caching hot = 60d
-.alter table PrescriptionEventsRaw policy retention softdelete = 180d
+.alter table PrescriptionEventsRaw policy retention '{"SoftDeletePeriod": "180.00:00:00", "Recoverability": "Enabled"}'
 .alter table PrescriptionEventsRaw policy caching hot = 60d
-.alter table PrescriptionEvents policy retention softdelete = 180d
+.alter table PrescriptionEvents policy retention '{"SoftDeletePeriod": "180.00:00:00", "Recoverability": "Enabled"}'
 .alter table PrescriptionEvents policy caching hot = 60d
