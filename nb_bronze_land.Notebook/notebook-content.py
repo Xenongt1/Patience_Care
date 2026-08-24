@@ -544,6 +544,17 @@ for i, row in raw.iterrows():
 
 # CELL ********************
 
+spark.sql("DROP TABLE IF EXISTS bronze_staff_schedules")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
 import glob
 import os
 import pandas as pd
@@ -557,7 +568,7 @@ def land_bronze_staff_schedules():
     for file in excel_files:
         # header=4 means row index 4 (5th row) holds the real column names —
         # rows 0-3 are the title block, blank line, and confidentiality notice
-        df = pd.read_excel(file, sheet_name="Roster", header=4)
+        df = pd.read_excel(file, sheet_name="Roster", header=4, dtype={"Facility ID": str})
         df["_source_file"] = os.path.basename(file)
         dfs.append(df)
 
@@ -597,6 +608,16 @@ def land_bronze_staff_schedules():
     print(f"bronze_staff_schedules: landed {row_count} new rows")
 
 land_bronze_staff_schedules()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
 
 # METADATA ********************
 
