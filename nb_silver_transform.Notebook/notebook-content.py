@@ -628,6 +628,10 @@ log_dq_run(silver, "silver_diagnoses")
 # META   "language_group": "synapse_pyspark"
 # META }
 
+# MARKDOWN ********************
+
+# _silver_claim_header — facility + patient + attending provider NPI_
+
 # CELL ********************
 
 spark.read.table("silver_diagnoses").select("facility_id").distinct().count()
