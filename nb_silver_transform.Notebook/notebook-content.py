@@ -543,6 +543,7 @@ silver = (raw_bronze
 silver = add_issue(silver, F.col("stay_id").isNull(), "stay_id null")
 silver = add_issue(silver, (F.col("acuity_int") < 1) | (F.col("acuity_int") > 5), "acuity out of 1-5 range")
 silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
+silver = add_issue(silver, F.col("triage_time") < F.col("intime_ts"), "triage_time before intime")
 
 # hadm_id here is optional (an ED visit doesn't always turn into an admission),
 # so only flag it when it's populated but doesn't match a real admission
@@ -574,6 +575,7 @@ silver = (raw_bronze
 silver = add_issue(silver, F.col("transfer_id").isNull(), "transfer_id null")
 silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
 silver = add_issue(silver, (F.col("unit_id").isNotNull()) & (~F.col("unit_id").isin(valid_unit_ids)), "unit_id not found in silver_unit")
+silver = add_issue(silver, F.col("outtime_ts") < F.col("intime_ts"), "outtime before intime")
 
 silver = add_patient_key(silver, "subject_id")
 
@@ -581,6 +583,17 @@ silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
 silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
 silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_transfers")
 log_dq_run(silver, "silver_transfers")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("silver_transfers").filter("_dq_passed = FALSE").select("_dq_issues").distinct().show(20, truncate=False)
 
 # METADATA ********************
 
@@ -607,6 +620,17 @@ silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
 silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
 silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_diagnoses")
 log_dq_run(silver, "silver_diagnoses")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("silver_diagnoses").select("facility_id").distinct().count()
 
 # METADATA ********************
 
