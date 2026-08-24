@@ -448,6 +448,7 @@ for table, note in checks_to_review:
 valid_facility_ids = [r["facility_id"] for r in spark.read.table("silver_facility").select("facility_id").collect()]
 valid_unit_ids = [r["unit_id"] for r in spark.read.table("silver_unit").select("unit_id").collect()]
 valid_staff_ids = [r["staff_id"] for r in spark.read.table("silver_staff").select("staff_id").distinct().collect()]
+valid_payer_ids = [r["payer_id"] for r in spark.read.table("silver_payer").select("payer_id").collect()]
 
 # Patient lookup stays a DataFrame — this table can be large, we join to it, never collect it
 patient_lookup = spark.read.table("silver_patients").select(
@@ -658,6 +659,7 @@ silver = (raw_bronze
 silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
 silver = add_issue(silver, (F.col("total_charge_amount_float").isNull()) | (F.col("total_charge_amount_float") < 0), "invalid total_charge_amount")
 silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
+silver = add_issue(silver, ~F.col("payer_id").isin(valid_payer_ids), "payer_id not found in silver_payer")
 
 valid_npis = [r["npi"] for r in spark.read.table("silver_staff").select("npi").distinct().collect()]
 silver = add_issue(silver, (F.col("attending_provider_npi").isNotNull()) & (~F.col("attending_provider_npi").isin(valid_npis)), "attending_provider_npi not found in silver_staff")
@@ -679,7 +681,7 @@ log_dq_run(silver, "silver_claim_header")
 # CELL ********************
 
 valid_claim_numbers = [r["patient_control_number"] for r in
-                        spark.read.table("silver_claim_header").select("patient_control_number").distinct().collect()]
+    spark.read.table("silver_claim_header").filter("_dq_passed = TRUE").select("patient_control_number").distinct().collect()]
 
 # METADATA ********************
 

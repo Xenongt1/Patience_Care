@@ -700,6 +700,182 @@ fact_diagnoses.filter("seq_num = 1").filter("hrrp_cohort IS NOT NULL").count()
 # META   "language_group": "synapse_pyspark"
 # META }
 
+# MARKDOWN ********************
+
+# fact_claims — one row per claim, header joined with remit
+
+# CELL ********************
+
+silver_claim_header_clean = spark.read.table("dbo_1.silver_claim_header").filter("_dq_passed = TRUE")
+silver_remit_clean = spark.read.table("dbo_1.silver_remit").filter("_dq_passed = TRUE")
+
+fac_lookup = spark.read.table("dim_facility").select("facility_key", "facility_id")
+payer_lookup = spark.read.table("dim_payer").select("payer_key", "payer_id")
+patient_lookup = spark.read.table("dim_patient").select("patient_key", "canonical_patient_key")
+
+# dim_staff has multiple rows per person (SCD-2) — dedupe to one row per npi
+# before joining, or this join would fan out claims into duplicates
+staff_lookup = (spark.read.table("dim_staff")
+    .filter("is_current = true")
+    .dropDuplicates(["npi"])
+    .select(F.col("staff_key").alias("attending_staff_key"), "npi")
+)
+
+fact_claims = (silver_claim_header_clean
+    .join(
+        silver_remit_clean.select(
+            "patient_control_number",
+            F.col("claim_status_code").alias("remit_claim_status_code"),
+            F.col("claim_payment_amount_float").alias("claim_payment_amount"),
+            F.col("patient_responsibility_amount").alias("patient_responsibility_amount"),
+            F.col("is_appealed_bool").alias("is_appealed"),
+            F.col("is_overturned_on_appeal_bool").alias("is_overturned_on_appeal"),
+            F.col("remit_date").alias("remit_date")
+        ),
+        on="patient_control_number", how="left"  # left join — a claim may not have a remit yet (pending)
+    )
+    .join(fac_lookup, on="facility_id", how="left")
+    .join(payer_lookup, on="payer_id", how="left")
+    .join(patient_lookup, on="canonical_patient_key", how="left")
+    .join(staff_lookup, F.col("attending_provider_npi") == F.col("npi"), how="left")
+    .withColumn("submission_date_key", F.date_format("submission_date", "yyyyMMdd").cast("int"))
+    .withColumn("is_paid", F.col("claim_payment_amount").isNotNull() & (F.col("claim_payment_amount") > 0))
+    .withColumn("amount_at_risk", F.col("total_charge_amount_float") - F.coalesce(F.col("claim_payment_amount"), F.lit(0)))
+)
+
+fact_claims = fact_claims.select(
+    "patient_control_number",
+    F.col("encounter_id").alias("source_encounter_id"),
+    "hadm_id",
+    "facility_key", "payer_key", "patient_key", "attending_staff_key",
+    "submission_date_key",
+    F.col("total_charge_amount_float").alias("total_charge_amount"),
+    "claim_payment_amount", "patient_responsibility_amount", "amount_at_risk", "is_paid",
+    "drg_code", "type_of_bill", "admission_type_code",
+    F.col("is_readmission_related_bool").alias("is_readmission_related"),
+    "remit_claim_status_code", "is_appealed", "is_overturned_on_appeal", "remit_date"
+)
+
+fact_claims.write.format("delta").mode("overwrite").saveAsTable("fact_claims")
+print(f"fact_claims: {fact_claims.count()} rows (gated from {spark.read.table('dbo_1.silver_claim_header').count()} total Silver rows)")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+fact_claims.filter("facility_key IS NULL").count()
+
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+fact_claims.filter("payer_key IS NULL").count()
+
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+fact_claims.filter("claim_payment_amount IS NULL").count()  # claims with no remit yet — expected to be nonzero
+
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+fact_claims.filter("amount_at_risk < 0").select("patient_control_number", "total_charge_amount", "claim_payment_amount").show(10)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+fact_claims.filter("amount_at_risk < 0").count()  # would mean paid MORE than charged — worth investigating if nonzero
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# MARKDOWN ********************
+
+# fact_claim_lines — one row per claim line, linked to fact_claims by patient_control_number
+
+# CELL ********************
+
+silver_claim_line_clean = spark.read.table("dbo_1.silver_claim_line").filter("_dq_passed = TRUE")
+
+fact_claim_lines = silver_claim_line_clean.select(
+    "patient_control_number",
+    "line_control_number",
+    "revenue_code", "revenue_code_description",
+    "procedure_code", "procedure_description",
+    F.col("line_charge_amount_float").alias("line_charge_amount"),
+    F.col("unit_count_int").alias("unit_count"),
+    "non_covered_amount",
+    "service_date_from", "service_date_to"
+)
+
+fact_claim_lines.write.format("delta").mode("overwrite").saveAsTable("fact_claim_lines")
+print(f"fact_claim_lines: {fact_claim_lines.count()} rows (gated from {spark.read.table('dbo_1.silver_claim_line').count()} total Silver rows)")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+valid_claim_numbers = [r["patient_control_number"] for r in fact_claims.select("patient_control_number").collect()]
+
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+fact_claim_lines.filter(~F.col("patient_control_number").isin(valid_claim_numbers)).count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # CELL ********************
 
 
