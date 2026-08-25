@@ -654,7 +654,7 @@ silver = (bronze
 silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
 silver = add_issue(silver, (F.col("total_charge_amount_float").isNull()) | (F.col("total_charge_amount_float") < 0), "invalid total_charge_amount")
 silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
-silver = add_issue(silver, ~F.col("payer_id").isin(valid_payer_ids), "payer_id not found in silver_payer")
+silver = add_issue(silver, F.col("payer_id").isNull() | (~F.col("payer_id").isin(valid_payer_ids)), "payer_id not found in silver_payer")
 
 valid_npis = [r["npi"] for r in spark.read.table("silver_staff").select("npi").distinct().collect()]
 silver = add_issue(silver, (F.col("attending_provider_npi").isNotNull()) & (~F.col("attending_provider_npi").isin(valid_npis)), "attending_provider_npi not found in silver_staff")
@@ -749,7 +749,7 @@ silver = add_issue(silver,
 
 silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
 silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_remit")
+silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_remit")
 log_dq_run(silver, "silver_remit")
 
 # METADATA ********************
@@ -775,7 +775,7 @@ silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_co
 silver = add_issue(silver, ~F.col("patient_control_number").isin(valid_claim_numbers), "patient_control_number not found in silver_claim_header")
 silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
 silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_remit_adjustment")
+silver.write.format("delta").mode("overwrite").option("overwriteSchma","true").saveAsTable("silver_remit_adjustment")
 log_dq_run(silver, "silver_remit_adjustment")
 
 # METADATA ********************
@@ -788,6 +788,12 @@ log_dq_run(silver, "silver_remit_adjustment")
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_bed_hourly")
+
+# Dedupe true duplicates — same facility/unit/hour landing twice across
+# overlapping batch files. Since the rows are identical, any one copy is
+# equally valid; drop the extras rather than pick by _batch_id.
+raw_bronze = raw_bronze.dropDuplicates(["facility_id", "unit_id", "snapshot_datetime"])
+
 silver = (raw_bronze
     .withColumn("snapshot_datetime_ts", F.to_timestamp("snapshot_datetime"))
     .withColumn("occupied_beds_int", F.col("occupied_beds").cast("int"))
@@ -802,7 +808,7 @@ silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "faci
 silver = add_issue(silver, ~F.col("unit_id").isin(valid_unit_ids), "unit_id not found in silver_unit")
 silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
 silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_bed_hourly")
+silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_bed_hourly")
 log_dq_run(silver, "silver_bed_hourly")
 
 # METADATA ********************
@@ -841,6 +847,11 @@ log_dq_run(silver, "silver_bed_nhsn")
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_pharmacy_inventory")
+
+# Dedupe true duplicates — same facility/drug/location/counting_datetime landing
+# twice across overlapping batch files, same root cause as silver_bed_hourly.
+raw_bronze = raw_bronze.dropDuplicates(["facility_id", "ndc11", "location_id", "counting_datetime"])
+
 silver = (raw_bronze
     .withColumn("qty_on_hand_int", F.col("qty_on_hand").cast("int"))
     .withColumn("reorder_point_int", F.col("reorder_point").cast("int"))
@@ -853,7 +864,7 @@ silver = add_issue(silver, (F.col("qty_on_hand_int").isNull()) | (F.col("qty_on_
 silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
 silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
 silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_pharmacy_inventory")
+silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_pharmacy_inventory")
 log_dq_run(silver, "silver_pharmacy_inventory")
 
 # METADATA ********************
@@ -866,6 +877,23 @@ log_dq_run(silver, "silver_pharmacy_inventory")
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_staff_schedules")
+
+# Parse the date FIRST — work_date arrives in two different string formats for
+# the same real date, so deduping on the raw string doesn't catch same-shift
+# records that differ only in date formatting.
+raw_bronze = raw_bronze.withColumn("work_date_parsed", F.coalesce(
+    F.to_date("work_date", "yyyy-MM-dd"),
+    F.to_date("work_date", "MM/dd/yyyy")
+))
+
+# NOW dedupe/pick-latest on the PARSED date, not the raw string
+w = Window.partitionBy("facility_id", "staff_id", "work_date_parsed", "shift_start").orderBy(F.col("_batch_id").desc())
+raw_bronze = (raw_bronze
+    .withColumn("_rn", F.row_number().over(w))
+    .filter("_rn = 1")
+    .drop("_rn")
+)
+
 silver = (raw_bronze
     .withColumn("scheduled_hours_float", F.col("scheduled_hours").cast("float"))
     .withColumn("actual_hours_float", F.col("actual_hours").cast("float"))
@@ -873,11 +901,12 @@ silver = (raw_bronze
 )
 silver = add_issue(silver, F.col("staff_id").isNull(), "staff_id null")
 silver = add_issue(silver, F.col("facility_id").isNull(), "facility_id null")
+silver = add_issue(silver, F.col("work_date_parsed").isNull(), "work_date unparseable")
 silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
 silver = add_issue(silver, ~F.col("staff_id").isin(valid_staff_ids), "staff_id not found in silver_staff")
 silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
 silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_staff_schedules")
+silver.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("silver_staff_schedules")
 log_dq_run(silver, "silver_staff_schedules")
 
 # METADATA ********************
@@ -1097,6 +1126,90 @@ for t in ["bronze_facility","bronze_unit","bronze_payer","bronze_drug","bronze_s
 # CELL ********************
 
 spark.read.table("dbo_1.bronze_claim_header").filter("patient_control_number = 'PCN000114872'").select("patient_control_number", "_source_file", "_batch_id").show(truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+dupe_check = patient_lookup.groupBy("_patient_lookup_id").count().filter("count > 1")
+print("Duplicate Ids remaining in patient_lookup:", dupe_check.count())
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("silver_claim_header").filter("patient_control_number = 'PCN000114872'").count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+suspects = ["PCN000114872","PCN000076804","PCN000088503","PCN000089274",
+            "PCN000105867","PCN000089972","PCN000098770","PCN000089949",
+            "PCN000090409","PCN000097120","PCN000080613","PCN000076346"]
+spark.read.table("silver_claim_header").filter(F.col("patient_control_number").isin(suspects)) \
+    .groupBy("patient_control_number").count().show(20)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+for t in ["silver_encounters","silver_admissions","silver_ed_stays","silver_transfers","silver_diagnoses","silver_claim_header"]:
+    print(t, spark.read.table(t).count())
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dbo_1.bronze_encounters").count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+print("Count of valid_payer_ids:", len(valid_payer_ids))
+spark.read.table("silver_payer").select("payer_id").show(10, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dbo_1.bronze_claim_header").select("payer_id").distinct().show(10, truncate=False)
 
 # METADATA ********************
 
