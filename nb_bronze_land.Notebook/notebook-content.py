@@ -26,6 +26,40 @@
 
 # CELL ********************
 
+tables_to_drop = [
+    "bronze_facility", "bronze_unit", "bronze_payer", "bronze_drug", "bronze_staff",
+    "bronze_encounters", "bronze_admissions", "bronze_ed_stays", "bronze_transfers", "bronze_diagnoses",
+    "bronze_claim_header", "bronze_claim_line", "bronze_remit", "bronze_remit_adjustment",
+    "bronze_bed_hourly", "bronze_bed_nhsn", "bronze_pharmacy_inventory", "bronze_staff_schedules"
+]
+for t in tables_to_drop:
+    spark.sql(f"DROP TABLE IF EXISTS {t}")
+    print(f"Dropped {t}")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+import os
+path = "/lakehouse/default/Files/raw/claims/claim_header"
+files = sorted(os.listdir(path))
+for f in files:
+    print(f)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
 import glob
 import os
 import pandas as pd
@@ -195,7 +229,7 @@ def land_bronze(folder_path, columns, table_name):
     df = (df
         .withColumn("_ingested_at", F.current_timestamp())
         .withColumn("_source_file", F.input_file_name())
-        .withColumn("_batch_id", F.regexp_extract(F.col("_source_file"), r'(\d{8})\.csv$', 1))
+        .withColumn("_batch_id", F.regexp_extract(F.col("_source_file"), r'_(\d{8})\.csv', 1))
     )
 
     try:
@@ -592,7 +626,7 @@ def land_bronze_staff_schedules():
     spark_df = (spark_df
         .withColumn("_ingested_at", F.current_timestamp())
         # date sits between the second underscore and .xlsx, e.g. ..._140401_20260810.xlsx
-        .withColumn("_batch_id", F.regexp_extract(F.col("_source_file"), r'_(\d{8})\.xlsx$', 1))
+        .withColumn("_batch_id", F.regexp_extract(F.col("_source_file"), r'_(\d{8})\.xlsx', 1))
     )
 
     try:
@@ -608,6 +642,45 @@ def land_bronze_staff_schedules():
     print(f"bronze_staff_schedules: landed {row_count} new rows")
 
 land_bronze_staff_schedules()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+for t in ["bronze_facility","bronze_unit","bronze_payer","bronze_drug","bronze_staff",
+          "bronze_encounters","bronze_admissions","bronze_ed_stays","bronze_transfers","bronze_diagnoses",
+          "bronze_claim_header","bronze_claim_line","bronze_remit","bronze_remit_adjustment",
+          "bronze_bed_hourly","bronze_bed_nhsn","bronze_pharmacy_inventory"]:
+    blank = spark.read.table(t).filter("_batch_id = ''").count()
+    print(f"{t}: {blank} blank _batch_id")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("bronze_claim_header").count()
+
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("bronze_claim_header").filter("patient_control_number = 'PCN000114872'").count()
 
 # METADATA ********************
 

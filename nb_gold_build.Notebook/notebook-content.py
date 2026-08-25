@@ -706,15 +706,25 @@ fact_diagnoses.filter("seq_num = 1").filter("hrrp_cohort IS NOT NULL").count()
 
 # CELL ********************
 
+from pyspark.sql.window import Window 
+
 silver_claim_header_clean = spark.read.table("dbo_1.silver_claim_header").filter("_dq_passed = TRUE")
 silver_remit_clean = spark.read.table("dbo_1.silver_remit").filter("_dq_passed = TRUE")
+
+# NEW — dedupe remit to one row per claim (most recent by remit_date) before
+# joining, since some claims have multiple remit rows and joining against all
+# of them fans a single claim out into duplicate fact_claims rows
+remit_w = Window.partitionBy("patient_control_number").orderBy(F.col("remit_date").desc())
+silver_remit_dedup = (silver_remit_clean
+    .withColumn("_rn", F.row_number().over(remit_w))
+    .filter("_rn = 1")
+    .drop("_rn")
+)
 
 fac_lookup = spark.read.table("dim_facility").select("facility_key", "facility_id")
 payer_lookup = spark.read.table("dim_payer").select("payer_key", "payer_id")
 patient_lookup = spark.read.table("dim_patient").select("patient_key", "canonical_patient_key")
 
-# dim_staff has multiple rows per person (SCD-2) — dedupe to one row per npi
-# before joining, or this join would fan out claims into duplicates
 staff_lookup = (spark.read.table("dim_staff")
     .filter("is_current = true")
     .dropDuplicates(["npi"])
@@ -723,7 +733,7 @@ staff_lookup = (spark.read.table("dim_staff")
 
 fact_claims = (silver_claim_header_clean
     .join(
-        silver_remit_clean.select(
+        silver_remit_dedup.select(   # CHANGED — was silver_remit_clean, now the deduped version
             "patient_control_number",
             F.col("claim_status_code").alias("remit_claim_status_code"),
             F.col("claim_payment_amount_float").alias("claim_payment_amount"),
@@ -732,7 +742,7 @@ fact_claims = (silver_claim_header_clean
             F.col("is_overturned_on_appeal_bool").alias("is_overturned_on_appeal"),
             F.col("remit_date").alias("remit_date")
         ),
-        on="patient_control_number", how="left"  # left join — a claim may not have a remit yet (pending)
+        on="patient_control_number", how="left"
     )
     .join(fac_lookup, on="facility_id", how="left")
     .join(payer_lookup, on="payer_id", how="left")
@@ -758,6 +768,17 @@ fact_claims = fact_claims.select(
 
 fact_claims.write.format("delta").mode("overwrite").saveAsTable("fact_claims")
 print(f"fact_claims: {fact_claims.count()} rows (gated from {spark.read.table('dbo_1.silver_claim_header').count()} total Silver rows)")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+fact_claims.filter("amount_at_risk < 0").count()
 
 # METADATA ********************
 
@@ -868,6 +889,64 @@ valid_claim_numbers = [r["patient_control_number"] for r in fact_claims.select("
 # CELL ********************
 
 fact_claim_lines.filter(~F.col("patient_control_number").isin(valid_claim_numbers)).count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dbo_1.silver_claim_header").filter("_dq_passed = FALSE").filter("_dq_issues LIKE '%payer_id%'").count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+fact_claims.filter("amount_at_risk < 0").select("total_charge_amount", "claim_payment_amount").show(20, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dbo_1.silver_remit").filter("_dq_passed = TRUE").groupBy("patient_control_number").count().filter("count > 1").count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+suspects = fact_claims.filter("amount_at_risk < 0").select("patient_control_number").distinct()
+
+fact_claims.join(suspects, on="patient_control_number").groupBy("patient_control_number").count().orderBy(F.col("count").desc()).show(20)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+raw_claims = spark.read.table("dbo_1.silver_claim_header").filter("_dq_passed = TRUE")
+raw_claims.join(suspects, on="patient_control_number").groupBy("patient_control_number", "attending_provider_npi").count().show(20, truncate=False)
 
 # METADATA ********************
 

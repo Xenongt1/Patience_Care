@@ -69,46 +69,6 @@ def log_dq_run(silver_df, table_name):
 
 # CELL ********************
 
-raw_bronze = spark.read.table("dbo_1.bronze_facility")
-
-# Collapse to latest snapshot per facility — dimension tables only, not fact tables
-w = Window.partitionBy("facility_id").orderBy(F.col("_batch_id").desc())
-bronze = (raw_bronze
-    .withColumn("_rn", F.row_number().over(w))
-    .filter("_rn = 1")
-    .drop("_rn")
-)
-
-valid_facility_type = ["general", "teaching", "regional", "community", "urgent_care"]
-
-silver = (bronze
-    .withColumn("facility_type_folded", F.lower(F.trim("facility_type")))
-    .withColumn("emergency_services_bool", F.col("emergency_services").cast("boolean"))
-    .withColumn("licensed_beds_int", F.col("licensed_beds").cast("int"))
-    .withColumn("staffed_beds_int", F.col("staffed_beds").cast("int"))
-    .withColumn("_dq_issues", F.array().cast("array<string>"))
-)
-
-silver = add_issue(silver, F.col("facility_id").isNull(), "facility_id null")
-silver = add_issue(silver, ~F.col("facility_type_folded").isin(valid_facility_type), "invalid facility_type")
-silver = add_issue(silver, (F.col("licensed_beds_int").isNull()) | (F.col("licensed_beds_int") <= 0), "invalid licensed_beds")
-silver = add_issue(silver, F.col("staffed_beds_int") > F.col("licensed_beds_int"), "staffed_beds exceeds licensed_beds")
-
-silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
-silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
-
-silver.write.format("delta").mode("overwrite").saveAsTable("silver_facility")
-log_dq_run(silver, "silver_facility")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
 raw_bronze = spark.read.table("dbo_1.bronze_unit")
 w = Window.partitionBy("unit_id").orderBy(F.col("_batch_id").desc())
 bronze = raw_bronze.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn")
@@ -234,6 +194,17 @@ log_dq_run(scd, "silver_staff")
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_patients")
+
+# Dedupe on the documented PK (Id) before anything else touches this table —
+# the raw daily extracts contain exact-duplicate rows and the same patient can
+# reappear across multiple days' files, so without this every downstream table
+# that resolves a patient key via add_patient_key() silently fans out.
+w = Window.partitionBy("Id").orderBy(F.col("_batch_id").desc())
+raw_bronze = (raw_bronze
+    .withColumn("_rn", F.row_number().over(w))
+    .filter("_rn = 1")
+    .drop("_rn")
+)
 
 silver = (raw_bronze
     .withColumn("BirthDate_date", F.to_date("BirthDate"))
@@ -477,7 +448,11 @@ def add_patient_key(df, patient_col):
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_encounters")
-silver = (raw_bronze
+
+w = Window.partitionBy("Id").orderBy(F.col("_batch_id").desc())
+bronze = raw_bronze.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn")
+
+silver = (bronze
     .withColumn("Start_ts", F.to_timestamp("Start"))
     .withColumn("Stop_ts", F.to_timestamp("Stop"))
     .withColumn("Base_Encounter_Cost_float", F.col("Base_Encounter_Cost").cast("float"))
@@ -506,7 +481,11 @@ log_dq_run(silver, "silver_encounters")
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_admissions")
-silver = (raw_bronze
+
+w = Window.partitionBy("hadm_id").orderBy(F.col("_batch_id").desc())
+bronze = raw_bronze.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn")
+
+silver = (bronze
     .withColumn("admittime_ts", F.to_timestamp("admittime"))
     .withColumn("dischtime_ts", F.to_timestamp("dischtime"))
     .withColumn("is_readmission_bool", F.col("is_readmission").cast("boolean"))
@@ -534,7 +513,11 @@ log_dq_run(silver, "silver_admissions")
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_ed_stays")
-silver = (raw_bronze
+
+w = Window.partitionBy("stay_id").orderBy(F.col("_batch_id").desc())
+bronze = raw_bronze.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn")
+
+silver = (bronze
     .withColumn("intime_ts", F.to_timestamp("intime"))
     .withColumn("outtime_ts", F.to_timestamp("outtime"))
     .withColumn("acuity_int", F.col("acuity").cast("int"))
@@ -568,7 +551,11 @@ log_dq_run(silver, "silver_ed_stays")
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_transfers")
-silver = (raw_bronze
+
+w = Window.partitionBy("transfer_id").orderBy(F.col("_batch_id").desc())
+bronze = raw_bronze.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn")
+
+silver = (bronze
     .withColumn("intime_ts", F.to_timestamp("intime"))
     .withColumn("outtime_ts", F.to_timestamp("outtime"))
     .withColumn("_dq_issues", F.array().cast("array<string>"))
@@ -606,7 +593,11 @@ spark.read.table("silver_transfers").filter("_dq_passed = FALSE").select("_dq_is
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_diagnoses")
-silver = (raw_bronze
+
+w = Window.partitionBy("encounter_id", "seq_num").orderBy(F.col("_batch_id").desc())
+bronze = raw_bronze.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn")
+
+silver = (bronze
     .withColumn("seq_num_int", F.col("seq_num").cast("int"))
     .withColumn("icd_version_int", F.col("icd_version").cast("int"))
     .withColumn("_dq_issues", F.array().cast("array<string>"))
@@ -651,7 +642,11 @@ spark.read.table("silver_diagnoses").select("facility_id").distinct().count()
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_claim_header")
-silver = (raw_bronze
+
+w = Window.partitionBy("patient_control_number").orderBy(F.col("_batch_id").desc())
+bronze = raw_bronze.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn")
+
+silver = (bronze
     .withColumn("total_charge_amount_float", F.col("total_charge_amount").cast("float"))
     .withColumn("is_readmission_related_bool", F.col("is_readmission_related").cast("boolean"))
     .withColumn("_dq_issues", F.array().cast("array<string>"))
@@ -680,6 +675,17 @@ log_dq_run(silver, "silver_claim_header")
 
 # CELL ********************
 
+spark.read.table("silver_claim_header").filter("patient_control_number = 'PCN000114872'").count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
 valid_claim_numbers = [r["patient_control_number"] for r in
     spark.read.table("silver_claim_header").filter("_dq_passed = TRUE").select("patient_control_number").distinct().collect()]
 
@@ -693,7 +699,11 @@ valid_claim_numbers = [r["patient_control_number"] for r in
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_claim_line")
-silver = (raw_bronze
+
+w = Window.partitionBy("patient_control_number", "line_control_number").orderBy(F.col("_batch_id").desc())
+bronze = raw_bronze.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn")
+
+silver = (bronze
     .withColumn("line_charge_amount_float", F.col("line_charge_amount").cast("float"))
     .withColumn("unit_count_int", F.col("unit_count").cast("int"))
     .withColumn("_dq_issues", F.array().cast("array<string>"))
@@ -717,12 +727,26 @@ log_dq_run(silver, "silver_claim_line")
 raw_bronze = spark.read.table("dbo_1.bronze_remit")
 silver = (raw_bronze
     .withColumn("claim_payment_amount_float", F.col("claim_payment_amount").cast("float"))
+    .withColumn("total_claim_charge_amount_float", F.col("total_claim_charge_amount").cast("float"))
     .withColumn("is_appealed_bool", F.col("is_appealed").cast("boolean"))
     .withColumn("is_overturned_on_appeal_bool", F.col("is_overturned_on_appeal").cast("boolean"))
     .withColumn("_dq_issues", F.array().cast("array<string>"))
 )
 silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
 silver = add_issue(silver, ~F.col("patient_control_number").isin(valid_claim_numbers), "patient_control_number not found in silver_claim_header")
+
+# Sanity check, not just a null check — a payment an order of magnitude above
+# the claim's own charge amount is an obviously bad value (e.g. a corrupted
+# decimal/scale on ingest), the kind that made fact_claims.amount_at_risk go
+# deeply negative in Gold. Note: remit has no PK — a claim can legitimately get
+# more than one remittance (partial payments), so this table stays undeduped.
+silver = add_issue(silver,
+    (F.col("claim_payment_amount_float").isNotNull()) &
+    (F.col("total_claim_charge_amount_float").isNotNull()) &
+    (F.col("claim_payment_amount_float") > F.col("total_claim_charge_amount_float") * 5),
+    "claim_payment_amount implausibly larger than total_claim_charge_amount"
+)
+
 silver = silver.withColumn("_dq_passed", F.size("_dq_issues") == 0)
 silver = silver.withColumn("_dq_issues", F.concat_ws("; ", "_dq_issues"))
 silver.write.format("delta").mode("overwrite").saveAsTable("silver_remit")
@@ -738,7 +762,11 @@ log_dq_run(silver, "silver_remit")
 # CELL ********************
 
 raw_bronze = spark.read.table("dbo_1.bronze_remit_adjustment")
-silver = (raw_bronze
+
+w = Window.partitionBy("patient_control_number", "adjustment_seq").orderBy(F.col("_batch_id").desc())
+bronze = raw_bronze.withColumn("_rn", F.row_number().over(w)).filter("_rn = 1").drop("_rn")
+
+silver = (bronze
     .withColumn("amount_float", F.col("amount").cast("float"))
     .withColumn("is_denial_bool", F.col("is_denial").cast("boolean"))
     .withColumn("_dq_issues", F.array().cast("array<string>"))
@@ -997,6 +1025,78 @@ spark.read.table("dq_run_results").filter("table_name = 'silver_staff_schedules'
 # CELL ********************
 
 spark.read.table("silver_staff_schedules").filter("_dq_passed = FALSE").select("facility_id").distinct().show(20, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("silver_claim_line").filter("_dq_passed = FALSE").select("_dq_issues").distinct().show(20, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dbo_1.bronze_claim_header").filter("patient_control_number = 'PCN000076804'").select("patient_control_number", "_source_file", "_batch_id").show(truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dbo_1.bronze_claim_header").filter("patient_control_number = 'PCN000076804'").count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dbo_1.bronze_claim_header").filter("_batch_id = ''").count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+for t in ["bronze_facility","bronze_unit","bronze_payer","bronze_drug","bronze_staff",
+          "bronze_encounters","bronze_admissions","bronze_ed_stays","bronze_transfers","bronze_diagnoses",
+          "bronze_claim_header","bronze_claim_line","bronze_remit","bronze_remit_adjustment",
+          "bronze_bed_hourly","bronze_bed_nhsn","bronze_pharmacy_inventory"]:
+    full_name = f"dbo_1.{t}"
+    blank = spark.read.table(full_name).filter("_batch_id = ''").count()
+    print(f"{full_name}: {blank} blank _batch_id")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dbo_1.bronze_claim_header").filter("patient_control_number = 'PCN000114872'").select("patient_control_number", "_source_file", "_batch_id").show(truncate=False)
 
 # METADATA ********************
 
