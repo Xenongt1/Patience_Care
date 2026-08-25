@@ -422,9 +422,16 @@ valid_staff_ids = [r["staff_id"] for r in spark.read.table("silver_staff").selec
 valid_payer_ids = [r["payer_id"] for r in spark.read.table("silver_payer").select("payer_id").collect()]
 
 # Patient lookup stays a DataFrame — this table can be large, we join to it, never collect it
-patient_lookup = spark.read.table("silver_patients").select(
-    F.col("Id").alias("_patient_lookup_id"),
-    "canonical_patient_key"
+patient_lookup = (spark.read.table("silver_patients")
+    .withColumn("_rn", F.row_number().over(
+        Window.partitionBy("Id").orderBy(F.col("_batch_id").desc())
+    ))
+    .filter("_rn = 1")
+    .drop("_rn")
+    .select(
+        F.col("Id").alias("_patient_lookup_id"),
+        "canonical_patient_key"
+    )
 )
 
 def add_patient_key(df, patient_col):
