@@ -83,3 +83,73 @@
 .alter table PrescriptionEvents policy caching hotdata = time(60.00:00:00) hotindex = time(60.00:00:00)
 .alter table PatientVitals policy update "[{\"IsEnabled\":true,\"Source\":\"PatientVitalsRaw\",\"Query\":\"ExpandPatientVitals()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
 .alter table PrescriptionEvents policy update "[{\"IsEnabled\":true,\"Source\":\"PrescriptionEventsRaw\",\"Query\":\"ExpandPrescriptionEvents()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
+
+// Quarantine: rows that fail basic validity checks or arrive with excessive
+// clock skew (event_time vs ingest_time), per the architecture diagram's
+// "Validate • dedupe" requirement on the Eventhouse. Non-transactional so a
+// quarantine-detection bug can never block the main raw landing.
+
+.create-merge table PatientVitalsQuarantine (event_id:string, event_time:datetime, ingest_time:datetime, source_system:string, facility_id:string, quarantine_reason:string, quarantined_at:datetime, raw_payload:dynamic)
+.create-merge table PrescriptionEventsQuarantine (event_id:string, event_time:datetime, ingest_time:datetime, source_system:string, facility_id:string, quarantine_reason:string, quarantined_at:datetime, raw_payload:dynamic)
+
+.create-or-alter function with (skipvalidation = "true") QuarantinePatientVitals() {
+    PatientVitalsRaw
+    | extend charttime_parsed = todatetime(payload.charttime)
+    | extend value_num_parsed = todouble(payload.value_num)
+    | extend patient_id_str = tostring(payload.patient_id)
+    | extend lag_minutes = datetime_diff('minute', ingest_time, event_time)
+    | where isnull(charttime_parsed) or isnull(value_num_parsed) or isempty(patient_id_str)
+        or lag_minutes > 60 or lag_minutes < -5
+    | project
+        event_id,
+        event_time,
+        ingest_time,
+        source_system,
+        facility_id,
+        quarantine_reason = case(
+            isnull(charttime_parsed), "unparseable_charttime",
+            isnull(value_num_parsed), "missing_or_invalid_value_num",
+            isempty(patient_id_str), "missing_patient_id",
+            lag_minutes > 60, strcat("late_arrival_", tostring(lag_minutes), "min"),
+            lag_minutes < -5, "ingest_before_event_time",
+            "unknown"),
+        quarantined_at = now(),
+        raw_payload = payload
+}
+
+.create-or-alter function with (skipvalidation = "true") QuarantinePrescriptionEvents() {
+    PrescriptionEventsRaw
+    | extend entertime_parsed = todatetime(payload.entertime)
+    | extend subject_id_str = tostring(payload.subject_id)
+    | extend lag_minutes = datetime_diff('minute', ingest_time, event_time)
+    | where isnull(entertime_parsed) or isempty(subject_id_str)
+        or lag_minutes > 60 or lag_minutes < -5
+    | project
+        event_id,
+        event_time,
+        ingest_time,
+        source_system,
+        facility_id,
+        quarantine_reason = case(
+            isnull(entertime_parsed), "unparseable_entertime",
+            isempty(subject_id_str), "missing_subject_id",
+            lag_minutes > 60, strcat("late_arrival_", tostring(lag_minutes), "min"),
+            lag_minutes < -5, "ingest_before_event_time",
+            "unknown"),
+        quarantined_at = now(),
+        raw_payload = payload
+}
+
+.alter table PatientVitalsQuarantine policy retention '{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
+.alter table PrescriptionEventsQuarantine policy retention '{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
+.alter table PatientVitalsQuarantine policy update "[{\"IsEnabled\":true,\"Source\":\"PatientVitalsRaw\",\"Query\":\"QuarantinePatientVitals()\",\"IsTransactional\":false,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
+.alter table PrescriptionEventsQuarantine policy update "[{\"IsEnabled\":true,\"Source\":\"PrescriptionEventsRaw\",\"Query\":\"QuarantinePrescriptionEvents()\",\"IsTransactional\":false,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
+
+// Dedup: the generator's event_id is a deterministic uuid5, so at-least-once
+// Kafka redelivery produces exact-duplicate event_ids, not new ones. These
+// materialized views keep the latest-ingested copy of each event_id and are
+// the "hot aggregates" the operational report should query, not the raw
+// typed tables directly.
+
+.create-or-alter materialized-view PatientVitalsDeduped on table PatientVitals { PatientVitals | summarize arg_max(ingest_time, *) by event_id }
+.create-or-alter materialized-view PrescriptionEventsDeduped on table PrescriptionEvents { PrescriptionEvents | summarize arg_max(ingest_time, *) by event_id }
