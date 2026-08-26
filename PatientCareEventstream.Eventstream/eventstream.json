@@ -1,0 +1,173 @@
+{
+  "sources": [
+    {
+      "id": "51d14198-a19f-42c5-b620-7cae59815f19",
+      "name": "patient-vitals",
+      "type": "CustomEndpoint",
+      "properties": {}
+    },
+    {
+      "id": "e2f583e2-a907-4a9a-8124-a713299fe60f",
+      "name": "prescription-events",
+      "type": "CustomEndpoint",
+      "properties": {}
+    }
+  ],
+  "destinations": [
+    {
+      "id": "19f5b72a-f887-48a5-b1df-04baa181b9b4",
+      "name": "PrescriptionEventsRaw",
+      "type": "Eventhouse",
+      "properties": {
+        "dataIngestionMode": "ProcessedIngestion",
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "itemId": "9ad129bb-83bb-a77b-4d4c-ba8c903b0f4d",
+        "databaseName": "PatientCareEventhouse",
+        "tableName": "PrescriptionEventsRaw",
+        "inputSerialization": {
+          "type": "Json",
+          "properties": {
+            "encoding": "UTF8"
+          }
+        }
+      },
+      "inputNodes": [
+        {
+          "name": "prescriptions-derived"
+        }
+      ]
+    },
+    {
+      "id": "8b4b6785-f1ac-4f06-9fb7-9746e70e44f9",
+      "name": "PatientVitalsRaw",
+      "type": "Eventhouse",
+      "properties": {
+        "dataIngestionMode": "ProcessedIngestion",
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "itemId": "9ad129bb-83bb-a77b-4d4c-ba8c903b0f4d",
+        "databaseName": "PatientCareEventhouse",
+        "tableName": "PatientVitalsRaw",
+        "inputSerialization": {
+          "type": "Json",
+          "properties": {
+            "encoding": "UTF8"
+          }
+        }
+      },
+      "inputNodes": [
+        {
+          "name": "vitals-derived"
+        }
+      ]
+    }
+  ],
+  "streams": [
+    {
+      "id": "19aba41c-d5f0-42c9-9f7c-f081c39307fd",
+      "name": "vitals-derived",
+      "type": "DerivedStream",
+      "properties": {
+        "inputSerialization": {
+          "type": "Json",
+          "properties": {
+            "encoding": "UTF8"
+          }
+        }
+      },
+      "inputNodes": [
+        {
+          "name": "FilterVitals"
+        }
+      ]
+    },
+    {
+      "id": "1c650df9-0900-4e1e-ae0c-647a738cca0e",
+      "name": "eventstream-default-stream",
+      "type": "DefaultStream",
+      "properties": {},
+      "inputNodes": [
+        {
+          "name": "patient-vitals"
+        },
+        {
+          "name": "prescription-events"
+        }
+      ]
+    },
+    {
+      "id": "699c86f5-f9cd-4457-8c6d-46954f2b9d1a",
+      "name": "prescriptions-derived",
+      "type": "DerivedStream",
+      "properties": {
+        "inputSerialization": {
+          "type": "Json",
+          "properties": {
+            "encoding": "UTF8"
+          }
+        }
+      },
+      "inputNodes": [
+        {
+          "name": "FilterPrescriptions"
+        }
+      ]
+    }
+  ],
+  "operators": [
+    {
+      "name": "FilterPrescriptions",
+      "type": "Filter",
+      "inputNodes": [
+        {
+          "name": "eventstream-default-stream"
+        }
+      ],
+      "properties": {
+        "conditions": [
+          {
+            "column": {
+              "expressionType": "ColumnReference",
+              "node": "eventstream-default-stream",
+              "columnName": "event_type",
+              "columnPathSegments": null
+            },
+            "operatorType": "Equals",
+            "value": {
+              "expressionType": "Literal",
+              "dataType": "Nvarchar(max)",
+              "value": "prescription.issued"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterVitals",
+      "type": "Filter",
+      "inputNodes": [
+        {
+          "name": "eventstream-default-stream"
+        }
+      ],
+      "properties": {
+        "conditions": [
+          {
+            "column": {
+              "expressionType": "ColumnReference",
+              "node": "eventstream-default-stream",
+              "columnName": "event_type",
+              "columnPathSegments": null
+            },
+            "operatorType": "Equals",
+            "value": {
+              "expressionType": "Literal",
+              "dataType": "Nvarchar(max)",
+              "value": "vitals.reading"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "compatibilityLevel": "1.1"
+}
