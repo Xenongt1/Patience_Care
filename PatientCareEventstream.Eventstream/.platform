@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Eventstream",
+    "displayName": "PatientCareEventstream"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "ab4f28e1-6307-aae5-4f63-dd7ab1b7ee9b"
+  }
+}
