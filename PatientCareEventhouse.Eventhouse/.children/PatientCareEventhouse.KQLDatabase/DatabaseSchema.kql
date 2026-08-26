@@ -6,6 +6,8 @@
 .create-merge table PrescriptionEventsRaw (event_id:string, event_type:string, event_time:datetime, ingest_time:datetime, source_system:string, facility_id:string, schema_version:real, payload:dynamic) 
 .create-merge table PatientVitals (event_id:string, event_time:datetime, ingest_time:datetime, source_system:string, facility_id:string, patient_id:string, encounter_id:string, hadm_id:string, unit_id:string, bed_id:string, device_id:string, charttime:datetime, loinc_code:string, parameter_name:string, value_num:real, value_uom:string, warning:bool, is_artifact:bool) 
 .create-merge table PrescriptionEvents (event_id:string, event_time:datetime, ingest_time:datetime, source_system:string, facility_id:string, subject_id:string, hadm_id:string, encounter_id:string, pharmacy_id:long, poe_id:string, poe_seq:int, order_provider_id:string, drug:string, drug_type:string, formulary_drug_cd:string, gsn:long, ndc:string, rxcui_scd:long, prod_strength:string, dose_val_rx:real, dose_unit_rx:string, form_val_disp:int, form_unit_disp:string, doses_per_24_hrs:real, route:string, frequency:string, proc_type:string, status:string, fhir_status:string, fhir_intent:string, fhir_priority:string, entertime:datetime, verifiedtime:datetime, starttime:datetime, stoptime:datetime, dispensation:string, fill_quantity:int, is_controlled:bool, dea_schedule:string, unit_id:string, event_subtype:string) 
+.create-merge table PatientVitalsQuarantine (event_id:string, event_time:datetime, ingest_time:datetime, source_system:string, facility_id:string, quarantine_reason:string, quarantined_at:datetime, raw_payload:dynamic) 
+.create-merge table PrescriptionEventsQuarantine (event_id:string, event_time:datetime, ingest_time:datetime, source_system:string, facility_id:string, quarantine_reason:string, quarantined_at:datetime, raw_payload:dynamic) 
 .create-or-alter function with (skipvalidation = "true") ExpandPatientVitals() {
     PatientVitalsRaw
     | project
@@ -73,25 +75,6 @@
         unit_id = tostring(payload.unit_id),
         event_subtype = tostring(payload.event_subtype)
 }
-.alter table PatientVitalsRaw policy retention @'{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
-.alter table PatientVitalsRaw policy caching hotdata = time(60.00:00:00) hotindex = time(60.00:00:00)
-.alter table PrescriptionEventsRaw policy retention @'{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
-.alter table PrescriptionEventsRaw policy caching hotdata = time(60.00:00:00) hotindex = time(60.00:00:00)
-.alter table PatientVitals policy retention @'{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
-.alter table PatientVitals policy caching hotdata = time(60.00:00:00) hotindex = time(60.00:00:00)
-.alter table PrescriptionEvents policy retention @'{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
-.alter table PrescriptionEvents policy caching hotdata = time(60.00:00:00) hotindex = time(60.00:00:00)
-.alter table PatientVitals policy update "[{\"IsEnabled\":true,\"Source\":\"PatientVitalsRaw\",\"Query\":\"ExpandPatientVitals()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
-.alter table PrescriptionEvents policy update "[{\"IsEnabled\":true,\"Source\":\"PrescriptionEventsRaw\",\"Query\":\"ExpandPrescriptionEvents()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
-
-// Quarantine: rows that fail basic validity checks or arrive with excessive
-// clock skew (event_time vs ingest_time), per the architecture diagram's
-// "Validate • dedupe" requirement on the Eventhouse. Non-transactional so a
-// quarantine-detection bug can never block the main raw landing.
-
-.create-merge table PatientVitalsQuarantine (event_id:string, event_time:datetime, ingest_time:datetime, source_system:string, facility_id:string, quarantine_reason:string, quarantined_at:datetime, raw_payload:dynamic)
-.create-merge table PrescriptionEventsQuarantine (event_id:string, event_time:datetime, ingest_time:datetime, source_system:string, facility_id:string, quarantine_reason:string, quarantined_at:datetime, raw_payload:dynamic)
-
 .create-or-alter function with (skipvalidation = "true") QuarantinePatientVitals() {
     PatientVitalsRaw
     | extend charttime_parsed = todatetime(payload.charttime)
@@ -116,7 +99,6 @@
         quarantined_at = now(),
         raw_payload = payload
 }
-
 .create-or-alter function with (skipvalidation = "true") QuarantinePrescriptionEvents() {
     PrescriptionEventsRaw
     | extend entertime_parsed = todatetime(payload.entertime)
@@ -139,17 +121,19 @@
         quarantined_at = now(),
         raw_payload = payload
 }
-
-.alter table PatientVitalsQuarantine policy retention '{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
-.alter table PrescriptionEventsQuarantine policy retention '{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
+.create-or-alter materialized-view  PatientVitalsDeduped on table PatientVitals { PatientVitals | summarize arg_max(ingest_time, *) by event_id }
+.create-or-alter materialized-view  PrescriptionEventsDeduped on table PrescriptionEvents { PrescriptionEvents | summarize arg_max(ingest_time, *) by event_id }
+.alter table PatientVitalsRaw policy retention @'{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
+.alter table PatientVitalsRaw policy caching hotdata = time(60.00:00:00) hotindex = time(60.00:00:00)
+.alter table PrescriptionEventsRaw policy retention @'{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
+.alter table PrescriptionEventsRaw policy caching hotdata = time(60.00:00:00) hotindex = time(60.00:00:00)
+.alter table PatientVitals policy retention @'{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
+.alter table PatientVitals policy caching hotdata = time(60.00:00:00) hotindex = time(60.00:00:00)
+.alter table PrescriptionEvents policy retention @'{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
+.alter table PrescriptionEvents policy caching hotdata = time(60.00:00:00) hotindex = time(60.00:00:00)
+.alter table PatientVitalsQuarantine policy retention @'{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
+.alter table PrescriptionEventsQuarantine policy retention @'{"SoftDeletePeriod":"180.00:00:00","Recoverability":"Enabled"}'
+.alter table PatientVitals policy update "[{\"IsEnabled\":true,\"Source\":\"PatientVitalsRaw\",\"Query\":\"ExpandPatientVitals()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
+.alter table PrescriptionEvents policy update "[{\"IsEnabled\":true,\"Source\":\"PrescriptionEventsRaw\",\"Query\":\"ExpandPrescriptionEvents()\",\"IsTransactional\":true,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
 .alter table PatientVitalsQuarantine policy update "[{\"IsEnabled\":true,\"Source\":\"PatientVitalsRaw\",\"Query\":\"QuarantinePatientVitals()\",\"IsTransactional\":false,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
 .alter table PrescriptionEventsQuarantine policy update "[{\"IsEnabled\":true,\"Source\":\"PrescriptionEventsRaw\",\"Query\":\"QuarantinePrescriptionEvents()\",\"IsTransactional\":false,\"PropagateIngestionProperties\":false,\"ManagedIdentity\":null}]"
-
-// Dedup: the generator's event_id is a deterministic uuid5, so at-least-once
-// Kafka redelivery produces exact-duplicate event_ids, not new ones. These
-// materialized views keep the latest-ingested copy of each event_id and are
-// the "hot aggregates" the operational report should query, not the raw
-// typed tables directly.
-
-.create-or-alter materialized-view PatientVitalsDeduped on table PatientVitals { PatientVitals | summarize arg_max(ingest_time, *) by event_id }
-.create-or-alter materialized-view PrescriptionEventsDeduped on table PrescriptionEvents { PrescriptionEvents | summarize arg_max(ingest_time, *) by event_id }
