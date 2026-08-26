@@ -1,0 +1,118 @@
+table fact_transfers
+	lineageTag: b653beaf-c89f-4cd1-a4ac-dbcb9ab1e751
+	sourceLineageTag: [dbo].[fact_transfers]
+
+	column transfer_id
+		dataType: string
+		lineageTag: 2e575990-d1a8-40fe-842d-316a99dd7db0
+		sourceLineageTag: transfer_id
+		summarizeBy: none
+		sourceColumn: transfer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column hadm_id
+		dataType: string
+		lineageTag: b4db6483-8614-41c6-9558-e44439fbdc92
+		sourceLineageTag: hadm_id
+		summarizeBy: none
+		sourceColumn: hadm_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column facility_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 1b4f47ee-883c-49ac-80cf-5036a3896657
+		sourceLineageTag: facility_key
+		summarizeBy: sum
+		sourceColumn: facility_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_key
+		dataType: int64
+		formatString: 0
+		lineageTag: aecb21da-c022-4890-b127-d70688a2f1b6
+		sourceLineageTag: unit_key
+		summarizeBy: sum
+		sourceColumn: unit_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column patient_key
+		dataType: int64
+		formatString: 0
+		lineageTag: eb9456a3-d6b8-4b27-9b97-807edef6a567
+		sourceLineageTag: patient_key
+		summarizeBy: sum
+		sourceColumn: patient_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column transfer_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 35dbb1fb-0dc3-4c24-a6a2-741911cb6acc
+		sourceLineageTag: transfer_date_key
+		summarizeBy: sum
+		sourceColumn: transfer_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column intime_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 0f8c289f-14ba-4c2e-a980-80dd0a98aa08
+		sourceLineageTag: intime_ts
+		summarizeBy: none
+		sourceColumn: intime_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column outtime_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: f2669546-8b81-4434-bfda-b30827bac973
+		sourceLineageTag: outtime_ts
+		summarizeBy: none
+		sourceColumn: outtime_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column transfer_duration_hours
+		dataType: double
+		lineageTag: c0c0b935-1f4c-4b74-b7f2-bd2ba12450ba
+		sourceLineageTag: transfer_duration_hours
+		summarizeBy: sum
+		sourceColumn: transfer_duration_hours
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column eventtype
+		dataType: string
+		lineageTag: 06fe562b-2e61-4be0-89f3-d0ecaa8cae95
+		sourceLineageTag: eventtype
+		summarizeBy: none
+		sourceColumn: eventtype
+
+		annotation SummarizationSetBy = Automatic
+
+	column careunit
+		dataType: string
+		lineageTag: 97000f9b-2516-420c-ba66-51061476831c
+		sourceLineageTag: careunit
+		summarizeBy: none
+		sourceColumn: careunit
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_transfers = entity
+		mode: directLake
+		source
+			entityName: fact_transfers
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

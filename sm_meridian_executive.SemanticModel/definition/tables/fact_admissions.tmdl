@@ -1,0 +1,192 @@
+table fact_admissions
+	lineageTag: f23e3dd5-08ee-4307-a29e-5a85e6fcbc65
+	sourceLineageTag: [dbo].[fact_admissions]
+
+	column hadm_id
+		dataType: string
+		lineageTag: 51787214-35de-492f-be64-96754135c9ac
+		sourceLineageTag: hadm_id
+		summarizeBy: none
+		sourceColumn: hadm_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_encounter_id
+		dataType: string
+		lineageTag: a2b0f00c-f17d-42d1-b9fe-5d54fea7c147
+		sourceLineageTag: source_encounter_id
+		summarizeBy: none
+		sourceColumn: source_encounter_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column facility_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 4fc22e5f-b5f1-4d8c-aa59-a121209cf431
+		sourceLineageTag: facility_key
+		summarizeBy: sum
+		sourceColumn: facility_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column patient_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 712d147c-b672-48bc-88f3-81dda776707d
+		sourceLineageTag: patient_key
+		summarizeBy: sum
+		sourceColumn: patient_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column admit_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: f39e9b72-6d41-47b4-b002-4125833b984d
+		sourceLineageTag: admit_date_key
+		summarizeBy: sum
+		sourceColumn: admit_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column discharge_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 7b9c978d-5f69-4440-84d7-14e190cdf42f
+		sourceLineageTag: discharge_date_key
+		summarizeBy: sum
+		sourceColumn: discharge_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column admittime_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 6296ba8c-4e5f-4188-9d37-2d5887db2efd
+		sourceLineageTag: admittime_ts
+		summarizeBy: none
+		sourceColumn: admittime_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column dischtime_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: cfb0cfb1-242b-4983-9b8e-754a460388b1
+		sourceLineageTag: dischtime_ts
+		summarizeBy: none
+		sourceColumn: dischtime_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column length_of_stay_hours
+		dataType: double
+		lineageTag: 20b04df1-b02b-4acb-abdc-a2e8393ebaf4
+		sourceLineageTag: length_of_stay_hours
+		summarizeBy: sum
+		sourceColumn: length_of_stay_hours
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column admission_type
+		dataType: string
+		lineageTag: 99ccc78f-eeff-4029-aec8-0978a8f6a48c
+		sourceLineageTag: admission_type
+		summarizeBy: none
+		sourceColumn: admission_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column admission_location
+		dataType: string
+		lineageTag: 292f1986-6dff-4e57-bb82-a84c31bbc4f4
+		sourceLineageTag: admission_location
+		summarizeBy: none
+		sourceColumn: admission_location
+
+		annotation SummarizationSetBy = Automatic
+
+	column discharge_location
+		dataType: string
+		lineageTag: a77c8df7-ecb8-487e-a73d-9a4f2d70f577
+		sourceLineageTag: discharge_location
+		summarizeBy: none
+		sourceColumn: discharge_location
+
+		annotation SummarizationSetBy = Automatic
+
+	column insurance
+		dataType: string
+		lineageTag: 4e83118b-3f61-48b2-bb58-c211b80a9f31
+		sourceLineageTag: insurance
+		summarizeBy: none
+		sourceColumn: insurance
+
+		annotation SummarizationSetBy = Automatic
+
+	column hospital_service
+		dataType: string
+		lineageTag: 97b93ee4-161b-4f88-9bb4-c634e19bdfff
+		sourceLineageTag: hospital_service
+		summarizeBy: none
+		sourceColumn: hospital_service
+
+		annotation SummarizationSetBy = Automatic
+
+	column hospital_expire_flag
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 36db2d75-5947-4a0c-be9a-7a62024e8c6e
+		sourceLineageTag: hospital_expire_flag
+		summarizeBy: none
+		sourceColumn: hospital_expire_flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_readmission
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 74f9928c-cd35-4bf2-894e-beb59439e6eb
+		sourceLineageTag: is_readmission
+		summarizeBy: none
+		sourceColumn: is_readmission
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_planned_readmission
+		dataType: string
+		lineageTag: d1c72c61-db80-4b42-9953-b51a8f06d4a5
+		sourceLineageTag: is_planned_readmission
+		summarizeBy: none
+		sourceColumn: is_planned_readmission
+
+		annotation SummarizationSetBy = Automatic
+
+	column drg_code
+		dataType: string
+		lineageTag: 8602aed5-4168-447b-bd96-920afbe7f86c
+		sourceLineageTag: drg_code
+		summarizeBy: none
+		sourceColumn: drg_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column index_encounter_id
+		dataType: string
+		lineageTag: 7016a71d-7ee1-435d-8d44-1345afc003a4
+		sourceLineageTag: index_encounter_id
+		summarizeBy: none
+		sourceColumn: index_encounter_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_admissions = entity
+		mode: directLake
+		source
+			entityName: fact_admissions
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

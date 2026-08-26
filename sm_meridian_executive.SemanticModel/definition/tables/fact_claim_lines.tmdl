@@ -1,0 +1,113 @@
+table fact_claim_lines
+	lineageTag: 163f1b66-e4e0-4f10-8e51-53d716a2efe9
+	sourceLineageTag: [dbo].[fact_claim_lines]
+
+	column patient_control_number
+		dataType: string
+		lineageTag: 3fb76888-7533-4958-9061-b8bfb3e83bad
+		sourceLineageTag: patient_control_number
+		summarizeBy: none
+		sourceColumn: patient_control_number
+
+		annotation SummarizationSetBy = Automatic
+
+	column line_control_number
+		dataType: string
+		lineageTag: c7234592-9cca-4043-8171-88c7bd39b2fa
+		sourceLineageTag: line_control_number
+		summarizeBy: none
+		sourceColumn: line_control_number
+
+		annotation SummarizationSetBy = Automatic
+
+	column revenue_code
+		dataType: string
+		lineageTag: 849f4de5-b346-4dfd-9502-887c47a14a85
+		sourceLineageTag: revenue_code
+		summarizeBy: none
+		sourceColumn: revenue_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column revenue_code_description
+		dataType: string
+		lineageTag: ce7d4c74-040c-4416-af9f-a8e8e8fec534
+		sourceLineageTag: revenue_code_description
+		summarizeBy: none
+		sourceColumn: revenue_code_description
+
+		annotation SummarizationSetBy = Automatic
+
+	column procedure_code
+		dataType: string
+		lineageTag: a2ba5471-809e-45e8-b0d6-5083f2ccfa5e
+		sourceLineageTag: procedure_code
+		summarizeBy: none
+		sourceColumn: procedure_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column procedure_description
+		dataType: string
+		lineageTag: 193c5533-53d1-4790-8031-6fd9c8b5c34a
+		sourceLineageTag: procedure_description
+		summarizeBy: none
+		sourceColumn: procedure_description
+
+		annotation SummarizationSetBy = Automatic
+
+	column line_charge_amount
+		dataType: double
+		lineageTag: ef75d4fd-fbb4-4bd9-95ee-06a33d9e7943
+		sourceLineageTag: line_charge_amount
+		summarizeBy: sum
+		sourceColumn: line_charge_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column unit_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 6f83f1c1-bc3e-42b0-b02d-8cf378635b55
+		sourceLineageTag: unit_count
+		summarizeBy: sum
+		sourceColumn: unit_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column non_covered_amount
+		dataType: string
+		lineageTag: 39464d80-4b60-4451-a48c-ecac283b080a
+		sourceLineageTag: non_covered_amount
+		summarizeBy: none
+		sourceColumn: non_covered_amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column service_date_from
+		dataType: string
+		lineageTag: e5a5e09c-579b-41af-a4a8-9c1acb2dfae3
+		sourceLineageTag: service_date_from
+		summarizeBy: none
+		sourceColumn: service_date_from
+
+		annotation SummarizationSetBy = Automatic
+
+	column service_date_to
+		dataType: string
+		lineageTag: e04b100c-d8c6-477a-a951-253f7c61f694
+		sourceLineageTag: service_date_to
+		summarizeBy: none
+		sourceColumn: service_date_to
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_claim_lines = entity
+		mode: directLake
+		source
+			entityName: fact_claim_lines
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

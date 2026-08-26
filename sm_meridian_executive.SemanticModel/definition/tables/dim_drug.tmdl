@@ -1,0 +1,152 @@
+table dim_drug
+	lineageTag: 449026d0-85e0-4c5c-bb79-8e6bb6266d7c
+	sourceLineageTag: [dbo].[dim_drug]
+
+	column drug_key
+		dataType: int64
+		formatString: 0
+		lineageTag: eb61cae7-caec-40e3-91f0-e296b6dfbe22
+		sourceLineageTag: drug_key
+		summarizeBy: sum
+		sourceColumn: drug_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column ndc11
+		dataType: string
+		lineageTag: 49d68f6c-494f-49bc-9dca-657bdb28a67c
+		sourceLineageTag: ndc11
+		summarizeBy: none
+		sourceColumn: ndc11
+
+		annotation SummarizationSetBy = Automatic
+
+	column rxcui_scd
+		dataType: string
+		lineageTag: 70c35cdc-5942-4f5c-a08c-8f752d91a28b
+		sourceLineageTag: rxcui_scd
+		summarizeBy: none
+		sourceColumn: rxcui_scd
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_ndc
+		dataType: string
+		lineageTag: 2609cdae-ca53-49a0-b137-e2645d904d9b
+		sourceLineageTag: product_ndc
+		summarizeBy: none
+		sourceColumn: product_ndc
+
+		annotation SummarizationSetBy = Automatic
+
+	column proprietary_name
+		dataType: string
+		lineageTag: 567e6f14-25c9-4ade-9acd-4988d7e2dd26
+		sourceLineageTag: proprietary_name
+		summarizeBy: none
+		sourceColumn: proprietary_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column non_proprietary_name
+		dataType: string
+		lineageTag: 2ea575fc-951f-4b36-b908-7c350fe93a7c
+		sourceLineageTag: non_proprietary_name
+		summarizeBy: none
+		sourceColumn: non_proprietary_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column dosage_form_name
+		dataType: string
+		lineageTag: ce5e4d08-c296-4b19-9ace-573000f0d784
+		sourceLineageTag: dosage_form_name
+		summarizeBy: none
+		sourceColumn: dosage_form_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column route_name
+		dataType: string
+		lineageTag: 035eac84-af1e-4e76-bf15-34a6be1a0e38
+		sourceLineageTag: route_name
+		summarizeBy: none
+		sourceColumn: route_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column pharm_classes
+		dataType: string
+		lineageTag: 0004c332-9e59-484e-a70b-2b30dda7a45f
+		sourceLineageTag: pharm_classes
+		summarizeBy: none
+		sourceColumn: pharm_classes
+
+		annotation SummarizationSetBy = Automatic
+
+	column dea_schedule
+		dataType: string
+		lineageTag: 488f9cd3-5c45-4385-82b3-6ed2b1cbec43
+		sourceLineageTag: dea_schedule
+		summarizeBy: none
+		sourceColumn: dea_schedule
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_controlled
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 3f66840c-f8b3-45a7-b8f2-773952199d42
+		sourceLineageTag: is_controlled
+		summarizeBy: none
+		sourceColumn: is_controlled
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_shortage_prone
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: a09da97c-efb8-435b-99fe-295b50ebc8c9
+		sourceLineageTag: is_shortage_prone
+		summarizeBy: none
+		sourceColumn: is_shortage_prone
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_high_alert
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: edf09984-8ac0-4b7b-8bd5-fccd4674ae49
+		sourceLineageTag: is_high_alert
+		summarizeBy: none
+		sourceColumn: is_high_alert
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_cost
+		dataType: double
+		lineageTag: 0b8ce2bd-1afe-4149-afcd-e92eeced47d0
+		sourceLineageTag: unit_cost
+		summarizeBy: sum
+		sourceColumn: unit_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column abc_class
+		dataType: string
+		lineageTag: 66ba55a4-c3ca-41ab-ae38-c07b5c3de019
+		sourceLineageTag: abc_class
+		summarizeBy: none
+		sourceColumn: abc_class
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_drug = entity
+		mode: directLake
+		source
+			entityName: dim_drug
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

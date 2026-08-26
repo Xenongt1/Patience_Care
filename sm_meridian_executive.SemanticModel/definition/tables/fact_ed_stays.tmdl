@@ -1,0 +1,210 @@
+table fact_ed_stays
+	lineageTag: 71c5a61b-2e30-4562-9086-335e6686fb92
+	sourceLineageTag: [dbo].[fact_ed_stays]
+
+	column stay_id
+		dataType: string
+		lineageTag: cd601579-e622-497f-9b29-32f29423994e
+		sourceLineageTag: stay_id
+		summarizeBy: none
+		sourceColumn: stay_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_encounter_id
+		dataType: string
+		lineageTag: 8a2ccda4-ca8c-4f10-aac4-ad7e1f791e52
+		sourceLineageTag: source_encounter_id
+		summarizeBy: none
+		sourceColumn: source_encounter_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column hadm_id
+		dataType: string
+		lineageTag: fb20b814-b678-4128-946f-3bc61c8b5bba
+		sourceLineageTag: hadm_id
+		summarizeBy: none
+		sourceColumn: hadm_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column facility_key
+		dataType: int64
+		formatString: 0
+		lineageTag: e8cb9ab3-5acb-4346-850d-a795f55f91f2
+		sourceLineageTag: facility_key
+		summarizeBy: sum
+		sourceColumn: facility_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column patient_key
+		dataType: int64
+		formatString: 0
+		lineageTag: a2576e0b-cfbe-49fa-8118-a8e453904abd
+		sourceLineageTag: patient_key
+		summarizeBy: sum
+		sourceColumn: patient_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column stay_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 9eda2e66-d1f4-4424-a90c-374c32438fc3
+		sourceLineageTag: stay_date_key
+		summarizeBy: sum
+		sourceColumn: stay_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column intime_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 6cfd0f8f-bc86-48f7-86c5-af2e62c25b3b
+		sourceLineageTag: intime_ts
+		summarizeBy: none
+		sourceColumn: intime_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column outtime_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: d80a64bd-1993-48c3-97a6-db9ce561c61d
+		sourceLineageTag: outtime_ts
+		summarizeBy: none
+		sourceColumn: outtime_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column wait_time_minutes
+		dataType: double
+		lineageTag: bf0870da-f3ff-4704-bc03-272a4171a726
+		sourceLineageTag: wait_time_minutes
+		summarizeBy: sum
+		sourceColumn: wait_time_minutes
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column length_of_stay_minutes
+		dataType: double
+		lineageTag: 963b0d03-fba3-46dd-b7db-2142d04bf313
+		sourceLineageTag: length_of_stay_minutes
+		summarizeBy: sum
+		sourceColumn: length_of_stay_minutes
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column arrival_transport
+		dataType: string
+		lineageTag: 5eefde8e-dbb0-40a1-b9b9-8241a84598c2
+		sourceLineageTag: arrival_transport
+		summarizeBy: none
+		sourceColumn: arrival_transport
+
+		annotation SummarizationSetBy = Automatic
+
+	column disposition
+		dataType: string
+		lineageTag: b770c035-94b7-4788-95e3-d3f1d12f34ec
+		sourceLineageTag: disposition
+		summarizeBy: none
+		sourceColumn: disposition
+
+		annotation SummarizationSetBy = Automatic
+
+	column acuity
+		dataType: int64
+		formatString: 0
+		lineageTag: 0fe94d64-3a29-495d-8b1a-93ec27d45311
+		sourceLineageTag: acuity
+		summarizeBy: sum
+		sourceColumn: acuity
+
+		annotation SummarizationSetBy = Automatic
+
+	column chiefcomplaint
+		dataType: string
+		lineageTag: 4626238b-93a1-4fef-bc67-cc4b3b20294b
+		sourceLineageTag: chiefcomplaint
+		summarizeBy: none
+		sourceColumn: chiefcomplaint
+
+		annotation SummarizationSetBy = Automatic
+
+	column temperature
+		dataType: string
+		lineageTag: 63cf893b-2be1-4f78-af18-b356d39ac3c0
+		sourceLineageTag: temperature
+		summarizeBy: none
+		sourceColumn: temperature
+
+		annotation SummarizationSetBy = Automatic
+
+	column heartrate
+		dataType: string
+		lineageTag: e9c55240-0609-4860-9429-0d9425b66691
+		sourceLineageTag: heartrate
+		summarizeBy: none
+		sourceColumn: heartrate
+
+		annotation SummarizationSetBy = Automatic
+
+	column resprate
+		dataType: string
+		lineageTag: d740284b-544b-4dda-9dd9-ea370e796e23
+		sourceLineageTag: resprate
+		summarizeBy: none
+		sourceColumn: resprate
+
+		annotation SummarizationSetBy = Automatic
+
+	column o2sat
+		dataType: string
+		lineageTag: 21c2d3ab-f155-41a4-9f0c-c966690c2a76
+		sourceLineageTag: o2sat
+		summarizeBy: none
+		sourceColumn: o2sat
+
+		annotation SummarizationSetBy = Automatic
+
+	column sbp
+		dataType: string
+		lineageTag: 24610a44-dcfa-466f-847a-be6aa0c141a9
+		sourceLineageTag: sbp
+		summarizeBy: none
+		sourceColumn: sbp
+
+		annotation SummarizationSetBy = Automatic
+
+	column dbp
+		dataType: string
+		lineageTag: df2cdf62-d4ec-49d7-9312-bc08209de9c8
+		sourceLineageTag: dbp
+		summarizeBy: none
+		sourceColumn: dbp
+
+		annotation SummarizationSetBy = Automatic
+
+	column pain
+		dataType: string
+		lineageTag: b0833eaf-c74e-4ac1-bae7-7cbd1a246ba5
+		sourceLineageTag: pain
+		summarizeBy: none
+		sourceColumn: pain
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_ed_stays = entity
+		mode: directLake
+		source
+			entityName: fact_ed_stays
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

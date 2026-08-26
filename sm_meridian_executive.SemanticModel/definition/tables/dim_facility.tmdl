@@ -1,0 +1,123 @@
+table dim_facility
+	lineageTag: c4d41096-a0a2-40af-baa0-c934b9945ec3
+	sourceLineageTag: [dbo].[dim_facility]
+
+	column facility_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 1a70c048-c71d-4892-973c-c9d2f3ba5270
+		sourceLineageTag: facility_key
+		summarizeBy: sum
+		sourceColumn: facility_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column facility_id
+		dataType: string
+		lineageTag: 364e8201-9ecd-4e66-b005-cc2ddb647d72
+		sourceLineageTag: facility_id
+		summarizeBy: none
+		sourceColumn: facility_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column facility_name
+		dataType: string
+		lineageTag: 8ba98514-fd88-43a3-9352-28b24b4dbf55
+		sourceLineageTag: facility_name
+		summarizeBy: none
+		sourceColumn: facility_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column facility_type
+		dataType: string
+		lineageTag: 83626efb-466a-434c-a0f7-155175354020
+		sourceLineageTag: facility_type
+		summarizeBy: none
+		sourceColumn: facility_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column city
+		dataType: string
+		lineageTag: cc4c6555-7bc2-42d0-9457-3758b9c842c9
+		sourceLineageTag: city
+		summarizeBy: none
+		sourceColumn: city
+
+		annotation SummarizationSetBy = Automatic
+
+	column state
+		dataType: string
+		lineageTag: 49af297a-1a6a-4be7-ad89-f76cc128d80b
+		sourceLineageTag: state
+		summarizeBy: none
+		sourceColumn: state
+
+		annotation SummarizationSetBy = Automatic
+
+	column zip
+		dataType: string
+		lineageTag: 9c9ce46e-ac90-4d2d-b198-576569974169
+		sourceLineageTag: zip
+		summarizeBy: none
+		sourceColumn: zip
+
+		annotation SummarizationSetBy = Automatic
+
+	column county
+		dataType: string
+		lineageTag: 3f6f3677-1b83-43b2-8c46-73b9a33d1036
+		sourceLineageTag: county
+		summarizeBy: none
+		sourceColumn: county
+
+		annotation SummarizationSetBy = Automatic
+
+	column emergency_services
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: f939d1f5-859d-4353-8675-b86a4d0511fd
+		sourceLineageTag: emergency_services
+		summarizeBy: none
+		sourceColumn: emergency_services
+
+		annotation SummarizationSetBy = Automatic
+
+	column licensed_beds
+		dataType: int64
+		formatString: 0
+		lineageTag: 3b8b3434-3253-4b37-9fc4-4c2f6ce6187e
+		sourceLineageTag: licensed_beds
+		summarizeBy: sum
+		sourceColumn: licensed_beds
+
+		annotation SummarizationSetBy = Automatic
+
+	column staffed_beds
+		dataType: int64
+		formatString: 0
+		lineageTag: 6dadefe1-a82a-4b7a-bf42-89efc4d5adea
+		sourceLineageTag: staffed_beds
+		summarizeBy: sum
+		sourceColumn: staffed_beds
+
+		annotation SummarizationSetBy = Automatic
+
+	column ownership
+		dataType: string
+		lineageTag: 48d3441a-e1ce-4f65-814e-cd4b436ed5a5
+		sourceLineageTag: ownership
+		summarizeBy: none
+		sourceColumn: ownership
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_facility = entity
+		mode: directLake
+		source
+			entityName: dim_facility
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

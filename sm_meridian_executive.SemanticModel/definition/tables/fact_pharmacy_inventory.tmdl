@@ -1,0 +1,172 @@
+table fact_pharmacy_inventory
+	lineageTag: 5a9a49e0-5fb9-46c1-a30b-e20b83a60276
+	sourceLineageTag: [dbo].[fact_pharmacy_inventory]
+
+	column facility_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 802c9867-0058-4a9b-8bcc-1b85283c2d63
+		sourceLineageTag: facility_key
+		summarizeBy: sum
+		sourceColumn: facility_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column drug_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 912b0e72-aaf9-4fa8-a6d9-d6fc69c9de08
+		sourceLineageTag: drug_key
+		summarizeBy: sum
+		sourceColumn: drug_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column snapshot_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 888bb414-979a-4097-8a88-93c625c25fbd
+		sourceLineageTag: snapshot_date_key
+		summarizeBy: sum
+		sourceColumn: snapshot_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column counting_datetime
+		dataType: string
+		lineageTag: c8dbd792-e56c-40ef-ae69-fa36d937284e
+		sourceLineageTag: counting_datetime
+		summarizeBy: none
+		sourceColumn: counting_datetime
+
+		annotation SummarizationSetBy = Automatic
+
+	column count_type
+		dataType: string
+		lineageTag: 6ab9ab75-548f-4a01-95e5-8896c310730d
+		sourceLineageTag: count_type
+		summarizeBy: none
+		sourceColumn: count_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column location_id
+		dataType: string
+		lineageTag: 989230d4-31fd-4148-8a8c-1a3425b90e90
+		sourceLineageTag: location_id
+		summarizeBy: none
+		sourceColumn: location_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column qty_on_hand
+		dataType: int64
+		formatString: 0
+		lineageTag: cf439e2b-5702-4ac8-855a-4b381e6ff6ad
+		sourceLineageTag: qty_on_hand
+		summarizeBy: sum
+		sourceColumn: qty_on_hand
+
+		annotation SummarizationSetBy = Automatic
+
+	column qty_on_order
+		dataType: string
+		lineageTag: 4334f038-dfa5-4c80-b747-84fa7d0b830a
+		sourceLineageTag: qty_on_order
+		summarizeBy: none
+		sourceColumn: qty_on_order
+
+		annotation SummarizationSetBy = Automatic
+
+	column reorder_point
+		dataType: int64
+		formatString: 0
+		lineageTag: 2de4a52a-26b8-4eb3-b7cd-289af60bafa6
+		sourceLineageTag: reorder_point
+		summarizeBy: sum
+		sourceColumn: reorder_point
+
+		annotation SummarizationSetBy = Automatic
+
+	column safety_stock
+		dataType: string
+		lineageTag: 668dba12-8932-48d4-8d15-9ce7a71522e6
+		sourceLineageTag: safety_stock
+		summarizeBy: none
+		sourceColumn: safety_stock
+
+		annotation SummarizationSetBy = Automatic
+
+	column avg_daily_usage_30d
+		dataType: string
+		lineageTag: d9dc5153-fe5a-4bba-9d0d-02d6b63e46c5
+		sourceLineageTag: avg_daily_usage_30d
+		summarizeBy: none
+		sourceColumn: avg_daily_usage_30d
+
+		annotation SummarizationSetBy = Automatic
+
+	column days_on_hand
+		dataType: string
+		lineageTag: 43e564f3-5657-493a-be69-02fe7f4e89e6
+		sourceLineageTag: days_on_hand
+		summarizeBy: none
+		sourceColumn: days_on_hand
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_stockout
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: a9d49138-07ef-428e-943b-dc749d2bc20c
+		sourceLineageTag: is_stockout
+		summarizeBy: none
+		sourceColumn: is_stockout
+
+		annotation SummarizationSetBy = Automatic
+
+	column shortage_status
+		dataType: string
+		lineageTag: 5e3bb457-8237-4f88-b5c8-9ef70f703bdb
+		sourceLineageTag: shortage_status
+		summarizeBy: none
+		sourceColumn: shortage_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column shortage_reason
+		dataType: string
+		lineageTag: d0d7f894-1ed2-4360-bee3-19f91fe076af
+		sourceLineageTag: shortage_reason
+		summarizeBy: none
+		sourceColumn: shortage_reason
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_cost
+		dataType: double
+		lineageTag: fc17274c-2bf2-406e-99ef-4f32f29462b2
+		sourceLineageTag: unit_cost
+		summarizeBy: sum
+		sourceColumn: unit_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column extended_value
+		dataType: string
+		lineageTag: 540aba5e-7b7b-4352-ac3f-b2517b6b7a95
+		sourceLineageTag: extended_value
+		summarizeBy: none
+		sourceColumn: extended_value
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_pharmacy_inventory = entity
+		mode: directLake
+		source
+			entityName: fact_pharmacy_inventory
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

@@ -1,0 +1,113 @@
+table fact_claim_adjustments
+	lineageTag: 835997c8-5727-4d65-9fe7-05cc3ed99f66
+	sourceLineageTag: [dbo].[fact_claim_adjustments]
+
+	column patient_control_number
+		dataType: string
+		lineageTag: fd6419b0-d0c2-4521-a6ae-0762f82fbfa4
+		sourceLineageTag: patient_control_number
+		summarizeBy: none
+		sourceColumn: patient_control_number
+
+		annotation SummarizationSetBy = Automatic
+
+	column adjustment_seq
+		dataType: string
+		lineageTag: 317ea9e8-d6a1-454f-819a-8fa5b0fa294d
+		sourceLineageTag: adjustment_seq
+		summarizeBy: none
+		sourceColumn: adjustment_seq
+
+		annotation SummarizationSetBy = Automatic
+
+	column group_code
+		dataType: string
+		lineageTag: 4e2e2cca-128f-4e65-8d62-a74a45959221
+		sourceLineageTag: group_code
+		summarizeBy: none
+		sourceColumn: group_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column group_code_description
+		dataType: string
+		lineageTag: be02c342-93de-444c-80fe-3a30bb39925f
+		sourceLineageTag: group_code_description
+		summarizeBy: none
+		sourceColumn: group_code_description
+
+		annotation SummarizationSetBy = Automatic
+
+	column reason_code
+		dataType: string
+		lineageTag: 8eaa9d02-998a-46bb-b9f4-f45d937602de
+		sourceLineageTag: reason_code
+		summarizeBy: none
+		sourceColumn: reason_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column reason_code_description
+		dataType: string
+		lineageTag: bf0cc580-98c6-4c75-b68a-cc71227438ba
+		sourceLineageTag: reason_code_description
+		summarizeBy: none
+		sourceColumn: reason_code_description
+
+		annotation SummarizationSetBy = Automatic
+
+	column amount
+		dataType: double
+		lineageTag: 5b16a345-a2ab-44cb-bd5e-0df3903f2b5b
+		sourceLineageTag: amount
+		summarizeBy: sum
+		sourceColumn: amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column quantity
+		dataType: string
+		lineageTag: badd0f4b-0332-4e3c-babc-8c62128ea168
+		sourceLineageTag: quantity
+		summarizeBy: none
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column remark_code
+		dataType: string
+		lineageTag: f5d34bb1-6ad1-4d25-8615-6ee960ebd3cd
+		sourceLineageTag: remark_code
+		summarizeBy: none
+		sourceColumn: remark_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column remark_code_description
+		dataType: string
+		lineageTag: ac365af7-5838-4367-ae55-8b059828495e
+		sourceLineageTag: remark_code_description
+		summarizeBy: none
+		sourceColumn: remark_code_description
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_denial
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 66c1b371-b95b-4793-a2e7-35d4c532f15d
+		sourceLineageTag: is_denial
+		summarizeBy: none
+		sourceColumn: is_denial
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_claim_adjustments = entity
+		mode: directLake
+		source
+			entityName: fact_claim_adjustments
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

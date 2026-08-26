@@ -1,0 +1,97 @@
+table dim_patient
+	lineageTag: 910a9814-c4e9-40a5-9b4c-51fcd0935f68
+	sourceLineageTag: [dbo].[dim_patient]
+
+	column patient_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 9d4eefd7-bc68-4e8f-b363-46190993344a
+		sourceLineageTag: patient_key
+		summarizeBy: sum
+		sourceColumn: patient_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column canonical_patient_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 14a947cf-7ad7-438c-9799-8723dd0f3723
+		sourceLineageTag: canonical_patient_key
+		summarizeBy: sum
+		sourceColumn: canonical_patient_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column age_band
+		dataType: string
+		lineageTag: 73b9f816-78a3-4cb1-83bb-ccb0c9ea6033
+		sourceLineageTag: age_band
+		summarizeBy: none
+		sourceColumn: age_band
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gender
+		dataType: string
+		lineageTag: 51130a92-e7ea-4139-a8fa-8312d65e671a
+		sourceLineageTag: Gender
+		summarizeBy: none
+		sourceColumn: Gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column Race
+		dataType: string
+		lineageTag: 2689f476-57d8-4206-974b-5fe782bcda6b
+		sourceLineageTag: Race
+		summarizeBy: none
+		sourceColumn: Race
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ethnicity
+		dataType: string
+		lineageTag: 865019b6-98fc-4e45-b53f-91f1e3cbc3e9
+		sourceLineageTag: Ethnicity
+		summarizeBy: none
+		sourceColumn: Ethnicity
+
+		annotation SummarizationSetBy = Automatic
+
+	column Zip
+		dataType: string
+		lineageTag: 83a2ed54-77b7-4ded-b281-7008f165bf03
+		sourceLineageTag: Zip
+		summarizeBy: none
+		sourceColumn: Zip
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_high_risk
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: f3477c62-59d5-4fbe-b78f-5628b18a26b9
+		sourceLineageTag: is_high_risk
+		summarizeBy: none
+		sourceColumn: is_high_risk
+
+		annotation SummarizationSetBy = Automatic
+
+	column insurance_type_placeholder
+		dataType: double
+		lineageTag: c2ea0d54-71c5-4361-b81f-1cdd2cb2f4d9
+		sourceLineageTag: insurance_type_placeholder
+		summarizeBy: sum
+		sourceColumn: insurance_type_placeholder
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition dim_patient = entity
+		mode: directLake
+		source
+			entityName: dim_patient
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+
