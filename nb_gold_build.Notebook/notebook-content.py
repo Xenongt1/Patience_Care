@@ -1210,7 +1210,41 @@ spark.read.table("dbo_1.silver_staff_schedules").filter(
 
 # CELL ********************
 
-spark.read.table("dim_staff").filter("staff_key = 2290").show(truncate=False)
+from pyspark.sql import functions as F
+df = spark.read.table("fact_staffing")
+df.filter(F.isnan("actual_hours")).show(20, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("dbo_1.silver_staff_schedules").filter(F.isnan("actual_hours_float")).select("staff_id", "actual_hours", "actual_hours_float").show(10, truncate=False)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("fact_bed_capacity").selectExpr("max(snapshot_date_key)").show()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
 
 # METADATA ********************
 

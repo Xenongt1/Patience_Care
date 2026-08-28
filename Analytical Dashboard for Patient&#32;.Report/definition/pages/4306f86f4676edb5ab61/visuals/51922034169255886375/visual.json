@@ -1,0 +1,77 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "51922034169255886375",
+  "position": {
+    "x": 1501.8266978922716,
+    "y": 239.8126463700234,
+    "z": 7,
+    "height": 149.88290398126463,
+    "width": 190.35128805620607,
+    "tabOrder": 7
+  },
+  "visual": {
+    "visualType": "slicer",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "KPI Selector"
+                    }
+                  },
+                  "Property": "KPI Selector"
+                }
+              },
+              "queryRef": "KPI Selector.KPI Selector",
+              "nativeQueryRef": "KPI Selector",
+              "active": true
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "data": [
+        {
+          "properties": {
+            "mode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Basic'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {}
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "ffb4d213aa6e135a4aac",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "KPI Selector"
+              }
+            },
+            "Property": "KPI Selector"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}

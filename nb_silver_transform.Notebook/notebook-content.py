@@ -903,7 +903,7 @@ raw_bronze = (raw_bronze
 
 silver = (raw_bronze
     .withColumn("scheduled_hours_float", F.col("scheduled_hours").cast("float"))
-    .withColumn("actual_hours_float", F.col("actual_hours").cast("float"))
+    .withColumn("actual_hours_float", F.when(F.lower(F.trim(F.col("actual_hours"))) == "nan", None).otherwise(F.col("actual_hours").cast("float")))
     .withColumn("_dq_issues", F.array().cast("array<string>"))
 )
 silver = add_issue(silver, F.col("staff_id").isNull(), "staff_id null")
