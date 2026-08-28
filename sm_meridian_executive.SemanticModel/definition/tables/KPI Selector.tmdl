@@ -1,0 +1,49 @@
+table 'KPI Selector'
+	lineageTag: 3e34b990-6e30-49d0-9474-5ecf1f36c553
+
+	column 'KPI Selector'
+		lineageTag: b691801c-5c41-4394-b393-e7b680ce4250
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'KPI Selector Order'
+
+		relatedColumnDetails
+			groupByColumn: 'KPI Selector Fields'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'KPI Selector Fields'
+		isHidden
+		lineageTag: 108ab916-3939-4964-bf5d-dd3701e15cf0
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'KPI Selector Order'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'KPI Selector Order'
+		isHidden
+		formatString: 0
+		lineageTag: bab39731-8a0d-430d-b213-aa804ff13642
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'KPI Selector' = calculated
+		mode: import
+		source =
+				{
+				    ("Avg Occupancy Rate", NAMEOF('_Measure'[Avg Occupancy Rate]), 0),
+				    ("Avg ED Wait (min)", NAMEOF('_Measure'[Avg ED Wait (min)]), 1),
+				    ("Readmission Rate", NAMEOF('_Measure'[Readmission Rate]), 2)
+				}
+
+	annotation PBI_Id = 1c537c2f53bf4aa8a399262f6166aaa2
+

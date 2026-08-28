@@ -31,4 +31,5 @@ ref table fact_transfers
 ref table fact_encounters
 ref table fact_pharmacy_inventory
 ref table _Measure
+ref table 'KPI Selector'
 
