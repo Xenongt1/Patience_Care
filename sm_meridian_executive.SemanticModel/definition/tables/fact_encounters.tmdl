@@ -1,0 +1,129 @@
+table fact_encounters
+	lineageTag: c548dce2-cc65-4b6a-a60d-b02b8550d335
+	sourceLineageTag: [dbo].[fact_encounters]
+
+	column encounter_id
+		dataType: string
+		lineageTag: 7480d858-f37f-4a7d-b385-2f013d8053a3
+		sourceLineageTag: encounter_id
+		summarizeBy: none
+		sourceColumn: encounter_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column facility_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 2041dee5-67d6-4536-9ae1-601507819505
+		sourceLineageTag: facility_key
+		summarizeBy: none
+		sourceColumn: facility_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 7c48dc0a-ac35-46b0-a169-1c43e0b7c46d
+		sourceLineageTag: unit_key
+		summarizeBy: none
+		sourceColumn: unit_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column patient_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 70f6834c-5b81-460c-8b36-eca7728edaf4
+		sourceLineageTag: patient_key
+		summarizeBy: none
+		sourceColumn: patient_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column encounter_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 10a0d01c-0093-4472-a9f1-2f27d87a76b7
+		sourceLineageTag: encounter_date_key
+		summarizeBy: none
+		sourceColumn: encounter_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column Start_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: d54b6eef-ea94-4b19-b995-9d9c17435f97
+		sourceLineageTag: Start_ts
+		summarizeBy: none
+		sourceColumn: Start_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column Stop_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: c0e4225d-5c97-44e6-943b-8389c69ea2bc
+		sourceLineageTag: Stop_ts
+		summarizeBy: none
+		sourceColumn: Stop_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column encounter_class
+		dataType: string
+		lineageTag: 036b3866-f91d-4a99-a0d5-95694a1222cf
+		sourceLineageTag: encounter_class
+		summarizeBy: none
+		sourceColumn: encounter_class
+
+		annotation SummarizationSetBy = Automatic
+
+	column base_encounter_cost
+		dataType: double
+		lineageTag: 543e42ed-da9b-4755-aa68-bf69f5f4fac0
+		sourceLineageTag: base_encounter_cost
+		summarizeBy: sum
+		sourceColumn: base_encounter_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_claim_cost
+		dataType: double
+		lineageTag: 9b3770ef-36e8-4625-b145-67ba9eda9b62
+		sourceLineageTag: total_claim_cost
+		summarizeBy: sum
+		sourceColumn: total_claim_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column payer_coverage
+		dataType: string
+		lineageTag: 56454852-09c3-4028-8ac7-7302d0fe924f
+		sourceLineageTag: payer_coverage
+		summarizeBy: none
+		sourceColumn: payer_coverage
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReasonDescription
+		dataType: string
+		lineageTag: 12f472c3-82eb-496f-9f58-1bcf1e6f0267
+		sourceLineageTag: ReasonDescription
+		summarizeBy: none
+		sourceColumn: ReasonDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_encounters = entity
+		mode: directLake
+		source
+			entityName: fact_encounters
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

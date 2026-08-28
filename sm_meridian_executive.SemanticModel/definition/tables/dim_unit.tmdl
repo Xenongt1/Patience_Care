@@ -1,0 +1,155 @@
+table dim_unit
+	lineageTag: 806df5b0-a43f-4823-ab58-e3c73750e87a
+	sourceLineageTag: [dbo].[dim_unit]
+
+	column unit_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 80d2de55-1e47-4ab2-8c9f-903920a7c5f6
+		sourceLineageTag: unit_key
+		summarizeBy: none
+		sourceColumn: unit_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_id
+		dataType: string
+		lineageTag: a917be41-fab2-4b35-92c2-d2d55dd764d7
+		sourceLineageTag: unit_id
+		summarizeBy: none
+		sourceColumn: unit_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column facility_key
+		dataType: int64
+		formatString: 0
+		lineageTag: a83e3b6a-5b04-4228-899f-1ea729e209da
+		sourceLineageTag: facility_key
+		summarizeBy: sum
+		sourceColumn: facility_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column facility_id
+		dataType: string
+		lineageTag: 7c13a907-c9fc-44be-9c5a-5b438c07d972
+		sourceLineageTag: facility_id
+		summarizeBy: none
+		sourceColumn: facility_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_code
+		dataType: string
+		lineageTag: 51aa9c77-3ce3-4d5e-b020-09826608127c
+		sourceLineageTag: unit_code
+		summarizeBy: none
+		sourceColumn: unit_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_name
+		dataType: string
+		lineageTag: 908a03ba-15e8-4a23-a628-3c74ba31f674
+		sourceLineageTag: unit_name
+		summarizeBy: none
+		sourceColumn: unit_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_type
+		dataType: string
+		lineageTag: ff377012-b72d-42cc-af4a-131ded61a49d
+		sourceLineageTag: unit_type
+		summarizeBy: none
+		sourceColumn: unit_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column building
+		dataType: string
+		lineageTag: eb783fd0-addc-40f7-987b-2add3e3933e4
+		sourceLineageTag: building
+		summarizeBy: none
+		sourceColumn: building
+
+		annotation SummarizationSetBy = Automatic
+
+	column floor
+		dataType: string
+		lineageTag: 291c8de7-3215-4270-a941-4e0e4c025a42
+		sourceLineageTag: floor
+		summarizeBy: none
+		sourceColumn: floor
+
+		annotation SummarizationSetBy = Automatic
+
+	column licensed_beds
+		dataType: int64
+		formatString: 0
+		lineageTag: 831b465b-4c7d-4b26-8e32-207ca429bf6b
+		sourceLineageTag: licensed_beds
+		summarizeBy: sum
+		sourceColumn: licensed_beds
+
+		annotation SummarizationSetBy = Automatic
+
+	column staffed_beds
+		dataType: int64
+		formatString: 0
+		lineageTag: 26cf5bb5-9fa6-4ac4-8719-e3839ace880b
+		sourceLineageTag: staffed_beds
+		summarizeBy: sum
+		sourceColumn: staffed_beds
+
+		annotation SummarizationSetBy = Automatic
+
+	column blocked_beds
+		dataType: int64
+		formatString: 0
+		lineageTag: 07bd426e-42ae-4f5b-a9e6-a9831bd1c11e
+		sourceLineageTag: blocked_beds
+		summarizeBy: sum
+		sourceColumn: blocked_beds
+
+		annotation SummarizationSetBy = Automatic
+
+	column nurse_patient_ratio_target
+		dataType: double
+		lineageTag: c76febe9-b080-4491-bffc-17e94d9cda85
+		sourceLineageTag: nurse_patient_ratio_target
+		summarizeBy: sum
+		sourceColumn: nurse_patient_ratio_target
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column is_critical_care
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 39a67e12-f34a-4deb-85b6-26e29c1e4a68
+		sourceLineageTag: is_critical_care
+		summarizeBy: none
+		sourceColumn: is_critical_care
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_monitored
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: b57ff0f2-5d39-4245-ba74-6acbf3250460
+		sourceLineageTag: is_monitored
+		summarizeBy: none
+		sourceColumn: is_monitored
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_unit = entity
+		mode: directLake
+		source
+			entityName: dim_unit
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

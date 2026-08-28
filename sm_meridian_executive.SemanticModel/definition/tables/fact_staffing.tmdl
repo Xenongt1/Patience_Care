@@ -1,0 +1,172 @@
+table fact_staffing
+	lineageTag: 9975a1b6-7656-48f7-a5d7-21307ac5cd4c
+	sourceLineageTag: [dbo].[fact_staffing]
+
+	column facility_key
+		dataType: int64
+		formatString: 0
+		lineageTag: eb935166-f314-4e37-a805-87b7f250ed85
+		sourceLineageTag: facility_key
+		summarizeBy: none
+		sourceColumn: facility_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column staff_key
+		dataType: int64
+		formatString: 0
+		lineageTag: ce921350-5aae-4605-aab8-117a430c0ae9
+		sourceLineageTag: staff_key
+		summarizeBy: none
+		sourceColumn: staff_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column work_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 62c6f7e7-3502-4546-9515-1896352e28b0
+		sourceLineageTag: work_date_key
+		summarizeBy: none
+		sourceColumn: work_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_code
+		dataType: string
+		lineageTag: c9c9f860-58d7-4517-bb1b-a94b31a75852
+		sourceLineageTag: unit_code
+		summarizeBy: none
+		sourceColumn: unit_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column shift
+		dataType: string
+		lineageTag: a3cb98a5-4b4f-4898-a398-36274cb2cc9f
+		sourceLineageTag: shift
+		summarizeBy: none
+		sourceColumn: shift
+
+		annotation SummarizationSetBy = Automatic
+
+	column shift_start
+		dataType: string
+		lineageTag: 3b9c3d86-0aa8-4351-b92c-e7f35411b682
+		sourceLineageTag: shift_start
+		summarizeBy: none
+		sourceColumn: shift_start
+
+		annotation SummarizationSetBy = Automatic
+
+	column shift_end
+		dataType: string
+		lineageTag: 1d747e12-def8-456a-aca4-b5eb7c37564a
+		sourceLineageTag: shift_end
+		summarizeBy: none
+		sourceColumn: shift_end
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_code
+		dataType: string
+		lineageTag: 38dc0eea-79ce-4277-a0a0-5df791e934df
+		sourceLineageTag: job_code
+		summarizeBy: none
+		sourceColumn: job_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column employment_type
+		dataType: string
+		lineageTag: 06cd9659-db9e-43a7-86f5-1bfbe699b52d
+		sourceLineageTag: employment_type
+		summarizeBy: none
+		sourceColumn: employment_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column scheduled_hours
+		dataType: double
+		lineageTag: ddb5b4cc-3e91-4564-ab86-00b65c85f6ef
+		sourceLineageTag: scheduled_hours
+		summarizeBy: sum
+		sourceColumn: scheduled_hours
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column actual_hours
+		dataType: double
+		lineageTag: f40bda38-1ae6-490e-8e0b-a76a5389bc32
+		sourceLineageTag: actual_hours
+		summarizeBy: sum
+		sourceColumn: actual_hours
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column status
+		dataType: string
+		lineageTag: b5485b8c-9f17-4b1b-ae1e-6c52308a3ee4
+		sourceLineageTag: status
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column overtime
+		dataType: string
+		lineageTag: 6be61dd5-de10-4578-9e89-5968d307847d
+		sourceLineageTag: overtime
+		summarizeBy: none
+		sourceColumn: overtime
+
+		annotation SummarizationSetBy = Automatic
+
+	column called_out
+		dataType: string
+		lineageTag: 26c23c25-d22a-475d-9ff5-bdf047f4f4c9
+		sourceLineageTag: called_out
+		summarizeBy: none
+		sourceColumn: called_out
+
+		annotation SummarizationSetBy = Automatic
+
+	column floated_in
+		dataType: string
+		lineageTag: 4a9da8db-0416-413d-ae88-0425a7977259
+		sourceLineageTag: floated_in
+		summarizeBy: none
+		sourceColumn: floated_in
+
+		annotation SummarizationSetBy = Automatic
+
+	column census
+		dataType: string
+		lineageTag: 90aa2fd2-791a-4cf2-8fe9-7892290d759f
+		sourceLineageTag: census
+		summarizeBy: none
+		sourceColumn: census
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_key
+		dataType: int64
+		formatString: 0
+		lineageTag: bda2b625-ca63-42f8-a924-9a83a2a0a053
+		sourceLineageTag: unit_key
+		summarizeBy: none
+		sourceColumn: unit_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_staffing = entity
+		mode: directLake
+		source
+			entityName: fact_staffing
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

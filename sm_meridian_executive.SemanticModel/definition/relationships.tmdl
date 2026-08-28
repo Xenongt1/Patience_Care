@@ -1,0 +1,132 @@
+relationship 6537e513-e869-4e1a-4fff-e14d1293ce61
+	fromColumn: fact_encounters.facility_key
+	toColumn: dim_facility.facility_key
+
+relationship 3e15199a-2e39-eb8c-37d2-eb7881da7e89
+	fromColumn: fact_admissions.facility_key
+	toColumn: dim_facility.facility_key
+
+relationship 5ca2fcc1-fbab-2855-ed45-d0c27ed4abfb
+	fromColumn: fact_ed_stays.facility_key
+	toColumn: dim_facility.facility_key
+
+relationship 3001f9ed-38e7-e9f5-7b8c-9edfa99ed4ae
+	fromColumn: fact_transfers.facility_key
+	toColumn: dim_facility.facility_key
+
+relationship d191ca3c-6a10-25f8-6ef6-93128af3dbc0
+	fromColumn: fact_diagnoses.facility_key
+	toColumn: dim_facility.facility_key
+
+relationship 9f06ca04-b417-f9ff-aa78-63e97c62250d
+	fromColumn: fact_claims.facility_key
+	toColumn: dim_facility.facility_key
+
+relationship 6e833a25-d660-da97-2104-f23b830a1be2
+	fromColumn: fact_bed_capacity.facility_key
+	toColumn: dim_facility.facility_key
+
+relationship 5411dbf3-2179-321e-bf90-90d02276f84c
+	fromColumn: fact_pharmacy_inventory.facility_key
+	toColumn: dim_facility.facility_key
+
+relationship a056c0c0-d30a-c9a9-50be-d656141be99b
+	fromColumn: fact_staffing.facility_key
+	toColumn: dim_facility.facility_key
+
+relationship 77ff5b15-a5a2-a9ca-b513-044772c55324
+	fromColumn: fact_encounters.unit_key
+	toColumn: dim_unit.unit_key
+
+relationship 0b7dcbbd-21c7-68df-d9f1-c737bf3d18db
+	fromColumn: fact_transfers.unit_key
+	toColumn: dim_unit.unit_key
+
+relationship 4f34d664-0250-aa87-d805-fcd205596ca5
+	fromColumn: fact_bed_capacity.unit_key
+	toColumn: dim_unit.unit_key
+
+relationship f981896c-daaa-70a7-6228-c072b1e7e654
+	fromColumn: fact_encounters.patient_key
+	toColumn: dim_patient.patient_key
+
+relationship 34c408da-6e4b-7ce6-5d1a-698c0dc1bc84
+	fromColumn: fact_claims.attending_staff_key
+	toColumn: dim_staff.staff_key
+
+relationship 5ef5d91c-91d9-f665-484a-088ad4e37899
+	fromColumn: fact_diagnoses.patient_key
+	toColumn: dim_patient.patient_key
+
+relationship 0d2d631c-6967-6ea4-5389-33d3832a5798
+	fromColumn: fact_admissions.patient_key
+	toColumn: dim_patient.patient_key
+
+relationship ab71dcbd-87e4-1ddc-c818-9e0faa2ff02c
+	fromColumn: fact_ed_stays.patient_key
+	toColumn: dim_patient.patient_key
+
+relationship 982c52f4-1bb4-04de-28a1-eacdeaf757a5
+	fromColumn: fact_transfers.patient_key
+	toColumn: dim_patient.patient_key
+
+relationship 8cd153f4-18af-cdc0-6e08-32c0796761ce
+	fromColumn: fact_claims.patient_key
+	toColumn: dim_patient.patient_key
+
+relationship 65fdaedb-4ea2-1f65-09a3-77768acaee85
+	fromColumn: fact_staffing.staff_key
+	toColumn: dim_staff.staff_key
+
+relationship facadd07-5669-7a24-bc8f-654147e4dc1a
+	fromColumn: fact_claims.payer_key
+	toColumn: dim_payer.payer_key
+
+relationship 8fe79e10-f52a-799b-5c82-3e7f8b14e165
+	fromColumn: dim_drug.drug_key
+	toColumn: fact_pharmacy_inventory.drug_key
+
+relationship 4bb5901c-7b89-23ec-8ecb-e565bb420dd4
+	fromColumn: fact_claim_lines.patient_control_number
+	toColumn: fact_claims.patient_control_number
+
+relationship 528193ea-2161-2f9e-222e-2f6afb37d920
+	fromColumn: fact_claim_adjustments.patient_control_number
+	toColumn: fact_claims.patient_control_number
+
+relationship e989329b-ff8c-48b6-b477-b70fc583ae97
+	fromColumn: fact_encounters.encounter_date_key
+	toColumn: dim_date.date_key
+
+relationship 5c6a58cd-995c-474a-bf80-b993044389d8
+	fromColumn: fact_admissions.admit_date_key
+	toColumn: dim_date.date_key
+
+relationship c2648168-5ebb-9ee7-e266-0374c1378fc5
+	fromColumn: fact_ed_stays.stay_date_key
+	toColumn: dim_date.date_key
+
+relationship f4981fc3-0583-7e21-4fc8-da893dd51c50
+	fromColumn: fact_transfers.transfer_date_key
+	toColumn: dim_date.date_key
+
+relationship ad16d90a-d4c0-054e-1640-7d1a8ada64e9
+	fromColumn: fact_claims.submission_date_key
+	toColumn: dim_date.date_key
+
+relationship e38ad5c3-7812-89b3-88d8-43b13ae4ebfe
+	fromColumn: fact_bed_capacity.snapshot_date_key
+	toColumn: dim_date.date_key
+
+relationship 18eca510-8837-b788-2844-2d261140b32e
+	fromColumn: fact_pharmacy_inventory.snapshot_date_key
+	toColumn: dim_date.date_key
+
+relationship e47ee5f0-f842-0c8d-ae1f-0499f315f7e1
+	fromColumn: fact_staffing.work_date_key
+	toColumn: dim_date.date_key
+
+relationship 1a35998e-c8a2-c5a9-65c5-c5df6def0e87
+	fromColumn: fact_staffing.unit_key
+	toColumn: dim_unit.unit_key
+

@@ -1,0 +1,152 @@
+table fact_bed_capacity
+	lineageTag: 9b81b596-b4da-4795-a3ce-4c0e8a56cc24
+	sourceLineageTag: [dbo].[fact_bed_capacity]
+
+	column facility_key
+		dataType: int64
+		formatString: 0
+		lineageTag: b6ef3ca2-e528-409b-8ab1-fd00a178e60b
+		sourceLineageTag: facility_key
+		summarizeBy: none
+		sourceColumn: facility_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 0eea99ff-11d9-4b57-ba02-40df39f41ad3
+		sourceLineageTag: unit_key
+		summarizeBy: none
+		sourceColumn: unit_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column snapshot_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 02d35dc4-ef7d-424b-96e2-b42dd0fb94cf
+		sourceLineageTag: snapshot_date_key
+		summarizeBy: none
+		sourceColumn: snapshot_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column snapshot_hour
+		dataType: int64
+		formatString: 0
+		lineageTag: 4af0d7e0-3080-48ed-a3ab-1a798fe4e202
+		sourceLineageTag: snapshot_hour
+		summarizeBy: sum
+		sourceColumn: snapshot_hour
+
+		annotation SummarizationSetBy = Automatic
+
+	column snapshot_datetime_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 48c9a3d5-ffcf-461e-ae6b-ef60bf4f2457
+		sourceLineageTag: snapshot_datetime_ts
+		summarizeBy: none
+		sourceColumn: snapshot_datetime_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column licensed_beds
+		dataType: int64
+		formatString: 0
+		lineageTag: 8b9a10ea-afeb-41f4-b393-9ca7577f0be8
+		sourceLineageTag: licensed_beds
+		summarizeBy: sum
+		sourceColumn: licensed_beds
+
+		annotation SummarizationSetBy = Automatic
+
+	column staffed_beds
+		dataType: int64
+		formatString: 0
+		lineageTag: ce749e09-d5c0-47b4-8701-fc72cdfed41f
+		sourceLineageTag: staffed_beds
+		summarizeBy: sum
+		sourceColumn: staffed_beds
+
+		annotation SummarizationSetBy = Automatic
+
+	column blocked_beds
+		dataType: int64
+		formatString: 0
+		lineageTag: 81c78f99-7153-4f10-9be3-ffc85e4e94f3
+		sourceLineageTag: blocked_beds
+		summarizeBy: sum
+		sourceColumn: blocked_beds
+
+		annotation SummarizationSetBy = Automatic
+
+	column occupied_beds
+		dataType: int64
+		formatString: 0
+		lineageTag: 1f28edfb-242c-4817-9451-b2f3f1c856a3
+		sourceLineageTag: occupied_beds
+		summarizeBy: sum
+		sourceColumn: occupied_beds
+
+		annotation SummarizationSetBy = Automatic
+
+	column available_beds
+		dataType: int64
+		formatString: 0
+		lineageTag: 447b7e72-9861-4783-b4f5-a52e8ca9b7d7
+		sourceLineageTag: available_beds
+		summarizeBy: sum
+		sourceColumn: available_beds
+
+		annotation SummarizationSetBy = Automatic
+
+	column occupancy_rate
+		dataType: double
+		lineageTag: 97669186-3dc5-47f6-994a-80ad8beced69
+		sourceLineageTag: occupancy_rate
+		summarizeBy: sum
+		sourceColumn: occupancy_rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column is_at_capacity
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 7b37e025-53ff-4639-a17d-247cbdfa90ba
+		sourceLineageTag: is_at_capacity
+		summarizeBy: none
+		sourceColumn: is_at_capacity
+
+		annotation SummarizationSetBy = Automatic
+
+	column pending_admissions
+		dataType: int64
+		formatString: 0
+		lineageTag: 8730eaed-7d27-4cf2-a285-633631a836ab
+		sourceLineageTag: pending_admissions
+		summarizeBy: sum
+		sourceColumn: pending_admissions
+
+		annotation SummarizationSetBy = Automatic
+
+	column pending_discharges
+		dataType: int64
+		formatString: 0
+		lineageTag: 952630df-2c5c-4d6a-880a-ac1717c8bbeb
+		sourceLineageTag: pending_discharges
+		summarizeBy: sum
+		sourceColumn: pending_discharges
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_bed_capacity = entity
+		mode: directLake
+		source
+			entityName: fact_bed_capacity
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

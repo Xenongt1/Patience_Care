@@ -1,0 +1,215 @@
+table fact_claims
+	lineageTag: 5e590f34-d874-45df-b83d-15702d7efd75
+	sourceLineageTag: [dbo].[fact_claims]
+
+	column patient_control_number
+		dataType: string
+		lineageTag: 77da2219-a087-4c63-ac2f-327bc79c47fc
+		sourceLineageTag: patient_control_number
+		summarizeBy: none
+		sourceColumn: patient_control_number
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_encounter_id
+		dataType: string
+		lineageTag: e132eb79-46d2-419d-a791-bedf5151b715
+		sourceLineageTag: source_encounter_id
+		summarizeBy: none
+		sourceColumn: source_encounter_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column hadm_id
+		dataType: string
+		lineageTag: 7f9f30f4-ddef-47ac-87b7-5288bda8e367
+		sourceLineageTag: hadm_id
+		summarizeBy: none
+		sourceColumn: hadm_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column facility_key
+		dataType: int64
+		formatString: 0
+		lineageTag: c902f812-0e04-47fb-acf8-c331d3f2c1b7
+		sourceLineageTag: facility_key
+		summarizeBy: none
+		sourceColumn: facility_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column payer_key
+		dataType: int64
+		formatString: 0
+		lineageTag: d85f586f-1868-4f72-8cad-780b5705070c
+		sourceLineageTag: payer_key
+		summarizeBy: none
+		sourceColumn: payer_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column patient_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 1be9bce9-53d4-4839-a90e-123f58c98400
+		sourceLineageTag: patient_key
+		summarizeBy: none
+		sourceColumn: patient_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column attending_staff_key
+		dataType: int64
+		formatString: 0
+		lineageTag: d50cfa3b-9dde-4530-9b96-4965de54e4c9
+		sourceLineageTag: attending_staff_key
+		summarizeBy: none
+		sourceColumn: attending_staff_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column submission_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 5f2d8517-391a-46f2-8877-eb3b552a9f0c
+		sourceLineageTag: submission_date_key
+		summarizeBy: none
+		sourceColumn: submission_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_charge_amount
+		dataType: double
+		lineageTag: 4722f0f5-c657-4d42-9cc3-63efdc87612f
+		sourceLineageTag: total_charge_amount
+		summarizeBy: sum
+		sourceColumn: total_charge_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column claim_payment_amount
+		dataType: double
+		lineageTag: 7c2546df-36b6-48ef-82fb-cd8cb40069ab
+		sourceLineageTag: claim_payment_amount
+		summarizeBy: sum
+		sourceColumn: claim_payment_amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column patient_responsibility_amount
+		dataType: string
+		lineageTag: 50b25f01-84f0-42db-b4db-8b956b0ba1c9
+		sourceLineageTag: patient_responsibility_amount
+		summarizeBy: none
+		sourceColumn: patient_responsibility_amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column amount_at_risk
+		dataType: double
+		lineageTag: 9cc51e64-3c38-433c-8e19-8be5bd2d85c8
+		sourceLineageTag: amount_at_risk
+		summarizeBy: sum
+		sourceColumn: amount_at_risk
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column is_paid
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 4cc72f5c-8819-44a8-a5d4-2a291f7a2267
+		sourceLineageTag: is_paid
+		summarizeBy: none
+		sourceColumn: is_paid
+
+		annotation SummarizationSetBy = Automatic
+
+	column drg_code
+		dataType: string
+		lineageTag: f4f86dda-c1ef-4f4a-a61c-64ff4b13bf10
+		sourceLineageTag: drg_code
+		summarizeBy: none
+		sourceColumn: drg_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column type_of_bill
+		dataType: string
+		lineageTag: 49976352-aa9a-4eba-b3cf-30068d7317e9
+		sourceLineageTag: type_of_bill
+		summarizeBy: none
+		sourceColumn: type_of_bill
+
+		annotation SummarizationSetBy = Automatic
+
+	column admission_type_code
+		dataType: string
+		lineageTag: a608f75a-7706-428b-bcd6-b068e1ecd07c
+		sourceLineageTag: admission_type_code
+		summarizeBy: none
+		sourceColumn: admission_type_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_readmission_related
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 5a171514-31dc-4429-a1dc-862666a74b1f
+		sourceLineageTag: is_readmission_related
+		summarizeBy: none
+		sourceColumn: is_readmission_related
+
+		annotation SummarizationSetBy = Automatic
+
+	column remit_claim_status_code
+		dataType: string
+		lineageTag: cb1b7f60-e5b1-44c2-9f3a-2799793210f2
+		sourceLineageTag: remit_claim_status_code
+		summarizeBy: none
+		sourceColumn: remit_claim_status_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_appealed
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 5cd035cb-3b1f-4288-915c-b3f0f0acd406
+		sourceLineageTag: is_appealed
+		summarizeBy: none
+		sourceColumn: is_appealed
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_overturned_on_appeal
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 7d3b7932-7923-4a3d-b3b4-83dbcab17277
+		sourceLineageTag: is_overturned_on_appeal
+		summarizeBy: none
+		sourceColumn: is_overturned_on_appeal
+
+		annotation SummarizationSetBy = Automatic
+
+	column remit_date
+		dataType: string
+		lineageTag: e9ad91aa-3b27-4402-8873-30b7b66930b9
+		sourceLineageTag: remit_date
+		summarizeBy: none
+		sourceColumn: remit_date
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_claims = entity
+		mode: directLake
+		source
+			entityName: fact_claims
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

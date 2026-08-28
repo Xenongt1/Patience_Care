@@ -1,0 +1,124 @@
+table _Measure
+	lineageTag: 37f1f535-33f1-47c2-bc6c-24ca3be9c913
+
+	measure 'Avg ED Wait (min)' = AVERAGE(fact_ed_stays[wait_time_minutes])
+		lineageTag: b50ac8fd-7e65-4bd8-8727-765e51391788
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Occupancy Rate' = AVERAGE(fact_bed_capacity[occupancy_rate])
+		lineageTag: 99bfb164-66cd-4e15-8afd-0701ba011fe6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Readmission Count' = CALCULATE(COUNTROWS(fact_admissions), fact_admissions[is_readmission] = TRUE)
+		formatString: 0
+		lineageTag: 696d5219-430d-4b5d-8b19-200caee6aa80
+
+	measure 'Total Admissions' = COUNTROWS(fact_admissions)
+		formatString: 0
+		lineageTag: f3c31749-5e25-4f7a-977d-272759d2d799
+
+	measure 'Readmission Rate' = DIVIDE([Readmission Count], [Total Admissions], 0)
+		lineageTag: cb109bfd-4ad1-4610-ab95-3c175fb23b57
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Scheduled Hours' = SUM(fact_staffing[scheduled_hours])
+		lineageTag: 0af5af04-3329-437b-85fb-7e043401f81a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Actual Hours' = SUM(fact_staffing[actual_hours])
+		lineageTag: be482c3d-c5fb-4b27-bf08-d7fc09b5a76a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Staffing Coverage' = DIVIDE([Total Actual Hours], [Total Scheduled Hours], 0)
+		lineageTag: f3a65cc9-579e-4391-810b-a5c28956ae16
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Revenue at Risk' = SUM(fact_claims[amount_at_risk])
+		lineageTag: 820d5f52-4141-4804-88e0-cd892df50206
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Latest Snapshot Date' = MAX(fact_bed_capacity[snapshot_datetime_ts])
+		formatString: General Date
+		lineageTag: 6c3b4054-017a-4ca7-963c-a7e76d271114
+
+	measure 'Current Occupancy' =
+			
+			VAR LatestSnapshot = CALCULATE(MAX(fact_bed_capacity[snapshot_datetime_ts]), ALL(fact_bed_capacity))
+			RETURN
+			CALCULATE(
+			    AVERAGE(fact_bed_capacity[occupancy_rate]),
+			    fact_bed_capacity[snapshot_datetime_ts] = LatestSnapshot
+			)
+		lineageTag: b46bb4f6-6efb-46b1-8ad3-48239afb2d40
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Capacity Risk' =
+			
+			IF([Current Occupancy] >= 0.90, "Critical",
+			   IF([Current Occupancy] >= 0.80, "Watch", "OK"))
+		lineageTag: dd5ad793-27ea-462d-91c7-751b31512846
+
+	measure 'Active Stockouts' =
+			
+			VAR LatestDate = CALCULATE(MAX(fact_pharmacy_inventory[snapshot_date_key]), ALL(fact_pharmacy_inventory))
+			RETURN
+			CALCULATE(
+			    DISTINCTCOUNT(fact_pharmacy_inventory[drug_key]),
+			    fact_pharmacy_inventory[is_stockout] = TRUE,
+			    fact_pharmacy_inventory[snapshot_date_key] = LatestDate
+			)
+		formatString: 0
+		lineageTag: 028586e6-99b8-4e80-85a5-07ff2be0ef90
+
+	measure 'Actual Staff Count' =
+			
+			VAR LatestDate = CALCULATE(MAX(fact_staffing[work_date_key]), ALL(fact_staffing))
+			RETURN
+			CALCULATE(
+			    DISTINCTCOUNT(fact_staffing[staff_key]),
+			    fact_staffing[work_date_key] = LatestDate
+			)
+		formatString: 0
+		lineageTag: 299a3170-52f0-43cc-a54d-a692eda8ea71
+
+	measure 'Expected Staff Needed' =
+			
+			SUMX(
+			    VALUES(fact_staffing[unit_key]),
+			    VAR ThisUnit = fact_staffing[unit_key]
+			    VAR Beds = LOOKUPVALUE(dim_unit[staffed_beds], dim_unit[unit_key], ThisUnit)
+			    VAR Target = LOOKUPVALUE(dim_unit[nurse_patient_ratio_target], dim_unit[unit_key], ThisUnit)
+			    RETURN DIVIDE(Beds, Target)
+			)
+		lineageTag: 0c940a6b-3749-4c2b-8db9-2f33fe3edd92
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Staffing Ratio Compliance' = DIVIDE([Actual Staff Count], [Expected Staff Needed], 0)
+		lineageTag: 4df4996a-9d19-4609-8151-d9eaa5a7d8d6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column dummy
+		formatString: 0
+		lineageTag: dd656c7d-98aa-4b32-af21-64a6cd22190e
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [dummy]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measure = calculated
+		mode: import
+		source = ROW("dummy",0)
+
+	annotation PBI_Id = 81fbe2c642384abebe445d3bc46e5423
+

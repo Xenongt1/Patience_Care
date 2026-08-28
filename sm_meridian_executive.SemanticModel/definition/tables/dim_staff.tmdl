@@ -1,0 +1,178 @@
+table dim_staff
+	lineageTag: c21b224d-de52-40c9-9426-68b6370eca63
+	sourceLineageTag: [dbo].[dim_staff]
+
+	column staff_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 4e0804e3-66eb-43c9-aea4-ee17d3a5fbc3
+		sourceLineageTag: staff_key
+		summarizeBy: none
+		sourceColumn: staff_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column staff_id
+		dataType: string
+		lineageTag: 8f205992-7251-4e53-b930-c6f3fd8004b0
+		sourceLineageTag: staff_id
+		summarizeBy: none
+		sourceColumn: staff_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column npi
+		dataType: string
+		lineageTag: ad3b24be-7106-44bf-a9c4-56e9730b0963
+		sourceLineageTag: npi
+		summarizeBy: none
+		sourceColumn: npi
+
+		annotation SummarizationSetBy = Automatic
+
+	column first_name
+		dataType: string
+		lineageTag: bc456da9-b9e2-44ac-b8bb-464375ba822e
+		sourceLineageTag: first_name
+		summarizeBy: none
+		sourceColumn: first_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column last_name
+		dataType: string
+		lineageTag: c4f5891e-9e63-47f4-96db-359169572465
+		sourceLineageTag: last_name
+		summarizeBy: none
+		sourceColumn: last_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_code
+		dataType: string
+		lineageTag: 73b5b2ee-2e9f-43c8-939e-ca1d2d1aba03
+		sourceLineageTag: job_code
+		summarizeBy: none
+		sourceColumn: job_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_title
+		dataType: string
+		lineageTag: 5e3bd2e2-2441-446f-9186-9bd8b2710e27
+		sourceLineageTag: job_title
+		summarizeBy: none
+		sourceColumn: job_title
+
+		annotation SummarizationSetBy = Automatic
+
+	column credential
+		dataType: string
+		lineageTag: 5d54dbe4-2e36-42fc-922f-4d61391cb213
+		sourceLineageTag: credential
+		summarizeBy: none
+		sourceColumn: credential
+
+		annotation SummarizationSetBy = Automatic
+
+	column primary_facility_id
+		dataType: string
+		lineageTag: 31b396f0-ee21-47de-aae7-af2f8931134c
+		sourceLineageTag: primary_facility_id
+		summarizeBy: none
+		sourceColumn: primary_facility_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column primary_unit_id
+		dataType: string
+		lineageTag: 3cc40f95-3e82-4a6a-aed4-d63ee71c37f9
+		sourceLineageTag: primary_unit_id
+		summarizeBy: none
+		sourceColumn: primary_unit_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column employment_type
+		dataType: string
+		lineageTag: 7f6c66b8-f9d9-4a1e-bf8a-bb225ae9d186
+		sourceLineageTag: employment_type
+		summarizeBy: none
+		sourceColumn: employment_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column fte
+		dataType: double
+		lineageTag: 0829fa22-3cd5-4c8d-8b52-e4cf73782d6e
+		sourceLineageTag: fte
+		summarizeBy: sum
+		sourceColumn: fte
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column hire_date
+		dataType: string
+		lineageTag: 06d7e2e7-cf8f-432c-834c-1287ca3e67fc
+		sourceLineageTag: hire_date
+		summarizeBy: none
+		sourceColumn: hire_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column termination_date
+		dataType: string
+		lineageTag: 94a65075-69b4-4939-a5df-d4e3a2bab2f7
+		sourceLineageTag: termination_date
+		summarizeBy: none
+		sourceColumn: termination_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_active
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: e63ee5e2-5a60-48e4-8b89-37cc02b1ee43
+		sourceLineageTag: is_active
+		summarizeBy: none
+		sourceColumn: is_active
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_from
+		dataType: string
+		lineageTag: 6f574583-e998-4bbb-89b1-8c8509f6678f
+		sourceLineageTag: valid_from
+		summarizeBy: none
+		sourceColumn: valid_from
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_to
+		dataType: string
+		lineageTag: 70cf397e-9645-4d8b-84b8-536ec5401a5b
+		sourceLineageTag: valid_to
+		summarizeBy: none
+		sourceColumn: valid_to
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_current
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 6f2c62f5-4c99-44a4-95f0-ca21e8a9ca24
+		sourceLineageTag: is_current
+		summarizeBy: none
+		sourceColumn: is_current
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_staff = entity
+		mode: directLake
+		source
+			entityName: dim_staff
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

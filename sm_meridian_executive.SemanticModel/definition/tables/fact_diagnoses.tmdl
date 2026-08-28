@@ -1,0 +1,96 @@
+table fact_diagnoses
+	lineageTag: 0c71ce3f-8eb4-4358-99b3-716aa57e452e
+	sourceLineageTag: [dbo].[fact_diagnoses]
+
+	column hadm_id
+		dataType: string
+		lineageTag: 07d594a8-d423-461f-9fcc-d8a239ca3767
+		sourceLineageTag: hadm_id
+		summarizeBy: none
+		sourceColumn: hadm_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_encounter_id
+		dataType: string
+		lineageTag: 2fc7978e-c948-4898-905a-438cd63a0de4
+		sourceLineageTag: source_encounter_id
+		summarizeBy: none
+		sourceColumn: source_encounter_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column facility_key
+		dataType: int64
+		formatString: 0
+		lineageTag: c81ec9c2-0e7c-434e-b3f2-c0c12707b989
+		sourceLineageTag: facility_key
+		summarizeBy: none
+		sourceColumn: facility_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column patient_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 167c5230-db02-4dbc-9c56-6c9031d47210
+		sourceLineageTag: patient_key
+		summarizeBy: none
+		sourceColumn: patient_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column seq_num
+		dataType: int64
+		formatString: 0
+		lineageTag: b8c8b363-ca45-4782-b2d3-cd4a04f4e537
+		sourceLineageTag: seq_num
+		summarizeBy: sum
+		sourceColumn: seq_num
+
+		annotation SummarizationSetBy = Automatic
+
+	column icd_code
+		dataType: string
+		lineageTag: 641afcf3-74ea-485d-b37e-68815542d69e
+		sourceLineageTag: icd_code
+		summarizeBy: none
+		sourceColumn: icd_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column icd_version
+		dataType: int64
+		formatString: 0
+		lineageTag: 10059996-a9ce-4ed8-b78d-5ec2faad945c
+		sourceLineageTag: icd_version
+		summarizeBy: sum
+		sourceColumn: icd_version
+
+		annotation SummarizationSetBy = Automatic
+
+	column icd_title
+		dataType: string
+		lineageTag: 56ae8510-93f6-48f0-b052-ad807a63128a
+		sourceLineageTag: icd_title
+		summarizeBy: none
+		sourceColumn: icd_title
+
+		annotation SummarizationSetBy = Automatic
+
+	column hrrp_cohort
+		dataType: string
+		lineageTag: 227bb1ee-6158-46ce-a041-cdfe7068b5b4
+		sourceLineageTag: hrrp_cohort
+		summarizeBy: none
+		sourceColumn: hrrp_cohort
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_diagnoses = entity
+		mode: directLake
+		source
+			entityName: fact_diagnoses
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+

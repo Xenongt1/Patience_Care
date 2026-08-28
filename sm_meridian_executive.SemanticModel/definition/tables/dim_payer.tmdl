@@ -1,0 +1,78 @@
+table dim_payer
+	lineageTag: 62d04e92-ea8f-4f7b-b926-32c4b02a2d14
+	sourceLineageTag: [dbo].[dim_payer]
+
+	column payer_key
+		dataType: int64
+		formatString: 0
+		lineageTag: b91a60d6-74ad-42a2-827e-c4ab9e8eb291
+		sourceLineageTag: payer_key
+		summarizeBy: none
+		sourceColumn: payer_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column payer_id
+		dataType: string
+		lineageTag: cc3c8b66-00cb-4598-a1be-f5485e8e269f
+		sourceLineageTag: payer_id
+		summarizeBy: none
+		sourceColumn: payer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column payer_name
+		dataType: string
+		lineageTag: a36bb066-52b5-4f0e-a963-0e470a8f43d6
+		sourceLineageTag: payer_name
+		summarizeBy: none
+		sourceColumn: payer_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column payer_type
+		dataType: string
+		lineageTag: 73195e84-c034-4199-b7e2-b67917a4f20d
+		sourceLineageTag: payer_type
+		summarizeBy: none
+		sourceColumn: payer_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column claim_filing_indicator_code
+		dataType: string
+		lineageTag: fca9a810-08cd-4649-b512-34453f820818
+		sourceLineageTag: claim_filing_indicator_code
+		summarizeBy: none
+		sourceColumn: claim_filing_indicator_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column share
+		dataType: double
+		lineageTag: 4bdbc5a7-6c4b-4ec2-bae5-52a7c5c4f69a
+		sourceLineageTag: share
+		summarizeBy: none
+		sourceColumn: share
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column prompt_pay_days
+		dataType: int64
+		formatString: 0
+		lineageTag: 225eb4e2-7bd4-497c-b734-4a2fc634cf01
+		sourceLineageTag: prompt_pay_days
+		summarizeBy: none
+		sourceColumn: prompt_pay_days
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_payer = entity
+		mode: directLake
+		source
+			entityName: dim_payer
+			schemaName: dbo
+			expressionSource: 'DirectLake - lh_gold'
+
