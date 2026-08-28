@@ -7,7 +7,7 @@ table fact_pharmacy_inventory
 		formatString: 0
 		lineageTag: 802c9867-0058-4a9b-8bcc-1b85283c2d63
 		sourceLineageTag: facility_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: facility_key
 
 		annotation SummarizationSetBy = Automatic
@@ -17,7 +17,7 @@ table fact_pharmacy_inventory
 		formatString: 0
 		lineageTag: 912b0e72-aaf9-4fa8-a6d9-d6fc69c9de08
 		sourceLineageTag: drug_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: drug_key
 
 		annotation SummarizationSetBy = Automatic
@@ -27,7 +27,7 @@ table fact_pharmacy_inventory
 		formatString: 0
 		lineageTag: 888bb414-979a-4097-8a88-93c625c25fbd
 		sourceLineageTag: snapshot_date_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: snapshot_date_key
 
 		annotation SummarizationSetBy = Automatic

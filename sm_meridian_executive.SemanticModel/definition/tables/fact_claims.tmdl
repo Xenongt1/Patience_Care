@@ -34,7 +34,7 @@ table fact_claims
 		formatString: 0
 		lineageTag: c902f812-0e04-47fb-acf8-c331d3f2c1b7
 		sourceLineageTag: facility_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: facility_key
 
 		annotation SummarizationSetBy = Automatic
@@ -44,7 +44,7 @@ table fact_claims
 		formatString: 0
 		lineageTag: d85f586f-1868-4f72-8cad-780b5705070c
 		sourceLineageTag: payer_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: payer_key
 
 		annotation SummarizationSetBy = Automatic
@@ -54,7 +54,7 @@ table fact_claims
 		formatString: 0
 		lineageTag: 1be9bce9-53d4-4839-a90e-123f58c98400
 		sourceLineageTag: patient_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: patient_key
 
 		annotation SummarizationSetBy = Automatic
@@ -64,7 +64,7 @@ table fact_claims
 		formatString: 0
 		lineageTag: d50cfa3b-9dde-4530-9b96-4965de54e4c9
 		sourceLineageTag: attending_staff_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: attending_staff_key
 
 		annotation SummarizationSetBy = Automatic
@@ -74,7 +74,7 @@ table fact_claims
 		formatString: 0
 		lineageTag: 5f2d8517-391a-46f2-8877-eb3b552a9f0c
 		sourceLineageTag: submission_date_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: submission_date_key
 
 		annotation SummarizationSetBy = Automatic

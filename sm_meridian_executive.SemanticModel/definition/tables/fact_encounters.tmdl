@@ -16,7 +16,7 @@ table fact_encounters
 		formatString: 0
 		lineageTag: 2041dee5-67d6-4536-9ae1-601507819505
 		sourceLineageTag: facility_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: facility_key
 
 		annotation SummarizationSetBy = Automatic
@@ -26,7 +26,7 @@ table fact_encounters
 		formatString: 0
 		lineageTag: 7c48dc0a-ac35-46b0-a169-1c43e0b7c46d
 		sourceLineageTag: unit_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: unit_key
 
 		annotation SummarizationSetBy = Automatic
@@ -36,7 +36,7 @@ table fact_encounters
 		formatString: 0
 		lineageTag: 70f6834c-5b81-460c-8b36-eca7728edaf4
 		sourceLineageTag: patient_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: patient_key
 
 		annotation SummarizationSetBy = Automatic
@@ -46,7 +46,7 @@ table fact_encounters
 		formatString: 0
 		lineageTag: 10a0d01c-0093-4472-a9f1-2f27d87a76b7
 		sourceLineageTag: encounter_date_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: encounter_date_key
 
 		annotation SummarizationSetBy = Automatic

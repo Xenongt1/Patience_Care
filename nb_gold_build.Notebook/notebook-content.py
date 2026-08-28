@@ -20,6 +20,18 @@
 # META   }
 # META }
 
+# CELL ********************
+
+spark.read.table("fact_transfers").printSchema()
+spark.read.table("fact_bed_capacity").printSchema()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # MARKDOWN ********************
 
 # Creating the dim_date: no source table, pure generated logic
@@ -1002,6 +1014,8 @@ print(f"fact_claim_adjustments: {fact_claim_adjustments.count()} rows (gated fro
 
 # CELL ********************
 
+from pyspark.sql import functions as F
+
 silver_bed_hourly_clean = spark.read.table("dbo_1.silver_bed_hourly").filter("_dq_passed = TRUE")
 
 fac_lookup = spark.read.table("dim_facility").select("facility_key", "facility_id")
@@ -1017,16 +1031,30 @@ fact_bed_capacity = (silver_bed_hourly_clean
 fact_bed_capacity = fact_bed_capacity.select(
     "facility_key", "unit_key",
     "snapshot_date_key", "snapshot_hour", "snapshot_datetime_ts",
-    "licensed_beds", "staffed_beds", "blocked_beds",
+    F.col("licensed_beds").cast("int").alias("licensed_beds"),
+    F.col("staffed_beds").cast("int").alias("staffed_beds"),
+    F.col("blocked_beds").cast("int").alias("blocked_beds"),
     F.col("occupied_beds_int").alias("occupied_beds"),
     F.col("available_beds_int").alias("available_beds"),
     F.col("occupancy_rate_float").alias("occupancy_rate"),
     F.col("is_at_capacity_bool").alias("is_at_capacity"),
-    "pending_admissions", "pending_discharges"
+    F.col("pending_admissions").cast("int").alias("pending_admissions"),
+    F.col("pending_discharges").cast("int").alias("pending_discharges")
 )
 
-fact_bed_capacity.write.format("delta").mode("overwrite").saveAsTable("fact_bed_capacity")
+fact_bed_capacity.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("fact_bed_capacity")
 print(f"fact_bed_capacity: {fact_bed_capacity.count()} rows (gated from {spark.read.table('dbo_1.silver_bed_hourly').count()} total Silver rows)")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+spark.read.table("fact_bed_capacity").printSchema()
 
 # METADATA ********************
 

@@ -7,7 +7,7 @@ table fact_bed_capacity
 		formatString: 0
 		lineageTag: b6ef3ca2-e528-409b-8ab1-fd00a178e60b
 		sourceLineageTag: facility_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: facility_key
 
 		annotation SummarizationSetBy = Automatic
@@ -17,7 +17,7 @@ table fact_bed_capacity
 		formatString: 0
 		lineageTag: 0eea99ff-11d9-4b57-ba02-40df39f41ad3
 		sourceLineageTag: unit_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: unit_key
 
 		annotation SummarizationSetBy = Automatic
@@ -27,7 +27,7 @@ table fact_bed_capacity
 		formatString: 0
 		lineageTag: 02d35dc4-ef7d-424b-96e2-b42dd0fb94cf
 		sourceLineageTag: snapshot_date_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: snapshot_date_key
 
 		annotation SummarizationSetBy = Automatic

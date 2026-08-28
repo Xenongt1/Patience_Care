@@ -25,7 +25,7 @@ table fact_admissions
 		formatString: 0
 		lineageTag: 4fc22e5f-b5f1-4d8c-aa59-a121209cf431
 		sourceLineageTag: facility_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: facility_key
 
 		annotation SummarizationSetBy = Automatic
@@ -35,7 +35,7 @@ table fact_admissions
 		formatString: 0
 		lineageTag: 712d147c-b672-48bc-88f3-81dda776707d
 		sourceLineageTag: patient_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: patient_key
 
 		annotation SummarizationSetBy = Automatic
@@ -45,7 +45,7 @@ table fact_admissions
 		formatString: 0
 		lineageTag: f39e9b72-6d41-47b4-b002-4125833b984d
 		sourceLineageTag: admit_date_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: admit_date_key
 
 		annotation SummarizationSetBy = Automatic

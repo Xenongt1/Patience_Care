@@ -34,7 +34,7 @@ table fact_ed_stays
 		formatString: 0
 		lineageTag: e8cb9ab3-5acb-4346-850d-a795f55f91f2
 		sourceLineageTag: facility_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: facility_key
 
 		annotation SummarizationSetBy = Automatic
@@ -44,7 +44,7 @@ table fact_ed_stays
 		formatString: 0
 		lineageTag: a2576e0b-cfbe-49fa-8118-a8e453904abd
 		sourceLineageTag: patient_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: patient_key
 
 		annotation SummarizationSetBy = Automatic
@@ -54,7 +54,7 @@ table fact_ed_stays
 		formatString: 0
 		lineageTag: 9eda2e66-d1f4-4424-a90c-374c32438fc3
 		sourceLineageTag: stay_date_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: stay_date_key
 
 		annotation SummarizationSetBy = Automatic

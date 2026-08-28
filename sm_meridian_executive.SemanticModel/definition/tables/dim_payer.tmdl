@@ -7,7 +7,7 @@ table dim_payer
 		formatString: 0
 		lineageTag: b91a60d6-74ad-42a2-827e-c4ab9e8eb291
 		sourceLineageTag: payer_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: payer_key
 
 		annotation SummarizationSetBy = Automatic
@@ -52,7 +52,7 @@ table dim_payer
 		dataType: double
 		lineageTag: 4bdbc5a7-6c4b-4ec2-bae5-52a7c5c4f69a
 		sourceLineageTag: share
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: share
 
 		annotation SummarizationSetBy = Automatic
@@ -64,7 +64,7 @@ table dim_payer
 		formatString: 0
 		lineageTag: 225eb4e2-7bd4-497c-b734-4a2fc634cf01
 		sourceLineageTag: prompt_pay_days
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: prompt_pay_days
 
 		annotation SummarizationSetBy = Automatic

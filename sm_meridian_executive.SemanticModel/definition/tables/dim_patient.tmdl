@@ -7,7 +7,7 @@ table dim_patient
 		formatString: 0
 		lineageTag: 9d4eefd7-bc68-4e8f-b363-46190993344a
 		sourceLineageTag: patient_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: patient_key
 
 		annotation SummarizationSetBy = Automatic

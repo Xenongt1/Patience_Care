@@ -7,7 +7,7 @@ table fact_staffing
 		formatString: 0
 		lineageTag: eb935166-f314-4e37-a805-87b7f250ed85
 		sourceLineageTag: facility_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: facility_key
 
 		annotation SummarizationSetBy = Automatic
@@ -17,7 +17,7 @@ table fact_staffing
 		formatString: 0
 		lineageTag: ce921350-5aae-4605-aab8-117a430c0ae9
 		sourceLineageTag: staff_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: staff_key
 
 		annotation SummarizationSetBy = Automatic
@@ -27,7 +27,7 @@ table fact_staffing
 		formatString: 0
 		lineageTag: 62c6f7e7-3502-4546-9515-1896352e28b0
 		sourceLineageTag: work_date_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: work_date_key
 
 		annotation SummarizationSetBy = Automatic

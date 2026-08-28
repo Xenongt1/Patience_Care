@@ -7,7 +7,7 @@ table dim_unit
 		formatString: 0
 		lineageTag: 80d2de55-1e47-4ab2-8c9f-903920a7c5f6
 		sourceLineageTag: unit_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: unit_key
 
 		annotation SummarizationSetBy = Automatic

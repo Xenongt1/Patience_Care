@@ -7,7 +7,7 @@ table dim_facility
 		formatString: 0
 		lineageTag: 1a70c048-c71d-4892-973c-c9d2f3ba5270
 		sourceLineageTag: facility_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: facility_key
 
 		annotation SummarizationSetBy = Automatic

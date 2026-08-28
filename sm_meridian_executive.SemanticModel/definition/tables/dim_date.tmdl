@@ -17,7 +17,7 @@ table dim_date
 		formatString: 0
 		lineageTag: 8cfbcbe7-99de-4729-ac95-0381eae9f722
 		sourceLineageTag: date_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: date_key
 
 		annotation SummarizationSetBy = Automatic

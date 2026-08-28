@@ -25,7 +25,7 @@ table fact_diagnoses
 		formatString: 0
 		lineageTag: c81ec9c2-0e7c-434e-b3f2-c0c12707b989
 		sourceLineageTag: facility_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: facility_key
 
 		annotation SummarizationSetBy = Automatic
@@ -35,7 +35,7 @@ table fact_diagnoses
 		formatString: 0
 		lineageTag: 167c5230-db02-4dbc-9c56-6c9031d47210
 		sourceLineageTag: patient_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: patient_key
 
 		annotation SummarizationSetBy = Automatic

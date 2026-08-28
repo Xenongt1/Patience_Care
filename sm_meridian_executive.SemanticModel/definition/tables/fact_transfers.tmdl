@@ -25,7 +25,7 @@ table fact_transfers
 		formatString: 0
 		lineageTag: 1b4f47ee-883c-49ac-80cf-5036a3896657
 		sourceLineageTag: facility_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: facility_key
 
 		annotation SummarizationSetBy = Automatic
@@ -35,7 +35,7 @@ table fact_transfers
 		formatString: 0
 		lineageTag: aecb21da-c022-4890-b127-d70688a2f1b6
 		sourceLineageTag: unit_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: unit_key
 
 		annotation SummarizationSetBy = Automatic
@@ -45,7 +45,7 @@ table fact_transfers
 		formatString: 0
 		lineageTag: eb9456a3-d6b8-4b27-9b97-807edef6a567
 		sourceLineageTag: patient_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: patient_key
 
 		annotation SummarizationSetBy = Automatic
@@ -55,7 +55,7 @@ table fact_transfers
 		formatString: 0
 		lineageTag: 35dbb1fb-0dc3-4c24-a6a2-741911cb6acc
 		sourceLineageTag: transfer_date_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: transfer_date_key
 
 		annotation SummarizationSetBy = Automatic

@@ -7,7 +7,7 @@ table dim_drug
 		formatString: 0
 		lineageTag: eb61cae7-caec-40e3-91f0-e296b6dfbe22
 		sourceLineageTag: drug_key
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: drug_key
 
 		annotation SummarizationSetBy = Automatic
