@@ -30,4 +30,5 @@ ref table fact_claims
 ref table fact_transfers
 ref table fact_encounters
 ref table fact_pharmacy_inventory
+ref table _Measure
 

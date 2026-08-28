@@ -153,6 +153,16 @@ table fact_staffing
 
 		annotation SummarizationSetBy = Automatic
 
+	column unit_key
+		dataType: int64
+		formatString: 0
+		lineageTag: bda2b625-ca63-42f8-a924-9a83a2a0a053
+		sourceLineageTag: unit_key
+		summarizeBy: none
+		sourceColumn: unit_key
+
+		annotation SummarizationSetBy = Automatic
+
 	partition fact_staffing = entity
 		mode: directLake
 		source

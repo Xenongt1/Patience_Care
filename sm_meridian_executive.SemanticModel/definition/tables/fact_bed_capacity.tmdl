@@ -53,28 +53,31 @@ table fact_bed_capacity
 		annotation SummarizationSetBy = Automatic
 
 	column licensed_beds
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 8b9a10ea-afeb-41f4-b393-9ca7577f0be8
 		sourceLineageTag: licensed_beds
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: licensed_beds
 
 		annotation SummarizationSetBy = Automatic
 
 	column staffed_beds
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: ce749e09-d5c0-47b4-8701-fc72cdfed41f
 		sourceLineageTag: staffed_beds
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: staffed_beds
 
 		annotation SummarizationSetBy = Automatic
 
 	column blocked_beds
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 81c78f99-7153-4f10-9be3-ffc85e4e94f3
 		sourceLineageTag: blocked_beds
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: blocked_beds
 
 		annotation SummarizationSetBy = Automatic
@@ -121,19 +124,21 @@ table fact_bed_capacity
 		annotation SummarizationSetBy = Automatic
 
 	column pending_admissions
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 8730eaed-7d27-4cf2-a285-633631a836ab
 		sourceLineageTag: pending_admissions
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: pending_admissions
 
 		annotation SummarizationSetBy = Automatic
 
 	column pending_discharges
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 952630df-2c5c-4d6a-880a-ac1717c8bbeb
 		sourceLineageTag: pending_discharges
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: pending_discharges
 
 		annotation SummarizationSetBy = Automatic

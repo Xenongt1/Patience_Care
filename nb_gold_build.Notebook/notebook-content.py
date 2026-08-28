@@ -1147,9 +1147,8 @@ print(f"fact_pharmacy_inventory: {fact_pharmacy_inventory.count()} rows (gated f
 silver_staff_schedules_clean = spark.read.table("dbo_1.silver_staff_schedules").filter("_dq_passed = TRUE")
 
 fac_lookup = spark.read.table("dim_facility").select("facility_key", "facility_id")
+unit_lookup = spark.read.table("dim_unit").select("unit_key", "unit_code", "facility_id")
 
-# dim_staff has multiple rows per person (SCD-2) — dedupe to current row only,
-# same pattern used for the attending_provider_npi join in fact_claims
 staff_lookup = (spark.read.table("dim_staff")
     .filter("is_current = true")
     .dropDuplicates(["staff_id"])
@@ -1158,12 +1157,13 @@ staff_lookup = (spark.read.table("dim_staff")
 
 fact_staffing = (silver_staff_schedules_clean
     .join(fac_lookup, on="facility_id", how="left")
+    .join(unit_lookup, on=["unit_code", "facility_id"], how="left")   # NEW — picks up unit_key
     .join(staff_lookup, on="staff_id", how="left")
     .withColumn("work_date_key", F.date_format("work_date_parsed", "yyyyMMdd").cast("int"))
 )
 
 fact_staffing = fact_staffing.select(
-    "facility_key", "staff_key",
+    "facility_key", "staff_key", "unit_key",   # unit_key added here
     "work_date_key", "unit_code", "shift",
     "shift_start", "shift_end",
     "job_code", "employment_type",
@@ -1172,8 +1172,19 @@ fact_staffing = fact_staffing.select(
     "status", "overtime", "called_out", "floated_in", "census"
 )
 
-fact_staffing.write.format("delta").mode("overwrite").saveAsTable("fact_staffing")
+fact_staffing.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("fact_staffing")
 print(f"fact_staffing: {fact_staffing.count()} rows (gated from {spark.read.table('dbo_1.silver_staff_schedules').count()} total Silver rows)")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+fact_staffing.filter("unit_key IS NULL").count()
 
 # METADATA ********************
 
@@ -1200,40 +1211,6 @@ spark.read.table("dbo_1.silver_staff_schedules").filter(
 # CELL ********************
 
 spark.read.table("dim_staff").filter("staff_key = 2290").show(truncate=False)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-fact_staffing.groupBy("facility_key","staff_key","work_date_key","shift_start").count().filter("count > 1").show(5)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-spark.read.table("dbo_1.silver_staff_schedules").filter(
-    (F.col("facility_id") == "330101") & (F.col("staff_id") == "STF001145")
-).filter("work_date_parsed = '2026-08-12'").show(truncate=False)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
 
 # METADATA ********************
 

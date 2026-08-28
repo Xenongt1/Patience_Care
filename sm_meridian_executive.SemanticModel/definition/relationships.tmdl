@@ -126,3 +126,7 @@ relationship e47ee5f0-f842-0c8d-ae1f-0499f315f7e1
 	fromColumn: fact_staffing.work_date_key
 	toColumn: dim_date.date_key
 
+relationship 1a35998e-c8a2-c5a9-65c5-c5df6def0e87
+	fromColumn: fact_staffing.unit_key
+	toColumn: dim_unit.unit_key
+
