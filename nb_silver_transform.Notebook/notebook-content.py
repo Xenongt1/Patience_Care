@@ -662,6 +662,7 @@ silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_co
 silver = add_issue(silver, (F.col("total_charge_amount_float").isNull()) | (F.col("total_charge_amount_float") < 0), "invalid total_charge_amount")
 silver = add_issue(silver, ~F.col("facility_id").isin(valid_facility_ids), "facility_id not found in silver_facility")
 silver = add_issue(silver, F.col("payer_id").isNull() | (~F.col("payer_id").isin(valid_payer_ids)), "payer_id not found in silver_payer")
+silver = add_issue(silver, F.col("total_charge_amount_float") > 500000, "total_charge_amount implausibly large for a single claim")
 
 valid_npis = [r["npi"] for r in spark.read.table("silver_staff").select("npi").distinct().collect()]
 silver = add_issue(silver, (F.col("attending_provider_npi").isNotNull()) & (~F.col("attending_provider_npi").isin(valid_npis)), "attending_provider_npi not found in silver_staff")
@@ -741,12 +742,6 @@ silver = (raw_bronze
 )
 silver = add_issue(silver, F.col("patient_control_number").isNull(), "patient_control_number null")
 silver = add_issue(silver, ~F.col("patient_control_number").isin(valid_claim_numbers), "patient_control_number not found in silver_claim_header")
-
-# Sanity check, not just a null check — a payment an order of magnitude above
-# the claim's own charge amount is an obviously bad value (e.g. a corrupted
-# decimal/scale on ingest), the kind that made fact_claims.amount_at_risk go
-# deeply negative in Gold. Note: remit has no PK — a claim can legitimately get
-# more than one remittance (partial payments), so this table stays undeduped.
 silver = add_issue(silver,
     (F.col("claim_payment_amount_float").isNotNull()) &
     (F.col("total_claim_charge_amount_float").isNotNull()) &
@@ -1155,7 +1150,7 @@ print("Duplicate Ids remaining in patient_lookup:", dupe_check.count())
 
 # CELL ********************
 
-spark.read.table("silver_claim_header").filter("patient_control_number = 'PCN000114872'").count()
+spark.read.table("silver_claim_header").filter("_dq_issues LIKE '%implausibly large%'").count()
 
 # METADATA ********************
 
@@ -1166,67 +1161,7 @@ spark.read.table("silver_claim_header").filter("patient_control_number = 'PCN000
 
 # CELL ********************
 
-suspects = ["PCN000114872","PCN000076804","PCN000088503","PCN000089274",
-            "PCN000105867","PCN000089972","PCN000098770","PCN000089949",
-            "PCN000090409","PCN000097120","PCN000080613","PCN000076346"]
-spark.read.table("silver_claim_header").filter(F.col("patient_control_number").isin(suspects)) \
-    .groupBy("patient_control_number").count().show(20)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-for t in ["silver_encounters","silver_admissions","silver_ed_stays","silver_transfers","silver_diagnoses","silver_claim_header"]:
-    print(t, spark.read.table(t).count())
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-spark.read.table("dbo_1.bronze_encounters").count()
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-print("Count of valid_payer_ids:", len(valid_payer_ids))
-spark.read.table("silver_payer").select("payer_id").show(10, truncate=False)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-spark.read.table("dbo_1.bronze_claim_header").select("payer_id").distinct().show(10, truncate=False)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
+spark.read.table("silver_claim_header").filter("patient_control_number = 'PCN000091531'").select("_dq_passed", "_dq_issues").show(truncate=False)
 
 # METADATA ********************
 

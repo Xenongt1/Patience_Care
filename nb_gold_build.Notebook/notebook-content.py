@@ -20,18 +20,6 @@
 # META   }
 # META }
 
-# CELL ********************
-
-spark.read.table("fact_transfers").printSchema()
-spark.read.table("fact_bed_capacity").printSchema()
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
 # MARKDOWN ********************
 
 # Creating the dim_date: no source table, pure generated logic
@@ -1174,77 +1162,6 @@ fact_staffing = fact_staffing.select(
 
 fact_staffing.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("fact_staffing")
 print(f"fact_staffing: {fact_staffing.count()} rows (gated from {spark.read.table('dbo_1.silver_staff_schedules').count()} total Silver rows)")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-fact_staffing.filter("unit_key IS NULL").count()
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-spark.read.table("dbo_1.silver_staff_schedules").filter(
-    (F.col("facility_id") == 5) & (F.col("staff_id") ==
-        (spark.read.table("dim_staff").filter("staff_key = 2290").select("staff_id").first()["staff_id"])
-    )
-).filter("work_date_parsed = '2026-08-12'").count()
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-from pyspark.sql import functions as F
-df = spark.read.table("fact_staffing")
-df.filter(F.isnan("actual_hours")).show(20, truncate=False)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-spark.read.table("dbo_1.silver_staff_schedules").filter(F.isnan("actual_hours_float")).select("staff_id", "actual_hours", "actual_hours_float").show(10, truncate=False)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-spark.read.table("fact_bed_capacity").selectExpr("max(snapshot_date_key)").show()
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
 
 # METADATA ********************
 

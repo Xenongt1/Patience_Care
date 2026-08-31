@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
-  "name": "51922034169255886375",
+  "name": "e99220b9806aa5f3088c",
   "position": {
-    "x": 1475.7534246575342,
-    "y": 221.91780821917808,
-    "z": 7,
-    "height": 149.79452054794521,
-    "width": 214.52054794520546,
-    "tabOrder": 7
+    "x": 1436.9178082191781,
+    "y": 81.369863013698634,
+    "z": 5,
+    "height": 353.21917808219177,
+    "width": 467.8767123287671,
+    "tabOrder": 5
   },
   "visual": {
     "visualType": "slicer",
@@ -20,14 +20,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "KPI Selector"
+                      "Entity": "dim_facility"
                     }
                   },
-                  "Property": "KPI Selector"
+                  "Property": "facility_name"
                 }
               },
-              "queryRef": "KPI Selector.KPI Selector",
-              "nativeQueryRef": "KPI Selector",
+              "queryRef": "dim_facility.facility_name",
+              "nativeQueryRef": "facility_name",
               "active": true
             }
           ]
@@ -76,6 +76,47 @@
                   }
                 }
               }
+            },
+            "filter": {
+              "filter": {
+                "Version": 2,
+                "From": [
+                  {
+                    "Name": "d",
+                    "Entity": "dim_facility",
+                    "Type": 0
+                  }
+                ],
+                "Where": [
+                  {
+                    "Condition": {
+                      "In": {
+                        "Expressions": [
+                          {
+                            "Column": {
+                              "Expression": {
+                                "SourceRef": {
+                                  "Source": "d"
+                                }
+                              },
+                              "Property": "facility_name"
+                            }
+                          }
+                        ],
+                        "Values": [
+                          [
+                            {
+                              "Literal": {
+                                "Value": "'Meridian General Hospital – Oakland'"
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
             }
           }
         }
@@ -106,6 +147,13 @@
               "expr": {
                 "Literal": {
                   "Value": "false"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Facility Name'"
                 }
               }
             }
@@ -224,23 +272,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "ffb4d213aa6e135a4aac",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "KPI Selector"
-              }
-            },
-            "Property": "KPI Selector"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }

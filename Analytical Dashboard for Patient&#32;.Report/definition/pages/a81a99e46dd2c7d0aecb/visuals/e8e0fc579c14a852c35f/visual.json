@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
-  "name": "cdb8fb4bb15902e9fd00",
+  "name": "e8e0fc579c14a852c35f",
   "position": {
-    "x": 172.36533957845432,
-    "y": 80.9367681498829,
-    "z": 0,
-    "height": 125.90163934426229,
-    "width": 280.28103044496487,
-    "tabOrder": 0
+    "x": 110.95890410958904,
+    "y": 81.369863013698634,
+    "z": 2,
+    "height": 177.53424657534245,
+    "width": 342.1232876712329,
+    "tabOrder": 2
   },
   "visual": {
     "visualType": "card",
@@ -23,12 +23,11 @@
                       "Entity": "_Measure"
                     }
                   },
-                  "Property": "Avg ED Wait (min)"
+                  "Property": "Current Occupancy"
                 }
               },
-              "queryRef": "_Measure.Avg ED Wait (min)",
-              "nativeQueryRef": "Avg ED Wait (min)",
-              "format": "0.0"
+              "queryRef": "_Measure.Current Occupancy",
+              "nativeQueryRef": "Current Occupancy"
             }
           ]
         }
@@ -43,7 +42,7 @@
                     "Entity": "_Measure"
                   }
                 },
-                "Property": "Avg ED Wait (min)"
+                "Property": "Current Occupancy"
               }
             },
             "direction": "Descending"
@@ -156,23 +155,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "3222d54fb189d43f8e67",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "_Measure"
-              }
-            },
-            "Property": "Avg ED Wait (min)"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }
