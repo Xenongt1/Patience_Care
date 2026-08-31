@@ -1169,3 +1169,24 @@ print(f"fact_staffing: {fact_staffing.count()} rows (gated from {spark.read.tabl
 # META   "language": "python",
 # META   "language_group": "synapse_pyspark"
 # META }
+
+# CELL ********************
+
+spark.read.table("fact_staffing").filter("unit_key IS NOT NULL").select("unit_key").distinct().count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }

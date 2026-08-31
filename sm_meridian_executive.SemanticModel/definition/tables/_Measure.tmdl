@@ -107,6 +107,19 @@ table _Measure
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	measure 'Unit Risk Description' =
+			
+			VAR RiskLevel = [Capacity Risk]
+			VAR OccPct = FORMAT([Current Occupancy], "0%")
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    RiskLevel = "Critical", SELECTEDVALUE(dim_unit[unit_name]) & " is at " & OccPct & " occupancy — approaching capacity",
+			    RiskLevel = "Watch", SELECTEDVALUE(dim_unit[unit_name]) & " is at " & OccPct & " occupancy — monitor closely",
+			    BLANK()
+			)
+		lineageTag: a2ae45a3-5767-45a7-bc24-b57b1ea71e88
+
 	column dummy
 		formatString: 0
 		lineageTag: dd656c7d-98aa-4b32-af21-64a6cd22190e
