@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "4306f86f4676edb5ab61",
+  "displayName": "Executive Summary",
+  "displayOption": "FitToPage",
+  "height": 1080,
+  "width": 1920,
+  "pageBinding": {
+    "name": "037d376488f220b530b5",
+    "type": "Default",
+    "parameters": []
+  }
+}

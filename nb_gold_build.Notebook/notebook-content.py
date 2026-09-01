@@ -20,18 +20,6 @@
 # META   }
 # META }
 
-# CELL ********************
-
-spark.read.table("fact_transfers").printSchema()
-spark.read.table("fact_bed_capacity").printSchema()
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
 # MARKDOWN ********************
 
 # Creating the dim_date: no source table, pure generated logic
@@ -1184,7 +1172,7 @@ print(f"fact_staffing: {fact_staffing.count()} rows (gated from {spark.read.tabl
 
 # CELL ********************
 
-fact_staffing.filter("unit_key IS NULL").count()
+spark.read.table("fact_staffing").filter("unit_key IS NOT NULL").select("unit_key").distinct().count()
 
 # METADATA ********************
 
@@ -1195,22 +1183,6 @@ fact_staffing.filter("unit_key IS NULL").count()
 
 # CELL ********************
 
-spark.read.table("dbo_1.silver_staff_schedules").filter(
-    (F.col("facility_id") == 5) & (F.col("staff_id") ==
-        (spark.read.table("dim_staff").filter("staff_key = 2290").select("staff_id").first()["staff_id"])
-    )
-).filter("work_date_parsed = '2026-08-12'").count()
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-spark.read.table("dim_staff").filter("staff_key = 2290").show(truncate=False)
 
 # METADATA ********************
 
